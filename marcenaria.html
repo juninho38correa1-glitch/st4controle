@@ -65,31 +65,28 @@ html,body{height:100%;background:#0a0a0a;font-family:Arial,sans-serif}
   <div class="topbar" style="border-bottom:2px solid #0070C0">
     <div style="display:flex;align-items:center;gap:14px">
       <div class="logo">STUDYO<span>4</span></div>
-      <div style="width:1px;height:24px;background:#222"></div>
-      <div class="setor-tag" style="color:#0070C0;background:rgba(0,112,192,0.08);border:1px solid #0070C0">MARCENARIA/ESPUMAÇÃO</div>
-    </div>
-    <div style="text-align:right">
-      <div class="clk" id="clk">--:--</div>
-      <div class="dt" id="dt">--</div>
-    </div>
+      
+<div class="score-grid" style="grid-template-columns:repeat(2,1fr)">
+  <div class="score-cell" style="border-color:#0070C0">
+    <div class="score-label">Marcenaria/Espumação — hoje</div>
+    <div class="score-val" style="color:#0070C0" id="s-marc">—</div>
+    <div class="score-sub">peças produzidas</div>
+    <div class="score-bar-bg"><div class="score-bar-f" id="sb-marc" style="background:#0070C0;width:0%"></div></div>
   </div>
-  
-<div class="score-grid" style="grid-template-columns:repeat(4,1fr)">
-  <div class="score-cell" style="border-color:#0070C0"><div class="score-label">Marcenaria — hoje</div><div class="score-val" style="color:#0070C0" id="s-marc">—</div><div class="score-sub">peças</div></div>
-  <div class="score-cell" style="border-color:#FF0066"><div class="score-label">Montagem — hoje</div><div class="score-val" style="color:#FF0066" id="s-mont">—</div><div class="score-sub">peças</div></div>
-  <div class="score-cell" style="border-color:#00B050"><div class="score-label">Espumação — hoje</div><div class="score-val" style="color:#00B050" id="s-espu">—</div><div class="score-sub">peças</div></div>
-  <div class="score-cell" style="border-color:#888"><div class="score-label">Laminação — hoje</div><div class="score-val" style="color:#aaa" id="s-lami">—</div><div class="score-sub">peças</div></div>
-</div>
-<div class="main-grid">
-  <div class="side-stack">
-    <div class="rank-card" style="flex:1"><div class="rank-title">// marcenaria — ranking do dia</div><div id="tb-marc"></div></div>
-    <div class="rank-card" style="flex:1"><div class="rank-title">// montagem — ranking do dia</div><div id="tb-mont"></div></div>
-  </div>
-  <div class="side-stack">
-    <div class="rank-card" style="flex:1"><div class="rank-title">// espumação — ranking do dia</div><div id="tb-espu"></div></div>
-    <div class="rank-card" style="flex:1"><div class="rank-title">// laminação — ranking do dia</div><div id="tb-lami"></div></div>
+  <div class="score-cell" style="border-color:#0070C0">
+    <div class="score-label">Marcenaria/Espumação — mês</div>
+    <div class="score-val" style="color:#0070C0" id="s-marc-ac">—</div>
+    <div class="score-sub" id="mes-atual">acumulado</div>
+    <div class="score-bar-bg"><div class="score-bar-f" id="sb-marc-ac" style="background:#0070C0;width:0%"></div></div>
   </div>
 </div>
+<div class="main-grid" style="grid-template-columns:1fr">
+  <div class="rank-card">
+    <div class="rank-title">// ranking do dia — marcenaria / espumação</div>
+    <div id="tb-marc"></div>
+  </div>
+</div>
+
 
   <div class="footer">
     <div>Atualizado às <span id="upd">--:--:--</span></div>
@@ -236,44 +233,32 @@ function agrupar(lancamentos, campoDia, campoAc){
 
 
 function processar(csv){
-  const linhas=csv.split('\n').filter(l=>l.trim());
+  const linhas=csv.split('
+').filter(l=>l.trim());
   const lancamentos=[];
   for(let i=4;i<linhas.length;i++){
     const c=parseCSVLine(linhas[i]);
     if(!c[0]||!c[1])continue;
-    lancamentos.push({data:c[0],nome:c[1],setor:c[2],sub:c[2],prodCorpo:c[3],prodAlmof:c[4]});
+    lancamentos.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3]});
   }
-
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const mes=hoje.getMonth(),ano=hoje.getFullYear();
-
-  function agruparSub(subsetor){
-    const map={};
-    lancamentos.filter(l=>l.setor==='Marcenaria/Espumação'&&l.sub===subsetor).forEach(l=>{
-      const dt=parseDate(l.data);if(!dt)return;
-      if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
-      const eHoje=dt.getTime()===hoje.getTime();
-      if(!map[l.nome])map[l.nome]={dia:0,ac:0};
-      map[l.nome].ac+=Number(l.prodCorpo)||0;
-      if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
-    });
-    return Object.entries(map).map(([nome,v])=>({nome,dia:v.dia,ac:v.ac}));
-  }
-
-  const marc=agruparSub('Marcenaria');
-  const mont=agruparSub('Montagem Final');
-  const espu=agruparSub('Espumação');
-  const lami=agruparSub('Laminação');
-
-  set('s-marc',marc.reduce((s,r)=>s+r.dia,0));
-  set('s-mont',mont.reduce((s,r)=>s+r.dia,0));
-  set('s-espu',espu.reduce((s,r)=>s+r.dia,0));
-  set('s-lami',lami.reduce((s,r)=>s+r.dia,0));
-
-  buildRanking('tb-marc',marc,'#0070C0','rgba(0,112,192,0.4)');
-  buildRanking('tb-mont',mont,'#FF0066','rgba(255,0,102,0.4)');
-  buildRanking('tb-espu',espu,'#00B050','rgba(0,176,80,0.4)');
-  buildRanking('tb-lami',lami,'#aaa','rgba(170,170,170,0.3)');
+  const map={};
+  lancamentos.filter(l=>l.setor==='Marcenaria/Espumação').forEach(l=>{
+    const dt=parseDate(l.data);if(!dt)return;
+    if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
+    const eHoje=dt.getTime()===hoje.getTime();
+    if(!map[l.nome])map[l.nome]={dia:0,ac:0};
+    map[l.nome].ac+=Number(l.prodCorpo)||0;
+    if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
+  });
+  const rows=Object.entries(map).map(([nome,v])=>({nome,dia:v.dia,ac:v.ac}));
+  const totalDia=rows.reduce((s,r)=>s+r.dia,0);
+  const totalAc=rows.reduce((s,r)=>s+r.ac,0);
+  set('s-marc',totalDia);set('s-marc-ac',totalAc);
+  const mx=Math.max(totalAc,totalDia,1);
+  setBar('sb-marc',totalDia,mx);setBar('sb-marc-ac',totalAc,mx);
+  buildRanking('tb-marc',rows,'#0070C0','rgba(0,112,192,0.4)');
 }
 
 carregarDados();
