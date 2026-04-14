@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="refresh" content="300">
-<title>TV Marcenaria/Espumação — Studyo4</title>
+<title>TV Tapeçaria — Studyo4</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:#0a0a0a;font-family:Arial,sans-serif}
@@ -62,35 +62,38 @@ html,body{height:100%;background:#0a0a0a;font-family:Arial,sans-serif}
 <div id="loading"><div class="spinner"></div><p>Carregando produção...</p></div>
 <div id="erro"></div>
 <div class="tv" id="app" style="display:none">
-  <div class="topbar" style="border-bottom:2px solid #0070C0">
+  <div class="topbar" style="border-bottom:2px solid #00B050">
     <div style="display:flex;align-items:center;gap:14px">
       <div class="logo">STUDYO<span>4</span></div>
-      
-<div class="score-grid" style="grid-template-columns:repeat(2,1fr)">
-  <div class="score-cell" style="border-color:#0070C0">
-    <div class="score-label">Marcenaria/Espumação — hoje</div>
-    <div class="score-val" style="color:#0070C0" id="s-marc">—</div>
-    <div class="score-sub">peças produzidas</div>
-    <div class="score-bar-bg"><div class="score-bar-f" id="sb-marc" style="background:#0070C0;width:0%"></div></div>
+      <div style="width:1px;height:24px;background:#222"></div>
+      <div class="setor-tag" style="color:#00B050;background:rgba(0,176,80,0.08);border:1px solid #00B050">TAPEÇARIA</div>
+    </div>
+    <div style="text-align:right">
+      <div class="clk" id="clk">--:--</div>
+      <div class="dt" id="dt">--</div>
+    </div>
   </div>
-  <div class="score-cell" style="border-color:#0070C0">
-    <div class="score-label">Marcenaria/Espumação — mês</div>
-    <div class="score-val" style="color:#0070C0" id="s-marc-ac">—</div>
-    <div class="score-sub" id="mes-atual">acumulado</div>
-    <div class="score-bar-bg"><div class="score-bar-f" id="sb-marc-ac" style="background:#0070C0;width:0%"></div></div>
-  </div>
+  
+<div class="score-grid" style="grid-template-columns:repeat(4,1fr)">
+  <div class="score-cell" style="border-color:#00B050"><div class="score-label">Tapeçaria — hoje</div><div class="score-val" style="color:#00B050" id="s-tap-dia">—</div><div class="score-sub">peças</div></div>
+  <div class="score-cell" style="border-color:#00B050"><div class="score-label">Tapeçaria — mês</div><div class="score-val" style="color:#00B050" id="s-tap-ac">—</div><div class="score-sub" id="mes-atual">acumulado</div></div>
+  <div class="score-cell" style="border-color:#0070C0"><div class="score-label">Mont. Final — hoje</div><div class="score-val" style="color:#0070C0" id="s-montfinal">—</div><div class="score-sub">peças</div></div>
+  <div class="score-cell" style="border-color:#888"><div class="score-label">Embalagem — hoje</div><div class="score-val" style="color:#aaa" id="s-emb">—</div><div class="score-sub">peças</div></div>
 </div>
-<div class="main-grid" style="grid-template-columns:1fr">
+<div class="main-grid">
   <div class="rank-card">
-    <div class="rank-title">// ranking do dia — marcenaria / espumação</div>
-    <div id="tb-marc"></div>
+    <div class="rank-title">// tapeçaria — ranking do dia</div>
+    <div id="tb-tap"></div>
+  </div>
+  <div class="side-stack">
+    <div class="rank-card" style="flex:1"><div class="rank-title">// montagem final</div><div id="tb-montfinal"></div></div>
+    <div class="mini-card"><div class="mini-title">// embalagem</div><div id="tb-emb"></div></div>
   </div>
 </div>
-
 
   <div class="footer">
     <div>Atualizado às <span id="upd">--:--:--</span></div>
-    <div>Próxima atualização em <span id="ctd" style="color:#0070C0">--:--</span></div>
+    <div>Próxima atualização em <span id="ctd" style="color:#00B050">--:--</span></div>
     <div>STUDYO4 — Painel de Produção</div>
   </div>
 </div>
@@ -243,22 +246,28 @@ function processar(csv){
   }
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const mes=hoje.getMonth(),ano=hoje.getFullYear();
-  const map={};
-  lancamentos.filter(l=>l.setor==='Marcenaria/Espumação').forEach(l=>{
-    const dt=parseDate(l.data);if(!dt)return;
-    if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
-    const eHoje=dt.getTime()===hoje.getTime();
-    if(!map[l.nome])map[l.nome]={dia:0,ac:0};
-    map[l.nome].ac+=Number(l.prodCorpo)||0;
-    if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
-  });
-  const rows=Object.entries(map).map(([nome,v])=>({nome,dia:v.dia,ac:v.ac}));
-  const totalDia=rows.reduce((s,r)=>s+r.dia,0);
-  const totalAc=rows.reduce((s,r)=>s+r.ac,0);
-  set('s-marc',totalDia);set('s-marc-ac',totalAc);
-  const mx=Math.max(totalAc,totalDia,1);
-  setBar('sb-marc',totalDia,mx);setBar('sb-marc-ac',totalAc,mx);
-  buildRanking('tb-marc',rows,'#0070C0','rgba(0,112,192,0.4)');
+  function agrupar(setorFiltro){
+    const map={};
+    lancamentos.filter(l=>l.setor===setorFiltro).forEach(l=>{
+      const dt=parseDate(l.data);if(!dt)return;
+      if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
+      const eHoje=dt.getTime()===hoje.getTime();
+      if(!map[l.nome])map[l.nome]={dia:0,ac:0};
+      map[l.nome].ac+=Number(l.prodCorpo)||0;
+      if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
+    });
+    return Object.entries(map).map(([nome,v])=>({nome,dia:v.dia,ac:v.ac}));
+  }
+  const tap=agrupar('Tapeçaria');
+  const montfin=agrupar('Montagem Final');
+  const emb=agrupar('Embalagem');
+  set('s-tap-dia',tap.reduce((s,r)=>s+r.dia,0));
+  set('s-tap-ac',tap.reduce((s,r)=>s+r.ac,0));
+  set('s-montfinal',montfin.reduce((s,r)=>s+r.dia,0));
+  set('s-emb',emb.reduce((s,r)=>s+r.dia,0));
+  buildRanking('tb-tap',tap,'#00B050','rgba(0,176,80,0.4)');
+  buildRanking('tb-montfinal',montfin,'#0070C0','rgba(0,112,192,0.4)');
+  buildMini('tb-emb',emb,'#aaa');
 }
 
 carregarDados();
