@@ -236,20 +236,19 @@ function agrupar(lancamentos, campoDia, campoAc){
 
 
 function processar(csv){
-  const linhas=csv.split('\n').filter(l=>l.trim());
+  const linhas=csv.split('
+').filter(l=>l.trim());
   const lancamentos=[];
   for(let i=4;i<linhas.length;i++){
     const c=parseCSVLine(linhas[i]);
     if(!c[0]||!c[1])continue;
-    lancamentos.push({data:c[0],nome:c[1],setor:c[2],sub:c[2],prodCorpo:c[3],prodAlmof:c[4]});
+    lancamentos.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3]});
   }
-
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const mes=hoje.getMonth(),ano=hoje.getFullYear();
-
-  function agrupar(setorFiltro,subFiltro){
+  function agrupar(setorFiltro){
     const map={};
-    lancamentos.filter(l=>l.setor===setorFiltro&&(!subFiltro||l.sub===subFiltro)).forEach(l=>{
+    lancamentos.filter(l=>l.setor===setorFiltro).forEach(l=>{
       const dt=parseDate(l.data);if(!dt)return;
       if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
       const eHoje=dt.getTime()===hoje.getTime();
@@ -259,16 +258,13 @@ function processar(csv){
     });
     return Object.entries(map).map(([nome,v])=>({nome,dia:v.dia,ac:v.ac}));
   }
-
-  const tap=agrupar('Tapeçaria','Tapeçaria');
-  const montfin=agrupar('Tapeçaria','Montagem Final');
-  const emb=agrupar('Embalagem',null);
-
+  const tap=agrupar('Tapeçaria');
+  const montfin=agrupar('Montagem Final');
+  const emb=agrupar('Embalagem');
   set('s-tap-dia',tap.reduce((s,r)=>s+r.dia,0));
-  set('s-tap-ac', tap.reduce((s,r)=>s+r.ac,0));
+  set('s-tap-ac',tap.reduce((s,r)=>s+r.ac,0));
   set('s-montfinal',montfin.reduce((s,r)=>s+r.dia,0));
   set('s-emb',emb.reduce((s,r)=>s+r.dia,0));
-
   buildRanking('tb-tap',tap,'#00B050','rgba(0,176,80,0.4)');
   buildRanking('tb-montfinal',montfin,'#0070C0','rgba(0,112,192,0.4)');
   buildMini('tb-emb',emb,'#aaa');
