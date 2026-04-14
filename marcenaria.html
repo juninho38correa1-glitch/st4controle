@@ -188,7 +188,19 @@ function processar(csv){
     if(!c[0]||!c[1])continue;
     lancamentos.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3]});
   }
-  var rows=agruparSetor(lancamentos,'Marcenaria/Espumacao');
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var mes=hoje.getMonth(),ano=hoje.getFullYear();
+  var map={};
+  lancamentos.forEach(function(l){
+    if(l.setor!=='Marcenaria/Espumacao')return;
+    var dt=parseDate(l.data);if(!dt)return;
+    if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
+    var eHoje=dt.getTime()===hoje.getTime();
+    if(!map[l.nome])map[l.nome]={dia:0,ac:0};
+    map[l.nome].ac+=Number(l.prodCorpo)||0;
+    if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
+  });
+  var rows=Object.keys(map).map(function(n){return{nome:n,dia:map[n].dia,ac:map[n].ac};});
   var tD=rows.reduce(function(s,r){return s+r.dia;},0);
   var tA=rows.reduce(function(s,r){return s+r.ac;},0);
   set('s-marc',tD);set('s-marc-ac',tA);
