@@ -241,7 +241,7 @@ function processar(csv){
   for(let i=4;i<linhas.length;i++){
     const c=parseCSVLine(linhas[i]);
     if(!c[0]||!c[1])continue;
-    lancamentos.push({data:c[0],nome:c[1],setor:c[2],sub:c[2],prodCorpo:c[3],prodAlmof:c[5]});
+    lancamentos.push({data:c[0],nome:c[1],setor:c[2],sub:c[2],prodCorpo:c[3],prodAlmof:c[4]});
   }
 
   const hoje=new Date();hoje.setHours(0,0,0,0);
