@@ -183,7 +183,7 @@ function processar(csv){
   var META_PESSOA=12;
   var linhas=csv.split('\n').filter(function(l){return l.trim();});
   var lancamentos=[];
-  for(var i=4;i<linhas.length;i++){
+  for(var i=3;i<linhas.length;i++){
     var c=parseCSVLine(linhas[i]);
     if(!c[0]||!c[1])continue;
     lancamentos.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3],prodAlmof:c[4],retrabalho:c[5]});
