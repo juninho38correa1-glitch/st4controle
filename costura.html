@@ -22,6 +22,7 @@
       <div class="dt" id="dt">--</div>
     </div>
   </div>
+  <div id="meta-mes" style="background:#111;padding:10px 16px;border-left:4px solid #FFD700"></div>
   <div class="grid3col" style="flex:1">
   <div class="col-card">
     <div class="col-header" style="color:#FF0066;border-color:#FF0066">// Costura Corpo</div>
@@ -219,6 +220,14 @@ function buildMetaTotal(cid,totalDia,meta,color){
   var metaPos=meta>0?Math.min(100,Math.round(meta/Math.max(meta,totalDia)*100)):100;
   el.innerHTML='<div class="mtb-label">PROGRESSO GERAL — '+totalDia+' / '+meta+' pecas ('+pct+'%)</div><div class="mtb-wrap"><div class="mtb-fill" style="width:'+Math.min(pct,100)+'%;background:'+barColor+'"></div><div class="mtb-line" style="left:'+metaPos+'%"></div><div class="mtb-pct">'+pct+'%</div></div>';
 }
+
+function buildMetaMes(cid,totalAc,metaMes){
+  var el=document.getElementById(cid);if(!el)return;
+  var pct=metaMes>0?Math.min(Math.round(totalAc/metaMes*100),150):0;
+  var barColor=pct>=100?'#00B050':pct>=70?'#EF9F27':'#FF0066';
+  var metaPos=metaMes>0?Math.min(100,Math.round(metaMes/Math.max(metaMes,totalAc)*100)):100;
+  el.innerHTML='<div class="mtb-label">META DO MES — '+totalAc+' / '+metaMes+' pecas ('+pct+'%)</div><div class="mtb-wrap"><div class="mtb-fill" style="width:'+Math.min(pct,100)+'%;background:'+barColor+'"></div><div class="mtb-line" style="left:'+metaPos+'%"></div><div class="mtb-pct">'+pct+'%</div></div>';
+}
 async function carregarDados(){
   try{
     var r0=await fetch(COLAB_URL);
@@ -284,6 +293,9 @@ function processar(csv){
   set('s-corpo-dia',tCD);set('s-corpo-ac',tCA);
   set('s-almof-dia',tAD);set('s-almof-ac',tAA);
   set('s-corte-dia',tCtD);set('s-corte-ac',tCtA);
+  var metaMes=METAS['Meta_Total_Mes']||720;
+  var totalAcMes=tCA+tAA+tCtA;
+  buildMetaMes('meta-mes',totalAcMes,metaMes);
   buildMetaTotal('meta-total-corpo',tCD,metaTotal,'#FF0066');
   buildMetaRanking('tb-corpo-rank',rowsC,'#FF0066');
   buildMetaRanking('tb-almof-rank',rowsA,'#0070C0');
