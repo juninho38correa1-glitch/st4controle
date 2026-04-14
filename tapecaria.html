@@ -188,9 +188,24 @@ function processar(csv){
     if(!c[0]||!c[1])continue;
     lancamentos.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3]});
   }
-  var tap=agruparSetor(lancamentos,'Tapecaria');
-  var montfin=agruparSetor(lancamentos,'Montagem Final');
-  var emb=agruparSetor(lancamentos,'Embalagem');
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var mes=hoje.getMonth(),ano=hoje.getFullYear();
+  function agrupar(setorFiltro){
+    var map={};
+    lancamentos.forEach(function(l){
+      if(l.setor!==setorFiltro)return;
+      var dt=parseDate(l.data);if(!dt)return;
+      if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
+      var eHoje=dt.getTime()===hoje.getTime();
+      if(!map[l.nome])map[l.nome]={dia:0,ac:0};
+      map[l.nome].ac+=Number(l.prodCorpo)||0;
+      if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
+    });
+    return Object.keys(map).map(function(n){return{nome:n,dia:map[n].dia,ac:map[n].ac};});
+  }
+  var tap=agrupar('Tapecaria');
+  var montfin=agrupar('Montagem Final');
+  var emb=agrupar('Embalagem');
   var tTD=tap.reduce(function(s,r){return s+r.dia;},0);
   var tTA=tap.reduce(function(s,r){return s+r.ac;},0);
   set('s-tap-dia',tTD);set('s-tap-ac',tTA);
@@ -199,8 +214,8 @@ function processar(csv){
   buildMetaRanking('tb-tap',tap,'#00B050',0);
   buildMetaTotal('meta-total-tap',tTD,META_SETOR,'#00B050');
   setTimeout(function(){buildChart('chart-tap',tap,'#00B050',0);},100);
-  buildMini('tb-montfinal',montfin,'#0070C0');
-  buildMini('tb-emb',emb,'#aaa');
+  buildMetaRanking('tb-montfinal',montfin,'#0070C0',0);
+  buildMetaRanking('tb-emb',emb,'#aaa',0);
 }
 carregarDados();
 </script>
