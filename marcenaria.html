@@ -28,7 +28,8 @@
   <div class="score-cell" style="border-color:#FF0066"><div class="score-label">Montagem/Preparacao - hoje</div><div class="score-val" style="color:#FF0066" id="s-mont">-</div><div class="score-sub">pecas</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-mont" style="background:#FF0066;width:0%"></div></div></div>
 </div>
 <div id="meta-total-marc" style="background:#111;padding:10px 16px"></div>
-<div class="grid3col">
+<div id="meta-mes" style="background:#111;padding:10px 16px;border-left:4px solid #FFD700"></div>
+  <div class="grid3col">
   <div class="col-card"><div class="col-header" style="color:#0070C0;border-color:#0070C0">// Marcenaria · CNC · Laminacao Madeira</div><div id="tb-marc"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-marc"></canvas></div></div>
   <div class="col-card"><div class="col-header" style="color:#EF9F27;border-color:#EF9F27">// Espumacao · Laminacao Espuma</div><div id="tb-espu"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-espu"></canvas></div></div>
   <div class="col-card"><div class="col-header" style="color:#FF0066;border-color:#FF0066">// Montagem Estrutural · Preparacao</div><div id="tb-mont"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-mont"></canvas></div></div>
@@ -135,15 +136,18 @@ function buildMetaRanking(cid,rows,color){
 function buildPizza(canvasId,rows,color){
   var canvas=document.getElementById(canvasId);if(!canvas||!rows.length)return;
   var ctx=canvas.getContext('2d');
-  var W=canvas.offsetWidth||200;var H=canvas.offsetHeight||160;
+  var W=canvas.offsetWidth||300;var H=canvas.offsetHeight||160;
   canvas.width=W;canvas.height=H;ctx.clearRect(0,0,W,H);
   var total=rows.reduce(function(s,r){return s+r.dia;},0);
   if(total===0)return;
   var colors=['#FF0066','#0070C0','#00B050','#EF9F27','#7030A0','#FF6B35','#00B4D8','#F72585'];
-  if(color==='#0070C0')colors=['#0070C0','#378ADD','#85B7EB','#B5D4F4','#00B050','#EF9F27','#FF0066','#7030A0'];
-  if(color==='#00B050')colors=['#00B050','#1D9E75','#5DCAA5','#9FE1CB','#0070C0','#EF9F27','#FF0066','#7030A0'];
+  if(color==='#0070C0')colors=['#0070C0','#378ADD','#85B7EB','#00B050','#EF9F27','#FF0066','#7030A0','#B5D4F4'];
+  if(color==='#00B050')colors=['#00B050','#1D9E75','#5DCAA5','#0070C0','#EF9F27','#FF0066','#7030A0','#9FE1CB'];
+  if(color==='#EF9F27')colors=['#EF9F27','#BA7517','#FAC775','#FF0066','#0070C0','#00B050','#7030A0','#F72585'];
   var sorted=rows.slice().sort(function(a,b){return b.dia-a.dia;});
-  var cx=W*0.38,cy=H/2,r=Math.min(cx,cy)*0.82;
+  var legendH=sorted.length*18+8;
+  var r=Math.min(W/2,(H-legendH-16)/2)*0.85;
+  var cx=W/2,cy=r+8;
   var angle=-Math.PI/2;
   sorted.forEach(function(row,i){
     var slice=2*Math.PI*(row.dia/total);
@@ -152,22 +156,22 @@ function buildPizza(canvasId,rows,color){
     ctx.closePath();
     ctx.fillStyle=colors[i%colors.length];ctx.fill();
     ctx.strokeStyle='#0a0a0a';ctx.lineWidth=2;ctx.stroke();
-    var midA=angle+slice/2;
-    if(slice>0.2){
-      ctx.fillStyle='#fff';ctx.font='bold 10px Arial';ctx.textAlign='center';
-      var tx=cx+Math.cos(midA)*r*0.65,ty=cy+Math.sin(midA)*r*0.65;
+    if(slice>0.18){
+      ctx.fillStyle='#fff';ctx.font='bold 11px Arial';ctx.textAlign='center';
+      var tx=cx+Math.cos(angle+slice/2)*r*0.65;
+      var ty=cy+Math.sin(angle+slice/2)*r*0.65;
       ctx.fillText(row.dia,tx,ty);
     }
     angle+=slice;
   });
-  var legendX=W*0.76+4,legendY=12,lineH=16;
+  var legY=cy+r+14;
   sorted.forEach(function(row,i){
-    if(legendY+lineH>H)return;
+    var lx=W/2-60;
     ctx.fillStyle=colors[i%colors.length];
-    ctx.fillRect(legendX,legendY,10,10);
-    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='8px Arial';ctx.textAlign='left';
-    ctx.fillText(nomeCurto(row.nome,10),legendX+13,legendY+9);
-    legendY+=lineH;
+    ctx.fillRect(lx,legY,10,10);
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='9px Arial';ctx.textAlign='left';
+    ctx.fillText(nomeCurto(row.nome,12)+' ('+row.dia+')',lx+13,legY+9);
+    legY+=18;
   });
 }
 function buildMetaTotal(cid,totalDia,meta,color){
@@ -176,6 +180,14 @@ function buildMetaTotal(cid,totalDia,meta,color){
   var barColor=pct>=100?'#00B050':pct>=70?'#EF9F27':'#FF0066';
   var metaPos=meta>0?Math.min(100,Math.round(meta/Math.max(meta,totalDia)*100)):100;
   el.innerHTML='<div class="mtb-label">PROGRESSO GERAL — '+totalDia+' / '+meta+' pecas ('+pct+'%)</div><div class="mtb-wrap"><div class="mtb-fill" style="width:'+Math.min(pct,100)+'%;background:'+barColor+'"></div><div class="mtb-line" style="left:'+metaPos+'%"></div><div class="mtb-pct">'+pct+'%</div></div>';
+}
+
+function buildMetaMes(cid,totalAc,metaMes){
+  var el=document.getElementById(cid);if(!el)return;
+  var pct=metaMes>0?Math.min(Math.round(totalAc/metaMes*100),150):0;
+  var barColor=pct>=100?'#00B050':pct>=70?'#EF9F27':'#FF0066';
+  var metaPos=metaMes>0?Math.min(100,Math.round(metaMes/Math.max(metaMes,totalAc)*100)):100;
+  el.innerHTML='<div class="mtb-label">META DO MES — '+totalAc+' / '+metaMes+' pecas ('+pct+'%)</div><div class="mtb-wrap"><div class="mtb-fill" style="width:'+Math.min(pct,100)+'%;background:'+barColor+'"></div><div class="mtb-line" style="left:'+metaPos+'%"></div><div class="mtb-pct">'+pct+'%</div></div>';
 }
 async function carregarDados(){
   try{
@@ -235,6 +247,9 @@ function processar(csv){
   setBar('sb-marc',tM,Math.max(tTotal,1));
   setBar('sb-espu',tE,Math.max(tTotal,1));
   setBar('sb-mont',tMo,Math.max(tTotal,1));
+  var metaMes=METAS['Meta_Total_Mes']||720;
+  var totalAcMes=rMarc.reduce(function(s,r){return s+r.ac;},0)+rEspu.reduce(function(s,r){return s+r.ac;},0)+rMont.reduce(function(s,r){return s+r.ac;},0);
+  buildMetaMes('meta-mes',totalAcMes,metaMes);
   buildMetaTotal('meta-total-marc',tTotal,METAS['Meta_Marcenaria_Total']||35,'#0070C0');
   buildMetaRanking('tb-marc',rMarc,'#0070C0');
   buildMetaRanking('tb-espu',rEspu,'#EF9F27');
