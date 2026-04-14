@@ -22,26 +22,53 @@
       <div class="dt" id="dt">--</div>
     </div>
   </div>
-  <div class="score-grid" style="grid-template-columns:repeat(4,1fr)">
-  <div class="score-cell" style="border-color:#FF0066"><div class="score-label">Corpo - hoje</div><div class="score-val" style="color:#FF0066" id="s-corpo-dia">-</div><div class="score-sub">pecas</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-corpo-dia" style="background:#FF0066;width:0%"></div></div></div>
-  <div class="score-cell" style="border-color:#FF0066"><div class="score-label">Corpo - mes</div><div class="score-val" style="color:#FF0066" id="s-corpo-ac">-</div><div class="score-sub" id="mes-atual">acumulado</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-corpo-ac" style="background:#FF0066;width:0%"></div></div></div>
-  <div class="score-cell" style="border-color:#0070C0"><div class="score-label">Almofada - hoje</div><div class="score-val" style="color:#0070C0" id="s-almof-dia">-</div><div class="score-sub">pecas</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-almof-dia" style="background:#0070C0;width:0%"></div></div></div>
-  <div class="score-cell" style="border-color:#0070C0"><div class="score-label">Almofada - mes</div><div class="score-val" style="color:#0070C0" id="s-almof-ac">-</div><div class="score-sub">acumulado</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-almof-ac" style="background:#0070C0;width:0%"></div></div></div>
-</div>
-<div id="meta-total-corpo" style="background:#111;padding:10px 16px"></div>
-<div class="main-grid">
-  <div class="rank-card">
-    <div class="rank-title">// ranking corpo - meta individual</div>
-    <div id="tb-corpo-rank"></div>
-    <div style="margin-top:12px"><div class="rank-title">// distribuicao corpo hoje</div><div class="chart-wrap"><canvas id="chart-corpo"></canvas></div></div>
-  </div>
-  <div class="side-stack">
-    <div class="rank-card" style="flex:1">
-      <div class="rank-title">// almofada - meta individual</div>
-      <div id="tb-almof-rank"></div>
-      <div style="margin-top:10px"><div class="rank-title">// distribuicao almofada</div><div class="chart-wrap" style="height:120px"><canvas id="chart-almof"></canvas></div></div>
+  <div class="grid3col" style="flex:1">
+  <div class="col-card">
+    <div class="col-header" style="color:#FF0066;border-color:#FF0066">// Costura Corpo</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <div style="flex:1;background:#0d0d0d;padding:8px;text-align:center">
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px">Hoje</div>
+        <div style="font-size:28px;font-weight:700;color:#FF0066" id="s-corpo-dia">-</div>
+      </div>
+      <div style="flex:1;background:#0d0d0d;padding:8px;text-align:center">
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px" id="mes-atual">Mes</div>
+        <div style="font-size:28px;font-weight:700;color:#FF0066" id="s-corpo-ac">-</div>
+      </div>
     </div>
-    <div class="mini-card"><div class="mini-title">// retrabalho</div><div id="retrab-status"></div></div>
+    <div id="meta-total-corpo" style="margin-bottom:8px"></div>
+    <div id="tb-corpo-rank"></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:220px"><canvas id="chart-corpo"></canvas></div></div>
+  </div>
+  <div class="col-card">
+    <div class="col-header" style="color:#0070C0;border-color:#0070C0">// Costura Almofada</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <div style="flex:1;background:#0d0d0d;padding:8px;text-align:center">
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px">Hoje</div>
+        <div style="font-size:28px;font-weight:700;color:#0070C0" id="s-almof-dia">-</div>
+      </div>
+      <div style="flex:1;background:#0d0d0d;padding:8px;text-align:center">
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px">Mes</div>
+        <div style="font-size:28px;font-weight:700;color:#0070C0" id="s-almof-ac">-</div>
+      </div>
+    </div>
+    <div id="tb-almof-rank"></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:220px"><canvas id="chart-almof"></canvas></div></div>
+  </div>
+  <div class="col-card">
+    <div class="col-header" style="color:#00B050;border-color:#00B050">// Corte</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <div style="flex:1;background:#0d0d0d;padding:8px;text-align:center">
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px">Hoje</div>
+        <div style="font-size:28px;font-weight:700;color:#00B050" id="s-corte-dia">-</div>
+      </div>
+      <div style="flex:1;background:#0d0d0d;padding:8px;text-align:center">
+        <div style="font-size:9px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px">Mes</div>
+        <div style="font-size:28px;font-weight:700;color:#00B050" id="s-corte-ac">-</div>
+      </div>
+    </div>
+    <div id="tb-corte-rank"></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:180px"><canvas id="chart-corte"></canvas></div></div>
+    <div style="margin-top:10px"><div class="mini-title">// retrabalho</div><div id="retrab-status"></div></div>
   </div>
 </div>
   <div class="footer">
@@ -51,6 +78,7 @@
   </div>
 </div>
 <script>
+
 var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
 var CONFIG_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=626803240&single=true&output=csv';
 var COLAB_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1534833771&single=true&output=csv';
@@ -146,15 +174,18 @@ function buildMetaRanking(cid,rows,color){
 function buildPizza(canvasId,rows,color){
   var canvas=document.getElementById(canvasId);if(!canvas||!rows.length)return;
   var ctx=canvas.getContext('2d');
-  var W=canvas.offsetWidth||200;var H=canvas.offsetHeight||160;
+  var W=canvas.offsetWidth||300;var H=canvas.offsetHeight||160;
   canvas.width=W;canvas.height=H;ctx.clearRect(0,0,W,H);
   var total=rows.reduce(function(s,r){return s+r.dia;},0);
   if(total===0)return;
   var colors=['#FF0066','#0070C0','#00B050','#EF9F27','#7030A0','#FF6B35','#00B4D8','#F72585'];
-  if(color==='#0070C0')colors=['#0070C0','#378ADD','#85B7EB','#B5D4F4','#00B050','#EF9F27','#FF0066','#7030A0'];
-  if(color==='#00B050')colors=['#00B050','#1D9E75','#5DCAA5','#9FE1CB','#0070C0','#EF9F27','#FF0066','#7030A0'];
+  if(color==='#0070C0')colors=['#0070C0','#378ADD','#85B7EB','#00B050','#EF9F27','#FF0066','#7030A0','#B5D4F4'];
+  if(color==='#00B050')colors=['#00B050','#1D9E75','#5DCAA5','#0070C0','#EF9F27','#FF0066','#7030A0','#9FE1CB'];
+  if(color==='#EF9F27')colors=['#EF9F27','#BA7517','#FAC775','#FF0066','#0070C0','#00B050','#7030A0','#F72585'];
   var sorted=rows.slice().sort(function(a,b){return b.dia-a.dia;});
-  var cx=W*0.38,cy=H/2,r=Math.min(cx,cy)*0.82;
+  var legendH=sorted.length*18+8;
+  var r=Math.min(W/2,(H-legendH-16)/2)*0.85;
+  var cx=W/2,cy=r+8;
   var angle=-Math.PI/2;
   sorted.forEach(function(row,i){
     var slice=2*Math.PI*(row.dia/total);
@@ -163,22 +194,22 @@ function buildPizza(canvasId,rows,color){
     ctx.closePath();
     ctx.fillStyle=colors[i%colors.length];ctx.fill();
     ctx.strokeStyle='#0a0a0a';ctx.lineWidth=2;ctx.stroke();
-    var midA=angle+slice/2;
-    if(slice>0.2){
-      ctx.fillStyle='#fff';ctx.font='bold 10px Arial';ctx.textAlign='center';
-      var tx=cx+Math.cos(midA)*r*0.65,ty=cy+Math.sin(midA)*r*0.65;
+    if(slice>0.18){
+      ctx.fillStyle='#fff';ctx.font='bold 11px Arial';ctx.textAlign='center';
+      var tx=cx+Math.cos(angle+slice/2)*r*0.65;
+      var ty=cy+Math.sin(angle+slice/2)*r*0.65;
       ctx.fillText(row.dia,tx,ty);
     }
     angle+=slice;
   });
-  var legendX=W*0.76+4,legendY=12,lineH=16;
+  var legY=cy+r+14;
   sorted.forEach(function(row,i){
-    if(legendY+lineH>H)return;
+    var lx=W/2-60;
     ctx.fillStyle=colors[i%colors.length];
-    ctx.fillRect(legendX,legendY,10,10);
-    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='8px Arial';ctx.textAlign='left';
-    ctx.fillText(nomeCurto(row.nome,10),legendX+13,legendY+9);
-    legendY+=lineH;
+    ctx.fillRect(lx,legY,10,10);
+    ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='9px Arial';ctx.textAlign='left';
+    ctx.fillText(nomeCurto(row.nome,12)+' ('+row.dia+')',lx+13,legY+9);
+    legY+=18;
   });
 }
 function buildMetaTotal(cid,totalDia,meta,color){
@@ -207,6 +238,7 @@ async function carregarDados(){
     document.getElementById('erro').innerHTML='<strong>Erro ao carregar</strong><br>'+e.message;
   }
 }
+
 function processar(csv){
   var linhas=csv.split('\n').filter(function(l){return l.trim();});
   var lancamentos=[];
@@ -217,43 +249,49 @@ function processar(csv){
   }
   var hoje=new Date();hoje.setHours(0,0,0,0);
   var mes=hoje.getMonth(),ano=hoje.getFullYear();
-  var mapC={},mapA={},mapR={};
+  var mapC={},mapA={},mapR={},mapCt={};
   lancamentos.forEach(function(l){
-    if(l.setor!=='Costura')return;
     var dt=parseDate(l.data);if(!dt)return;
     if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
     var eHoje=dt.getTime()===hoje.getTime();
-    if(!mapC[l.nome])mapC[l.nome]={dia:0,ac:0};
-    if(!mapA[l.nome])mapA[l.nome]={dia:0,ac:0};
-    if(!mapR[l.nome])mapR[l.nome]={dia:0,ac:0};
-    mapC[l.nome].ac+=Number(l.prodCorpo)||0;
-    mapA[l.nome].ac+=Number(l.prodAlmof)||0;
-    mapR[l.nome].ac+=Number(l.retrabalho)||0;
-    if(eHoje){
-      mapC[l.nome].dia+=Number(l.prodCorpo)||0;
-      mapA[l.nome].dia+=Number(l.prodAlmof)||0;
-      mapR[l.nome].dia+=Number(l.retrabalho)||0;
+    if(l.setor==='Costura'){
+      if(!mapC[l.nome])mapC[l.nome]={dia:0,ac:0};
+      if(!mapA[l.nome])mapA[l.nome]={dia:0,ac:0};
+      if(!mapR[l.nome])mapR[l.nome]={dia:0,ac:0};
+      mapC[l.nome].ac+=Number(l.prodCorpo)||0;
+      mapA[l.nome].ac+=Number(l.prodAlmof)||0;
+      mapR[l.nome].ac+=Number(l.retrabalho)||0;
+      if(eHoje){mapC[l.nome].dia+=Number(l.prodCorpo)||0;mapA[l.nome].dia+=Number(l.prodAlmof)||0;mapR[l.nome].dia+=Number(l.retrabalho)||0;}
+    }
+    if(l.setor==='Corte'){
+      if(!mapCt[l.nome])mapCt[l.nome]={dia:0,ac:0};
+      mapCt[l.nome].ac+=Number(l.prodCorpo)||0;
+      if(eHoje)mapCt[l.nome].dia+=Number(l.prodCorpo)||0;
     }
   });
   var rowsC=Object.keys(mapC).map(function(n){return{nome:n,dia:mapC[n].dia,ac:mapC[n].ac};});
   var rowsA=Object.keys(mapA).map(function(n){return{nome:n,dia:mapA[n].dia,ac:mapA[n].ac};});
   var rowsR=Object.keys(mapR).map(function(n){return{nome:n,dia:mapR[n].dia,ac:mapR[n].ac};});
+  var rowsCt=Object.keys(mapCt).map(function(n){return{nome:n,dia:mapCt[n].dia,ac:mapCt[n].ac};});
   var tCD=rowsC.reduce(function(s,r){return s+r.dia;},0);
   var tCA=rowsC.reduce(function(s,r){return s+r.ac;},0);
   var tAD=rowsA.reduce(function(s,r){return s+r.dia;},0);
   var tAA=rowsA.reduce(function(s,r){return s+r.ac;},0);
+  var tCtD=rowsCt.reduce(function(s,r){return s+r.dia;},0);
+  var tCtA=rowsCt.reduce(function(s,r){return s+r.ac;},0);
   var tRD=rowsR.reduce(function(s,r){return s+r.dia;},0);
   var metaTotal=rowsC.reduce(function(s,r){return s+(getMetaPessoa(r.nome)||12);},0);
   set('s-corpo-dia',tCD);set('s-corpo-ac',tCA);
   set('s-almof-dia',tAD);set('s-almof-ac',tAA);
-  setBar('sb-corpo-dia',tCD,Math.max(tCA,tCD,1));setBar('sb-corpo-ac',tCA,Math.max(tCA,tCD,1));
-  setBar('sb-almof-dia',tAD,Math.max(tAA,tAD,1));setBar('sb-almof-ac',tAA,Math.max(tAA,tAD,1));
+  set('s-corte-dia',tCtD);set('s-corte-ac',tCtA);
   buildMetaTotal('meta-total-corpo',tCD,metaTotal,'#FF0066');
   buildMetaRanking('tb-corpo-rank',rowsC,'#FF0066');
   buildMetaRanking('tb-almof-rank',rowsA,'#0070C0');
+  buildMetaRanking('tb-corte-rank',rowsCt,'#00B050');
   setTimeout(function(){
     buildPizza('chart-corpo',rowsC,'#FF0066');
     buildPizza('chart-almof',rowsA,'#0070C0');
+    buildPizza('chart-corte',rowsCt,'#00B050');
   },100);
   var el=document.getElementById('retrab-status');
   if(el){
