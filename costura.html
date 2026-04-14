@@ -36,7 +36,7 @@
         <div style="font-size:28px;font-weight:700;color:#FF0066" id="s-corpo-ac">-</div>
       </div>
     </div>
-    <div id="meta-total-corpo" style="margin-bottom:8px"></div>
+    
     <div id="tb-corpo-rank"></div>
     <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:220px"><canvas id="chart-corpo"></canvas></div></div>
   </div>
@@ -304,7 +304,6 @@ function processar(csv){
   var metaMes=METAS['Meta_Total_Mes']||720;
   var totalAcMes=tCA+tAA+tCtA;
   buildMetaMes('meta-mes',totalAcMes,metaMes);
-  buildMetaTotal('meta-total-corpo',tCD,metaTotal,'#FF0066');
   var metaCorpoDia=rowsC.reduce(function(s,r){return s+(getMetaPessoa(r.nome)||12);},0);
   var metaAlmofDia=rowsA.reduce(function(s,r){return s+(getMetaPessoa(r.nome)||12);},0);
   var metaCorteDia=rowsCt.reduce(function(s,r){return s+(getMetaPessoa(r.nome)||0);},0)||35;
