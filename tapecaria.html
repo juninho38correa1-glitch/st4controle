@@ -186,7 +186,6 @@ function parseCSVLine(line){
 
 function parseDate(str){
   if(!str)return null;
-  // aceita DD/MM/YYYY ou YYYY-MM-DD ou MM/DD/YYYY
   str=str.trim();
   let d,m,y;
   if(str.includes('/')){
