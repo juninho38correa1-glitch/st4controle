@@ -30,8 +30,23 @@
   </div>
 </div>
 <script>
-var SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=697175273&single=true&output=csv';
+var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
+var CONFIG_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=626803240&single=true&output=csv';
 var INTERVALO_MIN=5;
+var METAS={};
+var INTERVALO_MIN=5;
+function nomeCurto(nome,max){
+  max=max||18;
+  if(!nome)return '';
+  var partes=nome.trim().split(' ');
+  var resultado=partes[0];
+  for(var i=1;i<partes.length;i++){
+    var tentativa=resultado+' '+partes[i];
+    if(tentativa.length<=max)resultado=tentativa;
+    else{resultado=resultado+'...';break;}
+  }
+  return resultado;
+}
 function pad(n){return String(n).padStart(2,'0');}
 function tickClock(){
   var n=new Date();
@@ -107,7 +122,7 @@ function buildMetaRanking(cid,rows,color,metaPorPessoa){
     var barColor=pct>=100?'#00B050':pct>=70?'#EF9F27':'#FF0066';
     var badgeClass=pct>=100?'badge-ok':'badge-no';
     var badgeText=pct>=100?'META ⭐':''+pct+'%';
-    return '<div class="meta-row"><div class="mpos '+medal+'">'+String(pos).padStart(2,'0')+'</div><div class="mname"><div>'+r.nome+'</div><div style="font-size:10px;font-weight:400;color:rgba(255,255,255,0.3);margin-top:2px">ac: '+r.ac+'</div></div><div class="mbar-wrap"><div class="mbar-bg"><div class="mbar-f" style="width:'+pctCap+'%;background:'+barColor+'"></div><div class="mbar-meta" style="left:'+metaPosX+'%"></div></div></div><div class="mpct" style="color:'+barColor+'">'+pct+'%</div><div class="mqty" style="color:'+color+'">'+r.dia+'</div><div class="meta-badge '+badgeClass+'">'+badgeText+'</div></div>';
+    return '<div class="meta-row"><div class="mpos '+medal+'">'+String(pos).padStart(2,'0')+'</div><div class="mname"><div>'+nomeCurto(r.nome,18)+'</div><div style="font-size:10px;font-weight:400;color:rgba(255,255,255,0.3);margin-top:2px">ac: '+r.ac+'</div></div><div class="mbar-wrap"><div class="mbar-bg"><div class="mbar-f" style="width:'+pctCap+'%;background:'+barColor+'"></div><div class="mbar-meta" style="left:'+metaPosX+'%"></div></div></div><div class="mpct" style="color:'+barColor+'">'+pct+'%</div><div class="mqty" style="color:'+color+'">'+r.dia+'</div><div class="meta-badge '+badgeClass+'">'+badgeText+'</div></div>';
   }).join('');
   var total=rows.reduce(function(s,r){return s+r.dia;},0);
   var totalAc=rows.reduce(function(s,r){return s+r.ac;},0);
@@ -164,9 +179,20 @@ function buildMini(cid,rows,color){
   html+='<div class="mini-row"><span class="mini-name">TOTAL</span><div style="display:flex;gap:12px"><span class="mini-v1" style="color:'+color+'">'+total+'</span><span class="mini-v2">mes: '+totalAc+'</span></div></div>';
   el.innerHTML=html;
 }
+function parseConfig(csv){
+  var linhas=csv.split('\n').filter(function(l){return l.trim();});
+  var map={};
+  for(var i=2;i<linhas.length;i++){
+    var c=parseCSVLine(linhas[i]);
+    if(c[0]&&c[1])map[c[0].trim()]=Number(c[1])||0;
+  }
+  return map;
+}
 async function carregarDados(){
   try{
-    var resp=await fetch(SHEET_URL);
+    var r1=await fetch(CONFIG_URL);
+    if(r1.ok){var configCSV=await r1.text();METAS=parseConfig(configCSV);}
+    var resp=await fetch(LANCAMENTOS_URL);
     if(!resp.ok)throw new Error('HTTP '+resp.status);
     var txt=await resp.text();
     processar(txt);
@@ -180,7 +206,7 @@ async function carregarDados(){
   }
 }
 function processar(csv){
-  var META_PESSOA=12;
+  var META_PESSOA=METAS['Meta_Costura_Por_Pessoa']||12;
   var linhas=csv.split('\n').filter(function(l){return l.trim();});
   var lancamentos=[];
   for(var i=3;i<linhas.length;i++){
