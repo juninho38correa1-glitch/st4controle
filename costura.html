@@ -262,22 +262,18 @@ function agrupar(lancamentos, campoDia, campoAc){
 
 
 function processar(csv){
-  const linhas=csv.split('\n').filter(l=>l.trim());
+  const linhas=csv.split('
+').filter(l=>l.trim());
   const lancamentos=[];
   for(let i=4;i<linhas.length;i++){
     const c=parseCSVLine(linhas[i]);
     if(!c[0]||!c[1])continue;
-    lancamentos.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3],prodAlmof:c[4],retrabalho:c[5]});
+    lancamentos.push({data:c[0],nome:c[1],setor:c[2],sub:c[3],prodCorpo:c[3],prodAlmof:c[4],retrabalho:c[5]});
   }
-
-  const costura=lancamentos.filter(l=>l.setor==='Costura');
-
-  // agrupa por colaborador — mês atual
   const hoje=new Date();hoje.setHours(0,0,0,0);
   const mes=hoje.getMonth(),ano=hoje.getFullYear();
   const mapC={},mapA={},mapR={};
-
-  costura.forEach(l=>{
+  lancamentos.filter(l=>l.setor==='Costura').forEach(l=>{
     const dt=parseDate(l.data);if(!dt)return;
     if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
     const eHoje=dt.getTime()===hoje.getTime();
@@ -293,26 +289,21 @@ function processar(csv){
       mapR[l.nome].dia+=Number(l.retrabalho)||0;
     }
   });
-
   const toRows=map=>Object.entries(map).map(([nome,v])=>({nome,dia:v.dia,ac:v.ac}));
   const rowsC=toRows(mapC),rowsA=toRows(mapA),rowsR=toRows(mapR);
-
   const totalCDia=rowsC.reduce((s,r)=>s+r.dia,0);
-  const totalCAc =rowsC.reduce((s,r)=>s+r.ac,0);
+  const totalCAc=rowsC.reduce((s,r)=>s+r.ac,0);
   const totalADia=rowsA.reduce((s,r)=>s+r.dia,0);
-  const totalAAc =rowsA.reduce((s,r)=>s+r.ac,0);
+  const totalAAc=rowsA.reduce((s,r)=>s+r.ac,0);
   const totalRDia=rowsR.reduce((s,r)=>s+r.dia,0);
-
-  set('s-corpo-dia',totalCDia); set('s-corpo-ac',totalCAc);
-  set('s-almof-dia',totalADia); set('s-almof-ac',totalAAc);
+  set('s-corpo-dia',totalCDia);set('s-corpo-ac',totalCAc);
+  set('s-almof-dia',totalADia);set('s-almof-ac',totalAAc);
   const mx=Math.max(totalCAc,totalCDia,1);
   setBar('sb-corpo-dia',totalCDia,mx);setBar('sb-corpo-ac',totalCAc,mx);
   const ma=Math.max(totalAAc,totalADia,1);
   setBar('sb-almof-dia',totalADia,ma);setBar('sb-almof-ac',totalAAc,ma);
-
   buildRanking('tb-corpo-rank',rowsC,'#FF0066','rgba(255,0,102,0.4)');
   buildRanking('tb-almof-rank',rowsA,'#0070C0','rgba(0,112,192,0.4)');
-
   const el=document.getElementById('retrab-status');
   if(el){
     const comRetrab=rowsR.filter(r=>r.dia>0);
