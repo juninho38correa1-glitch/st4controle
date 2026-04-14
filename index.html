@@ -84,7 +84,7 @@ body { background: #1a1510; font-family: Arial, sans-serif; }
 <script>
   // 1. Cole aqui o ID do seu Google Sheets
   //    (está na URL: .../spreadsheets/d/SEU_ID_AQUI/edit)
-  const SHEET_ID = "1VnZRAG6dNSXEWT-WssXrvzuUDu5IlWzVyGGtHppm12I/"; // URL completa usada abaixo
+  const SHEET_ID = "DIRETO"; // URL completa usada abaixo
 
   // 2. Nome exato da aba que contém os dados consolidados
   const ABA = "Dashboard_Dados";
@@ -287,7 +287,7 @@ function setKpi(id, val){ const el = document.getElementById(id); if(el) el.text
 
 // ── leitura do Google Sheets (CSV público) ─────────────────
 async function carregarDados(){
-  const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVljZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNln09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1428818510&single=true&output=csv";
+  const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1428818510&single=true&output=csv";
 
   try {
     const resp = await fetch(url);
