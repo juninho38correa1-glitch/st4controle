@@ -30,14 +30,14 @@
 <div id="meta-total-marc" style="background:#111;padding:10px 16px"></div>
 <div id="meta-mes" style="background:#111;padding:10px 16px;border-left:4px solid #FFD700"></div>
   <div class="grid3col">
-  <div class="col-card"><div class="col-header" style="color:#0070C0;border-color:#0070C0">// Marcenaria · CNC · Laminacao Madeira</div><div id="tb-marc"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-marc"></canvas></div></div>
-  <div class="col-card"><div class="col-header" style="color:#EF9F27;border-color:#EF9F27">// Espumacao · Laminacao Espuma</div><div id="tb-espu"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-espu"></canvas></div></div>
-  <div class="col-card"><div class="col-header" style="color:#FF0066;border-color:#FF0066">// Montagem Estrutural · Preparacao</div><div id="tb-mont"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-mont"></canvas></div></div>
+  <div class="col-card"><div id="mc-marc"></div><div class="col-header" style="color:#0070C0;border-color:#0070C0">// Marcenaria · CNC · Laminacao Madeira</div><div id="tb-marc"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-marc"></canvas></div></div>
+  <div class="col-card"><div id="mc-espu"></div><div class="col-header" style="color:#EF9F27;border-color:#EF9F27">// Espumacao · Laminacao Espuma</div><div id="tb-espu"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-espu"></canvas></div></div>
+  <div class="col-card"><div id="mc-mont"></div><div class="col-header" style="color:#FF0066;border-color:#FF0066">// Montagem Estrutural · Preparacao</div><div id="tb-mont"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-mont"></canvas></div></div>
 </div>
   <div class="footer">
     <div>Atualizado as <span id="upd">--:--:--</span></div>
     <div>Proxima atualizacao em <span id="ctd" style="color:#0070C0">--:--</span></div>
-    <div>STUDYO4 - Painel de Producao</div>
+    <div>STUDYO4 - Painel de Producao &nbsp;·&nbsp; <span style="color:rgba(255,255,255,0.2)">© Junior Corrêa · Todos os direitos reservados</span></div>
   </div>
 </div>
 <script>
@@ -189,6 +189,14 @@ function buildMetaMes(cid,totalAc,metaMes){
   var metaPos=metaMes>0?Math.min(100,Math.round(metaMes/Math.max(metaMes,totalAc)*100)):100;
   el.innerHTML='<div class="mtb-label">META DO MES — '+totalAc+' / '+metaMes+' pecas ('+pct+'%)</div><div class="mtb-wrap"><div class="mtb-fill" style="width:'+Math.min(pct,100)+'%;background:'+barColor+'"></div><div class="mtb-line" style="left:'+metaPos+'%"></div><div class="mtb-pct">'+pct+'%</div></div>';
 }
+
+function buildMetaCol(cid,totalDia,meta,color){
+  var el=document.getElementById(cid);if(!el)return;
+  var pct=meta>0?Math.min(Math.round(totalDia/meta*100),150):0;
+  var barColor=pct>=100?'#00B050':pct>=70?'#EF9F27':'#FF0066';
+  var metaPos=meta>0?Math.min(100,Math.round(meta/Math.max(meta,totalDia)*100)):100;
+  el.innerHTML='<div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Meta dia: '+totalDia+' / '+meta+' ('+pct+'%)</div><div style="position:relative;height:8px;background:#1a1a1a;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:'+barColor+';border-radius:4px;transition:width .8s ease"></div><div style="position:absolute;top:0;height:100%;width:2px;background:rgba(255,255,255,0.4);left:'+metaPos+'%"></div></div>';
+}
 async function carregarDados(){
   try{
     var r0=await fetch(COLAB_URL);
@@ -251,6 +259,9 @@ function processar(csv){
   var totalAcMes=rMarc.reduce(function(s,r){return s+r.ac;},0)+rEspu.reduce(function(s,r){return s+r.ac;},0)+rMont.reduce(function(s,r){return s+r.ac;},0);
   buildMetaMes('meta-mes',totalAcMes,metaMes);
   buildMetaTotal('meta-total-marc',tTotal,METAS['Meta_Marcenaria_Total']||35,'#0070C0');
+  buildMetaCol('mc-marc',tM,METAS['Meta_Marcenaria_Total']||35,'#0070C0');
+  buildMetaCol('mc-espu',tE,METAS['Meta_Marcenaria_Total']||35,'#EF9F27');
+  buildMetaCol('mc-mont',tMo,METAS['Meta_Marcenaria_Total']||35,'#FF0066');
   buildMetaRanking('tb-marc',rMarc,'#0070C0');
   buildMetaRanking('tb-espu',rEspu,'#EF9F27');
   buildMetaRanking('tb-mont',rMont,'#FF0066');
