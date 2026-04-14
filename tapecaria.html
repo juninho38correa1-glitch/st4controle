@@ -4,34 +4,49 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="refresh" content="300">
-<title>TV Tapecaria - Studyo4</title>
+<title>TV Costura - Studyo4</title>
 <style>*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;background:#0a0a0a;font-family:Arial,sans-serif}.tv{background:#0a0a0a;padding:14px;display:flex;flex-direction:column;gap:12px;min-height:100vh}.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px}.logo{font-size:14px;font-weight:700;letter-spacing:3px;color:#fff}.logo span{color:#FF0066}.setor-tag{font-size:11px;font-weight:700;letter-spacing:2px;padding:4px 14px;text-transform:uppercase}.clk{font-size:28px;font-weight:700;color:#fff;letter-spacing:4px}.dt{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;text-align:right}.score-grid{display:grid;gap:2px}.score-cell{background:#111;padding:14px 18px;display:flex;flex-direction:column;gap:4px;border-left:4px solid}.score-label{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase}.score-val{font-size:44px;font-weight:700;line-height:1;letter-spacing:-2px}.score-sub{font-size:10px;color:rgba(255,255,255,0.25)}.score-bar-bg{height:4px;background:#1a1a1a;border-radius:2px;overflow:hidden;margin-top:4px}.score-bar-f{height:100%;border-radius:2px;transition:width .6s ease}.main-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;flex:1}.side-stack{display:flex;flex-direction:column;gap:12px}.rank-card{background:#111;padding:14px 16px;flex:1}.rank-title{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:10px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #1a1a1a}.meta-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #141414}.meta-row:last-child{border:none}.mpos{font-size:16px;font-weight:700;width:28px;color:rgba(255,255,255,0.15);flex-shrink:0;text-align:center}.mpos.g{color:#FFD700}.mpos.s{color:#C0C0C0}.mpos.b{color:#CD7F32}.mname{font-size:13px;font-weight:700;color:#fff;width:110px;flex-shrink:0;line-height:1.3}.mbar-wrap{flex:1;position:relative}.mbar-bg{height:14px;background:#1a1a1a;border-radius:3px;overflow:hidden;position:relative}.mbar-f{height:100%;border-radius:3px;transition:width .8s ease;position:relative}.mbar-meta{position:absolute;top:0;width:2px;height:100%;background:rgba(255,255,255,0.4)}.mpct{font-size:11px;font-weight:700;width:38px;text-align:right;flex-shrink:0}.mqty{font-size:14px;font-weight:700;width:36px;text-align:right;flex-shrink:0}.meta-badge{font-size:9px;padding:2px 6px;border-radius:10px;font-weight:700;flex-shrink:0;min-width:46px;text-align:center}.badge-ok{background:rgba(0,176,80,0.2);color:#00B050;border:1px solid rgba(0,176,80,0.3)}.badge-no{background:rgba(255,0,102,0.1);color:rgba(255,0,102,0.5);border:1px solid rgba(255,0,102,0.2)}.chart-card{background:#111;padding:14px 16px}.chart-title{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:10px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #1a1a1a}.chart-wrap{position:relative;height:160px}.mini-card{background:#111;padding:12px 16px}.mini-title{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #1a1a1a}.mini-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #111}.mini-row:last-child{border:none;font-weight:700;color:rgba(255,255,255,0.4);padding-top:6px;border-top:1px solid #1a1a1a;margin-top:2px}.mini-name{font-size:12px;color:#ccc}.mini-v1{font-size:13px;font-weight:700}.mini-v2{font-size:11px;color:rgba(255,255,255,0.25)}.status-ok{background:#0a1a0a;border:1px solid #00B050;padding:8px 14px;font-size:11px;color:#00B050;font-weight:700;letter-spacing:1px;text-align:center}.status-alert{background:#1a0a0a;border:1px solid #FF0000;padding:8px 14px;font-size:11px;color:#FF0000;font-weight:700;letter-spacing:1px;text-align:center;margin-bottom:4px}.meta-total-bar{background:#111;padding:12px 16px}.mtb-label{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:8px}.mtb-wrap{position:relative;height:20px;background:#1a1a1a;border-radius:4px;overflow:hidden}.mtb-fill{height:100%;border-radius:4px;transition:width .8s ease}.mtb-line{position:absolute;top:0;height:100%;width:2px;background:rgba(255,255,255,0.5)}.mtb-pct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:#fff}.footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid #1a1a1a;font-size:11px;color:rgba(255,255,255,0.2);font-weight:700;letter-spacing:.5px}.footer span{color:rgba(255,255,255,0.5)}#loading{position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999}.spinner{width:40px;height:40px;border:2px solid #222;border-top-color:#FF0066;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#loading p{color:rgba(255,255,255,0.3);font-size:12px;letter-spacing:2px;text-transform:uppercase}#erro{display:none;background:#1a0a0a;border:1px solid #FF0000;padding:16px;color:#FF6060;font-size:12px;margin:10px;line-height:1.8}</style>
 </head>
 <body>
 <div id="loading"><div class="spinner"></div><p>CARREGANDO PRODUCAO...</p></div>
 <div id="erro"></div>
 <div class="tv" id="app" style="display:none">
-  <div class="topbar" style="border-bottom:2px solid #00B050">
+  <div class="topbar" style="border-bottom:2px solid #FF0066">
     <div style="display:flex;align-items:center;gap:14px">
       <div class="logo">STUDYO<span>4</span></div>
       <div style="width:1px;height:24px;background:#222"></div>
-      <div class="setor-tag" style="color:#00B050;background:rgba(0,176,80,0.08);border:1px solid #00B050">TAPECARIA</div>
+      <div class="setor-tag" style="color:#FF0066;background:rgba(255,0,102,0.08);border:1px solid #FF0066">COSTURA</div>
     </div>
     <div style="text-align:right">
       <div class="clk" id="clk">--:--</div>
       <div class="dt" id="dt">--</div>
     </div>
   </div>
-  <div class="score-grid" style="grid-template-columns:repeat(4,1fr)"><div class="score-cell" style="border-color:#00B050"><div class="score-label">Tapecaria - hoje</div><div class="score-val" style="color:#00B050" id="s-tap-dia">-</div><div class="score-sub">pecas</div></div><div class="score-cell" style="border-color:#00B050"><div class="score-label">Tapecaria - mes</div><div class="score-val" style="color:#00B050" id="s-tap-ac">-</div><div class="score-sub" id="mes-atual">acumulado</div></div><div class="score-cell" style="border-color:#0070C0"><div class="score-label">Mont. Final - hoje</div><div class="score-val" style="color:#0070C0" id="s-montfinal">-</div><div class="score-sub">pecas</div></div><div class="score-cell" style="border-color:#888"><div class="score-label">Embalagem - hoje</div><div class="score-val" style="color:#aaa" id="s-emb">-</div><div class="score-sub">pecas</div></div></div><div id="meta-total-tap"></div><div class="main-grid"><div class="rank-card"><div class="rank-title">// tapecaria - ranking do dia</div><div id="tb-tap"></div><div class="chart-card" style="margin-top:12px;background:transparent;padding:0"><div class="chart-title">// grafico tapecaria - hoje</div><div class="chart-wrap"><canvas id="chart-tap"></canvas></div></div></div><div class="side-stack"><div class="mini-card"><div class="mini-title">// montagem final</div><div id="tb-montfinal"></div></div><div class="mini-card"><div class="mini-title">// embalagem</div><div id="tb-emb"></div></div></div></div>
+  <div class="score-grid" style="grid-template-columns:repeat(4,1fr)"><div class="score-cell" style="border-color:#FF0066"><div class="score-label">Corpo - hoje</div><div class="score-val" style="color:#FF0066" id="s-corpo-dia">-</div><div class="score-sub">pecas</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-corpo-dia" style="background:#FF0066;width:0%"></div></div></div><div class="score-cell" style="border-color:#FF0066"><div class="score-label">Corpo - mes</div><div class="score-val" style="color:#FF0066" id="s-corpo-ac">-</div><div class="score-sub" id="mes-atual">acumulado</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-corpo-ac" style="background:#FF0066;width:0%"></div></div></div><div class="score-cell" style="border-color:#0070C0"><div class="score-label">Almofada - hoje</div><div class="score-val" style="color:#0070C0" id="s-almof-dia">-</div><div class="score-sub">pecas</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-almof-dia" style="background:#0070C0;width:0%"></div></div></div><div class="score-cell" style="border-color:#0070C0"><div class="score-label">Almofada - mes</div><div class="score-val" style="color:#0070C0" id="s-almof-ac">-</div><div class="score-sub">acumulado</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-almof-ac" style="background:#0070C0;width:0%"></div></div></div></div><div id="meta-total-corpo"></div><div class="main-grid"><div class="rank-card"><div class="rank-title">// ranking corpo - meta: 12 por costureira</div><div id="tb-corpo-rank"></div><div class="chart-card" style="margin-top:12px;background:transparent;padding:0"><div class="chart-title">// grafico corpo - hoje</div><div class="chart-wrap"><canvas id="chart-corpo"></canvas></div></div></div><div class="side-stack"><div class="rank-card" style="flex:1"><div class="rank-title">// almofada - producao do dia</div><div id="tb-almof-rank"></div></div><div class="mini-card"><div class="mini-title">// retrabalho</div><div id="retrab-status"></div></div></div></div>
   <div class="footer">
     <div>Atualizado as <span id="upd">--:--:--</span></div>
-    <div>Proxima atualizacao em <span id="ctd" style="color:#00B050">--:--</span></div>
+    <div>Proxima atualizacao em <span id="ctd" style="color:#FF0066">--:--</span></div>
     <div>STUDYO4 - Painel de Producao</div>
   </div>
 </div>
 <script>
-var SHEET_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=697175273&single=true&output=csv';
+var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
+var CONFIG_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=626803240&single=true&output=csv';
 var INTERVALO_MIN=5;
+var METAS={};
+var INTERVALO_MIN=5;
+function nomeCurto(nome,max){
+  max=max||18;
+  if(!nome)return '';
+  var partes=nome.trim().split(' ');
+  var resultado=partes[0];
+  for(var i=1;i<partes.length;i++){
+    var tentativa=resultado+' '+partes[i];
+    if(tentativa.length<=max)resultado=tentativa;
+    else{resultado=resultado+'...';break;}
+  }
+  return resultado;
+}
 function pad(n){return String(n).padStart(2,'0');}
 function tickClock(){
   var n=new Date();
@@ -107,7 +122,7 @@ function buildMetaRanking(cid,rows,color,metaPorPessoa){
     var barColor=pct>=100?'#00B050':pct>=70?'#EF9F27':'#FF0066';
     var badgeClass=pct>=100?'badge-ok':'badge-no';
     var badgeText=pct>=100?'META ⭐':''+pct+'%';
-    return '<div class="meta-row"><div class="mpos '+medal+'">'+String(pos).padStart(2,'0')+'</div><div class="mname"><div>'+r.nome+'</div><div style="font-size:10px;font-weight:400;color:rgba(255,255,255,0.3);margin-top:2px">ac: '+r.ac+'</div></div><div class="mbar-wrap"><div class="mbar-bg"><div class="mbar-f" style="width:'+pctCap+'%;background:'+barColor+'"></div><div class="mbar-meta" style="left:'+metaPosX+'%"></div></div></div><div class="mpct" style="color:'+barColor+'">'+pct+'%</div><div class="mqty" style="color:'+color+'">'+r.dia+'</div><div class="meta-badge '+badgeClass+'">'+badgeText+'</div></div>';
+    return '<div class="meta-row"><div class="mpos '+medal+'">'+String(pos).padStart(2,'0')+'</div><div class="mname"><div>'+nomeCurto(r.nome,18)+'</div><div style="font-size:10px;font-weight:400;color:rgba(255,255,255,0.3);margin-top:2px">ac: '+r.ac+'</div></div><div class="mbar-wrap"><div class="mbar-bg"><div class="mbar-f" style="width:'+pctCap+'%;background:'+barColor+'"></div><div class="mbar-meta" style="left:'+metaPosX+'%"></div></div></div><div class="mpct" style="color:'+barColor+'">'+pct+'%</div><div class="mqty" style="color:'+color+'">'+r.dia+'</div><div class="meta-badge '+badgeClass+'">'+badgeText+'</div></div>';
   }).join('');
   var total=rows.reduce(function(s,r){return s+r.dia;},0);
   var totalAc=rows.reduce(function(s,r){return s+r.ac;},0);
@@ -164,9 +179,20 @@ function buildMini(cid,rows,color){
   html+='<div class="mini-row"><span class="mini-name">TOTAL</span><div style="display:flex;gap:12px"><span class="mini-v1" style="color:'+color+'">'+total+'</span><span class="mini-v2">mes: '+totalAc+'</span></div></div>';
   el.innerHTML=html;
 }
+function parseConfig(csv){
+  var linhas=csv.split('\n').filter(function(l){return l.trim();});
+  var map={};
+  for(var i=2;i<linhas.length;i++){
+    var c=parseCSVLine(linhas[i]);
+    if(c[0]&&c[1])map[c[0].trim()]=Number(c[1])||0;
+  }
+  return map;
+}
 async function carregarDados(){
   try{
-    var resp=await fetch(SHEET_URL);
+    var r1=await fetch(CONFIG_URL);
+    if(r1.ok){var configCSV=await r1.text();METAS=parseConfig(configCSV);}
+    var resp=await fetch(LANCAMENTOS_URL);
     if(!resp.ok)throw new Error('HTTP '+resp.status);
     var txt=await resp.text();
     processar(txt);
@@ -180,42 +206,58 @@ async function carregarDados(){
   }
 }
 function processar(csv){
-  var META_SETOR=35;
+  var META_PESSOA=METAS['Meta_Costura_Por_Pessoa']||12;
   var linhas=csv.split('\n').filter(function(l){return l.trim();});
   var lancamentos=[];
   for(var i=3;i<linhas.length;i++){
     var c=parseCSVLine(linhas[i]);
     if(!c[0]||!c[1])continue;
-    lancamentos.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3]});
+    lancamentos.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3],prodAlmof:c[4],retrabalho:c[5]});
   }
   var hoje=new Date();hoje.setHours(0,0,0,0);
   var mes=hoje.getMonth(),ano=hoje.getFullYear();
-  function agrupar(setorFiltro){
-    var map={};
-    lancamentos.forEach(function(l){
-      if(l.setor!==setorFiltro)return;
-      var dt=parseDate(l.data);if(!dt)return;
-      if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
-      var eHoje=dt.getTime()===hoje.getTime();
-      if(!map[l.nome])map[l.nome]={dia:0,ac:0};
-      map[l.nome].ac+=Number(l.prodCorpo)||0;
-      if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
-    });
-    return Object.keys(map).map(function(n){return{nome:n,dia:map[n].dia,ac:map[n].ac};});
+  var mapC={},mapA={},mapR={};
+  lancamentos.forEach(function(l){
+    if(l.setor!=='Costura')return;
+    var dt=parseDate(l.data);if(!dt)return;
+    if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
+    var eHoje=dt.getTime()===hoje.getTime();
+    if(!mapC[l.nome])mapC[l.nome]={dia:0,ac:0};
+    if(!mapA[l.nome])mapA[l.nome]={dia:0,ac:0};
+    if(!mapR[l.nome])mapR[l.nome]={dia:0,ac:0};
+    mapC[l.nome].ac+=Number(l.prodCorpo)||0;
+    mapA[l.nome].ac+=Number(l.prodAlmof)||0;
+    mapR[l.nome].ac+=Number(l.retrabalho)||0;
+    if(eHoje){
+      mapC[l.nome].dia+=Number(l.prodCorpo)||0;
+      mapA[l.nome].dia+=Number(l.prodAlmof)||0;
+      mapR[l.nome].dia+=Number(l.retrabalho)||0;
+    }
+  });
+  var rowsC=Object.keys(mapC).map(function(n){return{nome:n,dia:mapC[n].dia,ac:mapC[n].ac};});
+  var rowsA=Object.keys(mapA).map(function(n){return{nome:n,dia:mapA[n].dia,ac:mapA[n].ac};});
+  var rowsR=Object.keys(mapR).map(function(n){return{nome:n,dia:mapR[n].dia,ac:mapR[n].ac};});
+  var tCD=rowsC.reduce(function(s,r){return s+r.dia;},0);
+  var tCA=rowsC.reduce(function(s,r){return s+r.ac;},0);
+  var tAD=rowsA.reduce(function(s,r){return s+r.dia;},0);
+  var tAA=rowsA.reduce(function(s,r){return s+r.ac;},0);
+  var tRD=rowsR.reduce(function(s,r){return s+r.dia;},0);
+  var nCostureiras=rowsC.length||1;
+  var metaTotal=META_PESSOA*nCostureiras;
+  set('s-corpo-dia',tCD);set('s-corpo-ac',tCA);
+  set('s-almof-dia',tAD);set('s-almof-ac',tAA);
+  setBar('sb-corpo-dia',tCD,Math.max(tCA,tCD,1));setBar('sb-corpo-ac',tCA,Math.max(tCA,tCD,1));
+  setBar('sb-almof-dia',tAD,Math.max(tAA,tAD,1));setBar('sb-almof-ac',tAA,Math.max(tAA,tAD,1));
+  buildMetaRanking('tb-corpo-rank',rowsC,'#FF0066',META_PESSOA);
+  setTimeout(function(){buildChart('chart-corpo',rowsC,'#FF0066',META_PESSOA);},100);
+  buildMetaTotal('meta-total-corpo',tCD,metaTotal,'#FF0066');
+  buildMetaRanking('tb-almof-rank',rowsA,'#0070C0',META_PESSOA);
+  var el=document.getElementById('retrab-status');
+  if(el){
+    var comR=rowsR.filter(function(r){return r.dia>0;});
+    if(tRD===0){el.innerHTML='<div class="status-ok">NENHUM RETRABALHO HOJE</div>';}
+    else{el.innerHTML='<div class="status-alert">'+tRD+' PECA(S) EM RETRABALHO</div>'+comR.map(function(r){return '<div class="mini-row"><span class="mini-name">'+r.nome+'</span><span class="mini-v1" style="color:#FF0000">'+r.dia+'</span></div>';}).join('');}
   }
-  var tap=agrupar('Tapecaria');
-  var montfin=agrupar('Montagem Final');
-  var emb=agrupar('Embalagem');
-  var tTD=tap.reduce(function(s,r){return s+r.dia;},0);
-  var tTA=tap.reduce(function(s,r){return s+r.ac;},0);
-  set('s-tap-dia',tTD);set('s-tap-ac',tTA);
-  set('s-montfinal',montfin.reduce(function(s,r){return s+r.dia;},0));
-  set('s-emb',emb.reduce(function(s,r){return s+r.dia;},0));
-  buildMetaRanking('tb-tap',tap,'#00B050',0);
-  buildMetaTotal('meta-total-tap',tTD,META_SETOR,'#00B050');
-  setTimeout(function(){buildChart('chart-tap',tap,'#00B050',0);},100);
-  buildMetaRanking('tb-montfinal',montfin,'#0070C0',0);
-  buildMetaRanking('tb-emb',emb,'#aaa',0);
 }
 carregarDados();
 </script>
