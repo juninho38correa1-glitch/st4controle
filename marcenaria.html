@@ -4,8 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="refresh" content="300">
-<title>TV Marcenaria - Studyo4</title>
-<style>*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;background:#0a0a0a;font-family:Arial,sans-serif}.tv{background:#0a0a0a;padding:14px;display:flex;flex-direction:column;gap:12px;min-height:100vh}.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px}.logo{font-size:14px;font-weight:700;letter-spacing:3px;color:#fff}.logo span{color:#FF0066}.setor-tag{font-size:11px;font-weight:700;letter-spacing:2px;padding:4px 14px;text-transform:uppercase}.clk{font-size:28px;font-weight:700;color:#fff;letter-spacing:4px}.dt{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;text-align:right}.score-grid{display:grid;gap:2px}.score-cell{background:#111;padding:14px 18px;display:flex;flex-direction:column;gap:4px;border-left:4px solid}.score-label{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase}.score-val{font-size:44px;font-weight:700;line-height:1;letter-spacing:-2px}.score-sub{font-size:10px;color:rgba(255,255,255,0.25)}.score-bar-bg{height:4px;background:#1a1a1a;border-radius:2px;overflow:hidden;margin-top:4px}.score-bar-f{height:100%;border-radius:2px;transition:width .6s ease}.main-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;flex:1}.side-stack{display:flex;flex-direction:column;gap:12px}.rank-card{background:#111;padding:14px 16px;flex:1}.rank-title{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:10px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #1a1a1a}.meta-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #141414}.meta-row:last-child{border:none}.mpos{font-size:16px;font-weight:700;width:28px;color:rgba(255,255,255,0.15);flex-shrink:0;text-align:center}.mpos.g{color:#FFD700}.mpos.s{color:#C0C0C0}.mpos.b{color:#CD7F32}.mname{font-size:13px;font-weight:700;color:#fff;width:110px;flex-shrink:0;line-height:1.3}.mbar-wrap{flex:1;position:relative}.mbar-bg{height:14px;background:#1a1a1a;border-radius:3px;overflow:hidden;position:relative}.mbar-f{height:100%;border-radius:3px;transition:width .8s ease;position:relative}.mbar-meta{position:absolute;top:0;width:2px;height:100%;background:rgba(255,255,255,0.4)}.mpct{font-size:11px;font-weight:700;width:38px;text-align:right;flex-shrink:0}.mqty{font-size:14px;font-weight:700;width:36px;text-align:right;flex-shrink:0}.meta-badge{font-size:9px;padding:2px 6px;border-radius:10px;font-weight:700;flex-shrink:0;min-width:46px;text-align:center}.badge-ok{background:rgba(0,176,80,0.2);color:#00B050;border:1px solid rgba(0,176,80,0.3)}.badge-no{background:rgba(255,0,102,0.1);color:rgba(255,0,102,0.5);border:1px solid rgba(255,0,102,0.2)}.chart-card{background:#111;padding:14px 16px}.chart-title{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:10px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #1a1a1a}.chart-wrap{position:relative;height:160px}.mini-card{background:#111;padding:12px 16px}.mini-title{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #1a1a1a}.mini-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #111}.mini-row:last-child{border:none;font-weight:700;color:rgba(255,255,255,0.4);padding-top:6px;border-top:1px solid #1a1a1a;margin-top:2px}.mini-name{font-size:12px;color:#ccc}.mini-v1{font-size:13px;font-weight:700}.mini-v2{font-size:11px;color:rgba(255,255,255,0.25)}.status-ok{background:#0a1a0a;border:1px solid #00B050;padding:8px 14px;font-size:11px;color:#00B050;font-weight:700;letter-spacing:1px;text-align:center}.status-alert{background:#1a0a0a;border:1px solid #FF0000;padding:8px 14px;font-size:11px;color:#FF0000;font-weight:700;letter-spacing:1px;text-align:center;margin-bottom:4px}.meta-total-bar{background:#111;padding:12px 16px}.mtb-label{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:8px}.mtb-wrap{position:relative;height:20px;background:#1a1a1a;border-radius:4px;overflow:hidden}.mtb-fill{height:100%;border-radius:4px;transition:width .8s ease}.mtb-line{position:absolute;top:0;height:100%;width:2px;background:rgba(255,255,255,0.5)}.mtb-pct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:#fff}.footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid #1a1a1a;font-size:11px;color:rgba(255,255,255,0.2);font-weight:700;letter-spacing:.5px}.footer span{color:rgba(255,255,255,0.5)}#loading{position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999}.spinner{width:40px;height:40px;border:2px solid #222;border-top-color:#FF0066;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#loading p{color:rgba(255,255,255,0.3);font-size:12px;letter-spacing:2px;text-transform:uppercase}#erro{display:none;background:#1a0a0a;border:1px solid #FF0000;padding:16px;color:#FF6060;font-size:12px;margin:10px;line-height:1.8}</style>
+<title>TV Marcenaria/Espumacao - Studyo4</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;background:#0a0a0a;font-family:Arial,sans-serif}.tv{background:#0a0a0a;padding:14px;display:flex;flex-direction:column;gap:12px;min-height:100vh}.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px}.logo{font-size:14px;font-weight:700;letter-spacing:3px;color:#fff}.logo span{color:#FF0066}.setor-tag{font-size:11px;font-weight:700;letter-spacing:2px;padding:4px 14px;text-transform:uppercase}.clk{font-size:28px;font-weight:700;color:#fff;letter-spacing:4px}.dt{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;text-align:right}.score-grid{display:grid;gap:2px}.score-cell{background:#111;padding:14px 18px;display:flex;flex-direction:column;gap:4px;border-left:4px solid}.score-label{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase}.score-val{font-size:44px;font-weight:700;line-height:1;letter-spacing:-2px}.score-sub{font-size:10px;color:rgba(255,255,255,0.25)}.score-bar-bg{height:4px;background:#1a1a1a;border-radius:2px;overflow:hidden;margin-top:4px}.score-bar-f{height:100%;border-radius:2px;transition:width .6s ease}.main-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;flex:1}.side-stack{display:flex;flex-direction:column;gap:12px}.rank-card{background:#111;padding:14px 16px;flex:1}.rank-title{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:10px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #1a1a1a}.meta-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #141414}.meta-row:last-child{border:none}.mpos{font-size:16px;font-weight:700;width:28px;color:rgba(255,255,255,0.15);flex-shrink:0;text-align:center}.mpos.g{color:#FFD700}.mpos.s{color:#C0C0C0}.mpos.b{color:#CD7F32}.mname{font-size:13px;font-weight:700;color:#fff;width:110px;flex-shrink:0;line-height:1.3}.mbar-wrap{flex:1;position:relative}.mbar-bg{height:14px;background:#1a1a1a;border-radius:3px;overflow:hidden;position:relative}.mbar-f{height:100%;border-radius:3px;transition:width .8s ease;position:relative}.mbar-meta{position:absolute;top:0;width:2px;height:100%;background:rgba(255,255,255,0.4)}.mpct{font-size:11px;font-weight:700;width:38px;text-align:right;flex-shrink:0}.mqty{font-size:14px;font-weight:700;width:36px;text-align:right;flex-shrink:0}.meta-badge{font-size:9px;padding:2px 6px;border-radius:10px;font-weight:700;flex-shrink:0;min-width:46px;text-align:center}.badge-ok{background:rgba(0,176,80,0.2);color:#00B050;border:1px solid rgba(0,176,80,0.3)}.badge-no{background:rgba(255,0,102,0.1);color:rgba(255,0,102,0.5);border:1px solid rgba(255,0,102,0.2)}.chart-card{background:#111;padding:14px 16px}.chart-title{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:10px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #1a1a1a}.chart-wrap{position:relative;height:160px}.mini-card{background:#111;padding:12px 16px}.mini-title{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);margin-bottom:8px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid #1a1a1a}.mini-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #111}.mini-row:last-child{border:none;font-weight:700;color:rgba(255,255,255,0.4);padding-top:6px;border-top:1px solid #1a1a1a;margin-top:2px}.mini-name{font-size:12px;color:#ccc}.mini-v1{font-size:13px;font-weight:700}.mini-v2{font-size:11px;color:rgba(255,255,255,0.25)}.status-ok{background:#0a1a0a;border:1px solid #00B050;padding:8px 14px;font-size:11px;color:#00B050;font-weight:700;letter-spacing:1px;text-align:center}.status-alert{background:#1a0a0a;border:1px solid #FF0000;padding:8px 14px;font-size:11px;color:#FF0000;font-weight:700;letter-spacing:1px;text-align:center;margin-bottom:4px}.meta-total-bar{background:#111;padding:12px 16px}.mtb-label{font-size:10px;font-weight:700;letter-spacing:2px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:8px}.mtb-wrap{position:relative;height:20px;background:#1a1a1a;border-radius:4px;overflow:hidden}.mtb-fill{height:100%;border-radius:4px;transition:width .8s ease}.mtb-line{position:absolute;top:0;height:100%;width:2px;background:rgba(255,255,255,0.5)}.mtb-pct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:#fff}.footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid #1a1a1a;font-size:11px;color:rgba(255,255,255,0.2);font-weight:700;letter-spacing:.5px}.footer span{color:rgba(255,255,255,0.5)}#loading{position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999}.spinner{width:40px;height:40px;border:2px solid #222;border-top-color:#FF0066;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#loading p{color:rgba(255,255,255,0.3);font-size:12px;letter-spacing:2px;text-transform:uppercase}#erro{display:none;background:#1a0a0a;border:1px solid #FF0000;padding:16px;color:#FF6060;font-size:12px;margin:10px;line-height:1.8}
+.grid3col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;flex:1}
+.col-card{background:#111;padding:14px 16px;border-radius:0;display:flex;flex-direction:column;gap:10px}
+.col-header{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid;margin-bottom:4px}
+</style>
 </head>
 <body>
 <div id="loading"><div class="spinner"></div><p>CARREGANDO PRODUCAO...</p></div>
@@ -22,7 +26,55 @@
       <div class="dt" id="dt">--</div>
     </div>
   </div>
-  <div class="score-grid" style="grid-template-columns:repeat(2,1fr)"><div class="score-cell" style="border-color:#0070C0"><div class="score-label">Marcenaria/Espumacao - hoje</div><div class="score-val" style="color:#0070C0" id="s-marc">-</div><div class="score-sub">pecas</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-marc" style="background:#0070C0;width:0%"></div></div></div><div class="score-cell" style="border-color:#0070C0"><div class="score-label">Marcenaria/Espumacao - mes</div><div class="score-val" style="color:#0070C0" id="s-marc-ac">-</div><div class="score-sub" id="mes-atual">acumulado</div><div class="score-bar-bg"><div class="score-bar-f" id="sb-marc-ac" style="background:#0070C0;width:0%"></div></div></div></div><div id="meta-total-marc"></div><div class="main-grid" style="grid-template-columns:1fr 1fr"><div class="rank-card"><div class="rank-title">// ranking do dia - marcenaria / espumacao</div><div id="tb-marc"></div></div><div class="chart-card"><div class="chart-title">// grafico - producao hoje</div><div class="chart-wrap"><canvas id="chart-marc"></canvas></div></div></div>
+  
+<div class="score-grid" style="grid-template-columns:repeat(3,1fr)">
+  <div class="score-cell" style="border-color:#0070C0">
+    <div class="score-label">Marcenaria — hoje</div>
+    <div class="score-val" style="color:#0070C0" id="s-marc">-</div>
+    <div class="score-sub">pecas</div>
+    <div class="score-bar-bg"><div class="score-bar-f" id="sb-marc" style="background:#0070C0;width:0%"></div></div>
+  </div>
+  <div class="score-cell" style="border-color:#EF9F27">
+    <div class="score-label">Espumacao/Laminacao — hoje</div>
+    <div class="score-val" style="color:#EF9F27" id="s-espu">-</div>
+    <div class="score-sub">pecas</div>
+    <div class="score-bar-bg"><div class="score-bar-f" id="sb-espu" style="background:#EF9F27;width:0%"></div></div>
+  </div>
+  <div class="score-cell" style="border-color:#FF0066">
+    <div class="score-label">Montagem/Preparacao — hoje</div>
+    <div class="score-val" style="color:#FF0066" id="s-mont">-</div>
+    <div class="score-sub">pecas</div>
+    <div class="score-bar-bg"><div class="score-bar-f" id="sb-mont" style="background:#FF0066;width:0%"></div></div>
+  </div>
+</div>
+<div id="meta-total-marc"></div>
+<div class="grid3col">
+  <div class="col-card">
+    <div class="col-header" style="color:#0070C0;border-color:#0070C0">// Marcenaria · CNC · Laminacao Madeira</div>
+    <div id="tb-marc"></div>
+    <div class="chart-card" style="background:transparent;padding:0;margin-top:8px">
+      <div class="chart-title">// grafico</div>
+      <div class="chart-wrap"><canvas id="chart-marc"></canvas></div>
+    </div>
+  </div>
+  <div class="col-card">
+    <div class="col-header" style="color:#EF9F27;border-color:#EF9F27">// Espumacao · Laminacao Espuma</div>
+    <div id="tb-espu"></div>
+    <div class="chart-card" style="background:transparent;padding:0;margin-top:8px">
+      <div class="chart-title">// grafico</div>
+      <div class="chart-wrap"><canvas id="chart-espu"></canvas></div>
+    </div>
+  </div>
+  <div class="col-card">
+    <div class="col-header" style="color:#FF0066;border-color:#FF0066">// Montagem Estrutural · Preparacao</div>
+    <div id="tb-mont"></div>
+    <div class="chart-card" style="background:transparent;padding:0;margin-top:8px">
+      <div class="chart-title">// grafico</div>
+      <div class="chart-wrap"><canvas id="chart-mont"></canvas></div>
+    </div>
+  </div>
+</div>
+
   <div class="footer">
     <div>Atualizado as <span id="upd">--:--:--</span></div>
     <div>Proxima atualizacao em <span id="ctd" style="color:#0070C0">--:--</span></div>
@@ -32,22 +84,17 @@
 <script>
 var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
 var CONFIG_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=626803240&single=true&output=csv';
+var COLAB_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1534833771&single=true&output=csv';
 var INTERVALO_MIN=5;
 var METAS={};
-var INTERVALO_MIN=5;
-function nomeCurto(nome,max){
-  max=max||18;
-  if(!nome)return '';
-  var partes=nome.trim().split(' ');
-  var resultado=partes[0];
-  for(var i=1;i<partes.length;i++){
-    var tentativa=resultado+' '+partes[i];
-    if(tentativa.length<=max)resultado=tentativa;
-    else{resultado=resultado+'...';break;}
-  }
-  return resultado;
-}
+var SUBSETORES={};
 function pad(n){return String(n).padStart(2,'0');}
+function nomeCurto(nome,max){
+  max=max||18;if(!nome)return '';
+  var p=nome.trim().split(' ');var r=p[0];
+  for(var i=1;i<p.length;i++){var t=r+' '+p[i];if(t.length<=max)r=t;else{r=r+'...';break;}}
+  return r;
+}
 function tickClock(){
   var n=new Date();
   document.getElementById('clk').textContent=pad(n.getHours())+':'+pad(n.getMinutes());
@@ -55,8 +102,6 @@ function tickClock(){
   var ms=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   document.getElementById('dt').textContent=ds[n.getDay()]+', '+n.getDate()+' de '+ms[n.getMonth()]+' de '+n.getFullYear();
   document.getElementById('upd').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
-  var mel=document.getElementById('mes-atual');
-  if(mel)mel.textContent='Acumulado: '+ms[n.getMonth()]+' '+n.getFullYear();
 }
 var countdown=INTERVALO_MIN*60;
 function tickCountdown(){
@@ -74,110 +119,24 @@ function parseCSVLine(line){
     else if(line[i]===','&&!inQ){r.push(cur.trim().replace(/^"|"$/g,''));cur='';}
     else if(line[i]!=='"'){cur+=line[i];}
   }
-  r.push(cur.trim().replace(/^"|"$/g,''));
-  return r;
+  r.push(cur.trim().replace(/^"|"$/g,''));return r;
 }
 function parseDate(str){
-  if(!str)return null;
-  str=str.trim();
-  var parts,d,m,y;
-  var sl=str.indexOf('/');
-  var da=str.indexOf('-');
-  if(sl!==-1){
-    parts=str.split('/');
-    if(parts[2]&&parts[2].length===4){d=+parts[0];m=+parts[1];y=+parts[2];}
-    else{m=+parts[0];d=+parts[1];y=+parts[2];}
-  }else if(da!==-1){
-    parts=str.split('-');y=+parts[0];m=+parts[1];d=+parts[2];
-  }else{return null;}
-  if(!y||!m||!d)return null;
-  return new Date(y,m-1,d);
+  if(!str)return null;str=str.trim();
+  var parts,d,m,y,sl=str.indexOf('/'),da=str.indexOf('-');
+  if(sl!==-1){parts=str.split('/');if(parts[2]&&parts[2].length===4){d=+parts[0];m=+parts[1];y=+parts[2];}else{m=+parts[0];d=+parts[1];y=+parts[2];}}
+  else if(da!==-1){parts=str.split('-');y=+parts[0];m=+parts[1];d=+parts[2];}
+  else return null;
+  if(!y||!m||!d)return null;return new Date(y,m-1,d);
 }
-function agruparSetor(lancamentos,setorFiltro){
-  var hoje=new Date();hoje.setHours(0,0,0,0);
-  var mes=hoje.getMonth(),ano=hoje.getFullYear();
+function parseColab(csv){
+  var linhas=csv.split('\n').filter(function(l){return l.trim();});
   var map={};
-  lancamentos.forEach(function(l){
-    if(l.setor!==setorFiltro)return;
-    var dt=parseDate(l.data);if(!dt)return;
-    if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
-    var eHoje=dt.getTime()===hoje.getTime();
-    if(!map[l.nome])map[l.nome]={dia:0,ac:0};
-    map[l.nome].ac+=Number(l.prodCorpo)||0;
-    if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
-  });
-  return Object.keys(map).map(function(nome){return{nome:nome,dia:map[nome].dia,ac:map[nome].ac};});
-}
-function buildMetaRanking(cid,rows,color,metaPorPessoa){
-  var el=document.getElementById(cid);if(!el)return;
-  var sorted=rows.slice().sort(function(a,b){return b.dia-a.dia;});
-  var medals=['g','s','b'];
-  var prev=-1,pos=0;
-  var html=sorted.map(function(r,i){
-    if(r.dia!==prev){pos=i+1;prev=r.dia;}
-    var medal=pos<=3?medals[pos-1]:'';
-    var pct=metaPorPessoa>0?Math.round(r.dia/metaPorPessoa*100):0;
-    var pctCap=Math.min(pct,100);
-    var metaPosX=metaPorPessoa>0?Math.min(100,Math.round(metaPorPessoa/Math.max(metaPorPessoa,r.dia)*100)):100;
-    var barColor=pct>=100?'#00B050':pct>=70?'#EF9F27':'#FF0066';
-    var badgeClass=pct>=100?'badge-ok':'badge-no';
-    var badgeText=pct>=100?'META ⭐':''+pct+'%';
-    return '<div class="meta-row"><div class="mpos '+medal+'">'+String(pos).padStart(2,'0')+'</div><div class="mname"><div>'+nomeCurto(r.nome,18)+'</div><div style="font-size:10px;font-weight:400;color:rgba(255,255,255,0.3);margin-top:2px">ac: '+r.ac+'</div></div><div class="mbar-wrap"><div class="mbar-bg"><div class="mbar-f" style="width:'+pctCap+'%;background:'+barColor+'"></div><div class="mbar-meta" style="left:'+metaPosX+'%"></div></div></div><div class="mpct" style="color:'+barColor+'">'+pct+'%</div><div class="mqty" style="color:'+color+'">'+r.dia+'</div><div class="meta-badge '+badgeClass+'">'+badgeText+'</div></div>';
-  }).join('');
-  var total=rows.reduce(function(s,r){return s+r.dia;},0);
-  var totalAc=rows.reduce(function(s,r){return s+r.ac;},0);
-  html+='<div class="meta-row"><div class="mpos"></div><div class="mname" style="color:rgba(255,255,255,0.4);font-size:11px">TOTAL</div><div class="mbar-wrap"></div><div class="mpct"></div><div class="mqty" style="color:rgba(255,255,255,0.4);font-size:12px">'+total+'</div><div class="meta-badge" style="font-size:9px;color:rgba(255,255,255,0.3)">ac:'+totalAc+'</div></div>';
-  el.innerHTML=html;
-  return{dia:total,ac:totalAc};
-}
-function buildChart(canvasId,rows,color,metaPorPessoa){
-  var canvas=document.getElementById(canvasId);if(!canvas)return;
-  var ctx=canvas.getContext('2d');
-  var sorted=rows.slice().sort(function(a,b){return b.dia-a.dia;});
-  var W=canvas.offsetWidth||400;
-  var H=canvas.offsetHeight||150;
-  canvas.width=W;canvas.height=H;
-  ctx.clearRect(0,0,W,H);
-  var n=sorted.length;if(n===0)return;
-  var maxVal=Math.max(metaPorPessoa*1.2,sorted[0].dia*1.1,1);
-  var barW=Math.floor((W-20)/(n*1.4));
-  var gap=Math.floor(barW*0.4);
-  var startX=10;
-  var metaY=H-20-Math.round((metaPorPessoa/maxVal)*(H-30));
-  ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.setLineDash([4,4]);ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(0,metaY);ctx.lineTo(W,metaY);ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font='9px Arial';
-  ctx.fillText('META '+metaPorPessoa,4,metaY-3);
-  sorted.forEach(function(r,i){
-    var x=startX+i*(barW+gap);
-    var barH=Math.round((r.dia/maxVal)*(H-30));
-    var y=H-20-barH;
-    var pct=metaPorPessoa>0?r.dia/metaPorPessoa:0;
-    var c=pct>=1?'#00B050':pct>=0.7?'#EF9F27':'#FF0066';
-    ctx.fillStyle=c;
-    ctx.fillRect(x,y,barW,barH);
-    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='9px Arial';ctx.textAlign='center';
-    ctx.fillText(r.dia,x+barW/2,y-3);
-    ctx.fillStyle='rgba(255,255,255,0.35)';ctx.font='8px Arial';
-    var nome=r.nome.split(' ')[0];
-    ctx.fillText(nome,x+barW/2,H-5);
-  });
-}
-function buildMetaTotal(cid,totalDia,meta,color){
-  var el=document.getElementById(cid);if(!el)return;
-  var pct=meta>0?Math.min(Math.round(totalDia/meta*100),150):0;
-  var barColor=pct>=100?'#00B050':pct>=70?'#EF9F27':'#FF0066';
-  var metaPos=Math.min(100,Math.round(meta/Math.max(meta,totalDia)*100));
-  el.innerHTML='<div class="mtb-label">PROGRESSO DA META DO DIA — '+totalDia+' / '+meta+' pecas ('+pct+'%)</div><div class="mtb-wrap"><div class="mtb-fill" style="width:'+Math.min(pct,100)+'%;background:'+barColor+'"></div><div class="mtb-line" style="left:'+metaPos+'%"></div><div class="mtb-pct">'+pct+'%</div></div>';
-}
-function buildMini(cid,rows,color){
-  var el=document.getElementById(cid);if(!el)return;
-  var total=0,totalAc=0;
-  rows.forEach(function(r){total+=r.dia;totalAc+=r.ac;});
-  var html=rows.map(function(r){return '<div class="mini-row"><span class="mini-name">'+r.nome+'</span><div style="display:flex;gap:12px"><span class="mini-v1" style="color:'+color+'">'+r.dia+'</span><span class="mini-v2">mes: '+r.ac+'</span></div></div>';}).join('');
-  html+='<div class="mini-row"><span class="mini-name">TOTAL</span><div style="display:flex;gap:12px"><span class="mini-v1" style="color:'+color+'">'+total+'</span><span class="mini-v2">mes: '+totalAc+'</span></div></div>';
-  el.innerHTML=html;
+  for(var i=2;i<linhas.length;i++){
+    var c=parseCSVLine(linhas[i]);
+    if(c[0]&&c[2])map[c[0].trim()]=c[2].trim();
+  }
+  return map;
 }
 function parseConfig(csv){
   var linhas=csv.split('\n').filter(function(l){return l.trim();});
@@ -188,13 +147,120 @@ function parseConfig(csv){
   }
   return map;
 }
+function buildMetaRanking(cid,rows,color,metaPorPessoa){
+  var el=document.getElementById(cid);if(!el)return;
+  var sorted=rows.slice().sort(function(a,b){return b.dia-a.dia;});
+  var medals=['g','s','b'];var prev=-1,pos=0;
+  var html=sorted.map(function(r,i){
+    if(r.dia!==prev){pos=i+1;prev=r.dia;}
+    var medal=pos<=3?medals[pos-1]:'';
+    var pct=metaPorPessoa>0?Math.round(r.dia/metaPorPessoa*100):0;
+    var pctCap=Math.min(pct,100);
+    var metaPosX=metaPorPessoa>0?Math.min(100,Math.round(metaPorPessoa/Math.max(metaPorPessoa,r.dia)*100)):100;
+    var barColor=metaPorPessoa>0?(pct>=100?'#00B050':pct>=70?'#EF9F27':'#FF0066'):color;
+    var badgeHtml=metaPorPessoa>0?('<div class="meta-badge '+(pct>=100?'badge-ok':'badge-no')+'">'+(pct>=100?'META ⭐':pct+'%')+'</div>'):'';
+    var nomeExib=nomeCurto(r.nome,18);
+    return '<div class="meta-row"><div class="mpos '+medal+'">'+String(pos).padStart(2,'0')+'</div><div class="mname"><div>'+nomeExib+'</div><div style="font-size:10px;font-weight:400;color:rgba(255,255,255,0.3);margin-top:2px">ac: '+r.ac+'</div></div><div class="mbar-wrap"><div class="mbar-bg"><div class="mbar-f" style="width:'+pctCap+'%;background:'+barColor+'"></div><div class="mbar-meta" style="left:'+metaPosX+'%"></div></div></div><div class="mpct" style="color:'+barColor+'">'+(metaPorPessoa>0?pct+'%':'')+'</div><div class="mqty" style="color:'+color+'">'+r.dia+'</div>'+badgeHtml+'</div>';
+  }).join('');
+  var total=rows.reduce(function(s,r){return s+r.dia;},0);
+  var totalAc=rows.reduce(function(s,r){return s+r.ac;},0);
+  html+='<div class="meta-row"><div class="mpos"></div><div class="mname" style="color:rgba(255,255,255,0.4);font-size:11px">TOTAL</div><div class="mbar-wrap"></div><div class="mpct"></div><div class="mqty" style="color:rgba(255,255,255,0.4);font-size:12px">'+total+'</div><div class="meta-badge" style="font-size:9px;color:rgba(255,255,255,0.3)">ac:'+totalAc+'</div></div>';
+  el.innerHTML=html;
+}
+function buildChart(canvasId,rows,color,meta){
+  var canvas=document.getElementById(canvasId);if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var sorted=rows.slice().sort(function(a,b){return b.dia-a.dia;});
+  var W=canvas.offsetWidth||300;var H=canvas.offsetHeight||150;
+  canvas.width=W;canvas.height=H;ctx.clearRect(0,0,W,H);
+  var n=sorted.length;if(n===0)return;
+  var maxVal=Math.max(meta*1.2,sorted[0]?sorted[0].dia*1.1:1,1);
+  var barW=Math.floor((W-20)/(n*1.4));var gap=Math.floor(barW*0.4);
+  if(meta>0){
+    var metaY=H-20-Math.round((meta/maxVal)*(H-30));
+    ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.setLineDash([4,4]);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(0,metaY);ctx.lineTo(W,metaY);ctx.stroke();
+    ctx.setLineDash([]);ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font='9px Arial';
+    ctx.fillText('META '+meta,4,metaY-3);
+  }
+  sorted.forEach(function(r,i){
+    var x=10+i*(barW+gap);var barH=Math.round((r.dia/maxVal)*(H-30));var y=H-20-barH;
+    var pct=meta>0?r.dia/meta:0;
+    var c=meta>0?(pct>=1?'#00B050':pct>=0.7?'#EF9F27':'#FF0066'):color;
+    ctx.fillStyle=c;ctx.fillRect(x,y,barW,barH);
+    ctx.fillStyle='rgba(255,255,255,0.5)';ctx.font='9px Arial';ctx.textAlign='center';
+    ctx.fillText(r.dia,x+barW/2,y-3);
+    ctx.fillStyle='rgba(255,255,255,0.35)';ctx.font='8px Arial';
+    ctx.fillText(nomeCurto(r.nome,8),x+barW/2,H-5);
+  });
+}
+function buildMetaTotal(cid,totalDia,meta,color){
+  var el=document.getElementById(cid);if(!el)return;
+  var pct=meta>0?Math.min(Math.round(totalDia/meta*100),150):0;
+  var barColor=pct>=100?'#00B050':pct>=70?'#EF9F27':'#FF0066';
+  var metaPos=meta>0?Math.min(100,Math.round(meta/Math.max(meta,totalDia)*100)):100;
+  el.innerHTML='<div class="mtb-label">PROGRESSO GERAL — '+totalDia+' / '+meta+' pecas ('+pct+'%)</div><div class="mtb-wrap"><div class="mtb-fill" style="width:'+Math.min(pct,100)+'%;background:'+barColor+'"></div><div class="mtb-line" style="left:'+metaPos+'%"></div><div class="mtb-pct">'+pct+'%</div></div>';
+}
+function processar(csv){
+  var META=METAS['Meta_Marcenaria_Total']||35;
+  var SUBS_MARC=['Marcenaria','CNC','Laminacao Madeira','Marceneiro'];
+  var SUBS_ESPU=['Espumacao','Laminacao Espuma'];
+  var SUBS_MONT=['Montagem Estrutural','Preparacao'];
+  var linhas=csv.split('\n').filter(function(l){return l.trim();});
+  var lancamentos=[];
+  for(var i=3;i<linhas.length;i++){
+    var c=parseCSVLine(linhas[i]);
+    if(!c[0]||!c[1])continue;
+    if(c[2]==='Marcenaria/Espumacao'){
+      var sub=SUBSETORES[c[1].trim()]||'';
+      lancamentos.push({data:c[0],nome:c[1],setor:c[2],sub:sub,prodCorpo:c[3]});
+    }
+  }
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var mes=hoje.getMonth(),ano=hoje.getFullYear();
+  function ag(subList){
+    var map={};
+    lancamentos.forEach(function(l){
+      if(subList.indexOf(l.sub)===-1)return;
+      var dt=parseDate(l.data);if(!dt)return;
+      if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
+      var eHoje=dt.getTime()===hoje.getTime();
+      if(!map[l.nome])map[l.nome]={dia:0,ac:0};
+      map[l.nome].ac+=Number(l.prodCorpo)||0;
+      if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
+    });
+    return Object.keys(map).map(function(n){return{nome:n,dia:map[n].dia,ac:map[n].ac};});
+  }
+  var rowsMarc=ag(SUBS_MARC);
+  var rowsEspu=ag(SUBS_ESPU);
+  var rowsMont=ag(SUBS_MONT);
+  var tMarc=rowsMarc.reduce(function(s,r){return s+r.dia;},0);
+  var tEspu=rowsEspu.reduce(function(s,r){return s+r.dia;},0);
+  var tMont=rowsMont.reduce(function(s,r){return s+r.dia;},0);
+  var tTotal=tMarc+tEspu+tMont;
+  set('s-marc',tMarc);set('s-espu',tEspu);set('s-mont',tMont);
+  setBar('sb-marc',tMarc,Math.max(META*1.2,tTotal,1));
+  setBar('sb-espu',tEspu,Math.max(META*1.2,tTotal,1));
+  setBar('sb-mont',tMont,Math.max(META*1.2,tTotal,1));
+  buildMetaTotal('meta-total-marc',tTotal,META,'#0070C0');
+  buildMetaRanking('tb-marc',rowsMarc,'#0070C0',0);
+  buildMetaRanking('tb-espu',rowsEspu,'#EF9F27',0);
+  buildMetaRanking('tb-mont',rowsMont,'#FF0066',0);
+  setTimeout(function(){
+    buildChart('chart-marc',rowsMarc,'#0070C0',0);
+    buildChart('chart-espu',rowsEspu,'#EF9F27',0);
+    buildChart('chart-mont',rowsMont,'#FF0066',0);
+  },100);
+}
 async function carregarDados(){
   try{
+    var r0=await fetch(COLAB_URL);
+    if(r0.ok){var colabCSV=await r0.text();SUBSETORES=parseColab(colabCSV);}
     var r1=await fetch(CONFIG_URL);
     if(r1.ok){var configCSV=await r1.text();METAS=parseConfig(configCSV);}
-    var resp=await fetch(LANCAMENTOS_URL);
-    if(!resp.ok)throw new Error('HTTP '+resp.status);
-    var txt=await resp.text();
+    var r2=await fetch(LANCAMENTOS_URL);
+    if(!r2.ok)throw new Error('HTTP '+r2.status);
+    var txt=await r2.text();
     processar(txt);
     document.getElementById('loading').style.display='none';
     document.getElementById('app').style.display='flex';
@@ -202,39 +268,8 @@ async function carregarDados(){
   }catch(e){
     document.getElementById('loading').style.display='none';
     document.getElementById('erro').style.display='block';
-    document.getElementById('erro').innerHTML='<strong>Erro ao carregar dados</strong><br><br>Verifique a conexao e a publicacao do Sheets.<br><br><span style="color:#555">'+e.message+'</span>';
+    document.getElementById('erro').innerHTML='<strong>Erro ao carregar</strong><br>'+e.message;
   }
-}
-function processar(csv){
-  var META_SETOR=METAS['Meta_Marcenaria_Total']||35;
-  var linhas=csv.split('\n').filter(function(l){return l.trim();});
-  var lancamentos=[];
-  for(var i=3;i<linhas.length;i++){
-    var c=parseCSVLine(linhas[i]);
-    if(!c[0]||!c[1])continue;
-    lancamentos.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3]});
-  }
-  var hoje=new Date();hoje.setHours(0,0,0,0);
-  var mes=hoje.getMonth(),ano=hoje.getFullYear();
-  var map={};
-  lancamentos.forEach(function(l){
-    if(l.setor!=='Marcenaria/Espumacao')return;
-    var dt=parseDate(l.data);if(!dt)return;
-    if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
-    var eHoje=dt.getTime()===hoje.getTime();
-    if(!map[l.nome])map[l.nome]={dia:0,ac:0};
-    map[l.nome].ac+=Number(l.prodCorpo)||0;
-    if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
-  });
-  var rows=Object.keys(map).map(function(n){return{nome:n,dia:map[n].dia,ac:map[n].ac};});
-  var tD=rows.reduce(function(s,r){return s+r.dia;},0);
-  var tA=rows.reduce(function(s,r){return s+r.ac;},0);
-  set('s-marc',tD);set('s-marc-ac',tA);
-  setBar('sb-marc',tD,Math.max(META_SETOR*1.2,tD,1));
-  setBar('sb-marc-ac',tA,Math.max(tA,tD,1));
-  buildMetaRanking('tb-marc',rows,'#0070C0',0);
-  buildMetaTotal('meta-total-marc',tD,META_SETOR,'#0070C0');
-  setTimeout(function(){buildChart('chart-marc',rows,'#0070C0',0);},100);
 }
 carregarDados();
 </script>
