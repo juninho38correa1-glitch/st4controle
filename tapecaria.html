@@ -211,21 +211,33 @@ function diasUteisMes(){
 }
 function calcMetaMes(setorFiltro){
   var uteis=diasUteisMes();
+  var vistos={};
   var total=0;
   Object.keys(COLAB_DATA).forEach(function(nome){
     var cd=COLAB_DATA[nome];
-    if(cd&&cd.setor===setorFiltro&&cd.meta>0)total+=cd.meta;
+    if(cd&&cd.setor===setorFiltro&&cd.meta>0&&!vistos[nome]){
+      vistos[nome]=true;
+      total+=cd.meta;
+    }
   });
   return total*uteis;
 }
 function calcMetaMesSubs(subList){
   var uteis=diasUteisMes();
+  var vistos={};
   var total=0;
   Object.keys(COLAB_DATA).forEach(function(nome){
     var cd=COLAB_DATA[nome];
-    if(cd&&subList.indexOf(cd.sub)!==-1&&cd.meta>0)total+=cd.meta;
+    if(cd&&subList.indexOf(cd.sub)!==-1&&cd.meta>0&&!vistos[nome]){
+      vistos[nome]=true;
+      total+=cd.meta;
+    }
   });
   return total*uteis;
+}
+
+function calcMetaDiaPessoas(rows){
+  return rows.reduce(function(s,r){return s+(getMetaPessoa(r.nome)||35);},0);
 }
 async function carregarDados(){
   try{
@@ -283,9 +295,9 @@ function processar(csv){
   var metaMesTotal=metaMesTap+metaMesMont+metaMesEmb;
   var totalAcMes=tap.reduce(function(s,r){return s+r.ac;},0)+mont.reduce(function(s,r){return s+r.ac;},0)+emb.reduce(function(s,r){return s+r.ac;},0);
   buildMetaMes('meta-mes',totalAcMes,metaMesTotal);
-  buildMetaCol('mc-tap',tT,METAS['Meta_Tapecaria_Total']||35,'#00B050');
-  buildMetaCol('mc-mont',tM,METAS['Meta_MontFinal_Total']||35,'#0070C0');
-  buildMetaCol('mc-emb',tE,METAS['Meta_Embalagem_Total']||35,'#EF9F27');
+  buildMetaCol('mc-tap',tT,calcMetaDiaPessoas(tap),'#1a6b3a');
+  buildMetaCol('mc-mont',tM,calcMetaDiaPessoas(mont),'#1a5f8a');
+  buildMetaCol('mc-emb',tE,calcMetaDiaPessoas(emb),'#8a6010');
   buildMetaRanking('tb-tap',tap,'#00B050');
   buildMetaRanking('tb-mont',mont,'#0070C0');
   buildMetaRanking('tb-emb',emb,'#EF9F27');
