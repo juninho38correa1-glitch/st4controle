@@ -363,8 +363,29 @@ var SETOR_CONFIG={
   'Desenvolvimento':{cor:'#888780',duplo:false}
 };
 
+var COLAB_INDEX={};
+function buildColabIndex(){
+  COLAB_INDEX={};
+  Object.keys(COLAB_DATA).forEach(function(nome){
+    COLAB_INDEX[norm(nome)]=nome;
+  });
+}
+function getColab(nome){
+  if(!nome)return null;
+  var cd=COLAB_DATA[nome];
+  if(cd)return cd;
+  var nNorm=norm(nome);
+  var nomeReal=COLAB_INDEX[nNorm];
+  return nomeReal?COLAB_DATA[nomeReal]:null;
+}
+function getNomeReal(nome){
+  if(!nome)return nome;
+  if(COLAB_DATA[nome])return nome;
+  var nNorm=norm(nome);
+  return COLAB_INDEX[nNorm]||nome;
+}
 function buildSetores(){
-  // Agrupar todos colaboradores por setor da base
+  buildColabIndex();
   var map={};
   Object.keys(COLAB_DATA).forEach(function(nome){
     var cd=COLAB_DATA[nome];
@@ -466,9 +487,9 @@ function calcSetorData(setor,lans){
     var cd=COLAB_DATA[l.nome];
     if(!cd||!colaboradorNoSetor(cd,setor))return;
     var vC=Number(l.prodCorpo)||0;var vA=Number(l.prodAlmof)||0;
-    mapCorpo[l.nome]=(mapCorpo[l.nome]||0)+vC;
-    mapAlmof[l.nome]=(mapAlmof[l.nome]||0)+vA;
-    mapTotal[l.nome]=(mapTotal[l.nome]||0)+(setor.duplo?(vC+vA):vC);
+    mapCorpo[nomeReal]=(mapCorpo[nomeReal]||0)+vC;
+    mapAlmof[nomeReal]=(mapAlmof[nomeReal]||0)+vA;
+    mapTotal[nomeReal]=(mapTotal[nomeReal]||0)+(setor.duplo?(vC+vA):vC);
   });
   return{colabs:colabs,mapCorpo:mapCorpo,mapAlmof:mapAlmof,mapTotal:mapTotal};
 }
@@ -614,8 +635,8 @@ function renderGraficos(){
     var dt=parseDate(l.data);if(!dt)return;
     var key=dt.toDateString();
     if(prodPorDia[key]===undefined)return;
-    var cd=COLAB_DATA[l.nome];if(!cd)return;
-    var isCos=cd.setor==='Costura';
+    var cd=getColab(l.nome);if(!cd)return;
+    var isCos=norm(cd.setor)===norm('Costura');
     prodPorDia[key]+=isCos?((Number(l.prodCorpo)||0)+(Number(l.prodAlmof)||0)):(Number(l.prodCorpo)||0);
   });
   var mediaDia=diasMes.length>0?Math.round(Object.values(prodPorDia).reduce(function(s,v){return s+v;},0)/diasMes.length):0;
