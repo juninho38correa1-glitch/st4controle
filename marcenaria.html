@@ -303,6 +303,23 @@ function buildMetaColMes(cid,totalAc,metaMes){
   var metaPos=metaMes>0?Math.min(100,Math.round(metaMes/Math.max(metaMes,totalAc)*100)):100;
   el.innerHTML='<div style="font-size:9px;color:#6B5A4E;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;font-weight:600">Meta Mês: '+totalAc+' / '+metaMes+' ('+pct+'%)</div><div style="position:relative;height:6px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:'+barColor+';border-radius:3px;transition:width .8s ease"></div><div style="position:absolute;top:0;height:100%;width:2px;background:rgba(44,37,32,0.3);left:'+metaPos+'%"></div></div>';
 }
+
+function calcMetaDiaSetor(setorFiltro){
+  var total=0;
+  Object.keys(COLAB_DATA).forEach(function(nome){
+    var cd=COLAB_DATA[nome];
+    if(cd&&cd.setor===setorFiltro&&cd.meta>0)total+=cd.meta;
+  });
+  return total;
+}
+function calcMetaDiaSubs(subList){
+  var total=0;
+  Object.keys(COLAB_DATA).forEach(function(nome){
+    var cd=COLAB_DATA[nome];
+    if(cd&&subList.indexOf(cd.sub)!==-1&&cd.meta>0)total+=cd.meta;
+  });
+  return total;
+}
 async function carregarDados(){
   try{
     var r0=await fetch(COLAB_URL);
@@ -375,9 +392,9 @@ function processar(csv){
   buildMetaColMes('mm-marc',tMAc,calcMetaMesSubs(SUBS_MARC));
   buildMetaColMes('mm-espu',tEAc,calcMetaMesSubs(SUBS_ESPU));
   buildMetaColMes('mm-mont',tMoAc,calcMetaMesSubs(SUBS_MONT));
-  buildMetaCol('mc-marc',tM,calcMetaDiaPessoas(rM),'#1a5f8a');
-  buildMetaCol('mc-espu',tE,calcMetaDiaPessoas(rE),'#8a6010');
-  buildMetaCol('mc-mont',tMo,calcMetaDiaPessoas(rMo),'#8B3A0F');
+  buildMetaCol('mc-marc',tM,calcMetaDiaSubs(['Marcenaria','CNC','Laminacao Madeira','Marceneiro']),'#1a5f8a');
+  buildMetaCol('mc-espu',tE,calcMetaDiaSubs(['Espumacao','Laminacao Espuma']),'#8a6010');
+  buildMetaCol('mc-mont',tMo,calcMetaDiaSubs(['Montagem Estrutural','Preparacao']),'#8B3A0F');
   buildMetaRanking('tb-marc',rM,'#1a5f8a');
   buildMetaRanking('tb-espu',rE,'#8a6010');
   buildMetaRanking('tb-mont',rMo,'#8B3A0F');
