@@ -78,11 +78,9 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
       <button class="pbtn" onclick="setPeriodo('mes')">Mes</button>
     </div>
   </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px" id="print-header" style="display:none">
-    <div>
-      <div class="report-title" id="report-title-print">RELATORIO DO DIA</div>
-      <div class="report-sub" id="report-sub-print"></div>
-    </div>
+  <div id="print-header" style="display:none">
+    <div class="report-title" id="report-title-print">RELATORIO DO DIA</div>
+    <div class="report-sub" id="report-sub-print"></div>
   </div>
 
   <div id="app">
@@ -426,6 +424,9 @@ function getColabsSetor(setor){
 }
 
 function renderRelatorio(){
+  console.log('COLAB_DATA keys:', Object.keys(COLAB_DATA).length);
+  console.log('ALL_LANCAMENTOS:', ALL_LANCAMENTOS.length);
+  console.log('Sample colab:', JSON.stringify(Object.values(COLAB_DATA)[0]));
   var lans=filtrarPorPeriodo();
   var label=getPeriodoLabel();
   document.getElementById('report-title').textContent='RELATORIO — '+PERIODO.toUpperCase();
