@@ -22,19 +22,74 @@
       <div class="dt" id="dt">--</div>
     </div>
   </div>
-  <div id="meta-mes" style="background:#E8E0D5;padding:10px 16px;border-left:4px solid #FFD700"></div>
-  <div class="grid3col">
-  <div class="col-card"><div id="mc-marc"></div><div class="col-header" style="color:#1a5f8a;border-color:rgba(44,37,32,0.3)">// Marcenaria · CNC · Laminacao Madeira</div><div id="tb-marc"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-marc"></canvas></div></div>
-  <div class="col-card"><div id="mc-espu"></div><div class="col-header" style="color:#8a6010;border-color:rgba(44,37,32,0.3)">// Espumacao · Laminacao Espuma</div><div id="tb-espu"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-espu"></canvas></div></div>
-  <div class="col-card"><div id="mc-mont"></div><div class="col-header" style="color:#8B3A0F;border-color:rgba(44,37,32,0.3)">// Montagem Estrutural · Preparacao</div><div id="tb-mont"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-mont"></canvas></div></div>
+  <div class="grid3col" style="flex:1">
+  <div class="col-card">
+    <div id="mm-marc"></div>
+    <div id="mc-marc"></div>
+    <div class="col-header" style="color:#1a5f8a;border-color:rgba(44,37,32,0.3)">// Marcenaria · CNC · Laminacao Madeira</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #1a5f8a">
+        <div class="score-label">Hoje</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#1a5f8a" id="s-marc-h">-</div>
+      </div>
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #1a5f8a">
+        <div class="score-label">Acumulado</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#1a5f8a" id="s-marc-ac">-</div>
+      </div>
+    </div>
+    <div id="tb-marc"></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-marc"></canvas></div></div>
+    
+  </div>
+  <div class="col-card">
+    <div id="mm-espu"></div>
+    <div id="mc-espu"></div>
+    <div class="col-header" style="color:#8a6010;border-color:rgba(44,37,32,0.3)">// Espumacao · Laminacao Espuma</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #8a6010">
+        <div class="score-label">Hoje</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#8a6010" id="s-espu-h">-</div>
+      </div>
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #8a6010">
+        <div class="score-label">Acumulado</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#8a6010" id="s-espu-ac">-</div>
+      </div>
+    </div>
+    <div id="tb-espu"></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-espu"></canvas></div></div>
+    
+  </div>
+  <div class="col-card">
+    <div id="mm-mont"></div>
+    <div id="mc-mont"></div>
+    <div class="col-header" style="color:#8B3A0F;border-color:rgba(44,37,32,0.3)">// Montagem Estrutural · Preparacao</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #8B3A0F">
+        <div class="score-label">Hoje</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#8B3A0F" id="s-mont-h">-</div>
+      </div>
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #8B3A0F">
+        <div class="score-label">Acumulado</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#8B3A0F" id="s-mont-ac">-</div>
+      </div>
+    </div>
+    <div id="tb-mont"></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-mont"></canvas></div></div>
+    
+  </div>
 </div>
   <div class="footer">
     <div>Atualizado as <span id="upd">--:--:--</span></div>
     <div>Proxima atualizacao em <span id="ctd" style="color:#1a5f8a">--:--</span></div>
-    <div>STUDYO4 - Painel de Producao &nbsp;·&nbsp; <span style="color:#6B5A4E">© Junior Corrêa · Todos os direitos reservados</span></div>
+    <div>STUDYO4 - Painel de Produção &nbsp;·&nbsp; <span style="color:#8a7060">© Junior Corrêa · Todos os direitos reservados</span></div>
   </div>
 </div>
 <script>
+
+
 var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
 var CONFIG_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=626803240&single=true&output=csv';
 var COLAB_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1534833771&single=true&output=csv';
@@ -268,6 +323,8 @@ async function carregarDados(){
     console.error('carregarDados error:',e);
   }
 }
+
+
 function processar(csv){
   var SUBS_MARC=['Marcenaria','CNC','Laminacao Madeira','Marceneiro'];
   var SUBS_ESPU=['Espumacao','Laminacao Espuma'];
@@ -297,30 +354,29 @@ function processar(csv){
     });
     return Object.keys(map).map(function(n){return{nome:n,dia:map[n].dia,ac:map[n].ac};});
   }
-  var rMarc=ag(SUBS_MARC),rEspu=ag(SUBS_ESPU),rMont=ag(SUBS_MONT);
-  var tM=rMarc.reduce(function(s,r){return s+r.dia;},0);
-  var tE=rEspu.reduce(function(s,r){return s+r.dia;},0);
-  var tMo=rMont.reduce(function(s,r){return s+r.dia;},0);
-  var tTotal=tM+tE+tMo;
-  var metaTotal=function(rows){return rows.reduce(function(s,r){return s+(getMetaPessoa(r.nome)||35);},0);};
-  set('s-marc',tM);set('s-espu',tE);set('s-mont',tMo);
-  setBar('sb-marc',tM,Math.max(tTotal,1));
-  setBar('sb-espu',tE,Math.max(tTotal,1));
-  setBar('sb-mont',tMo,Math.max(tTotal,1));
-  var SUBS_ALL=['Marcenaria','CNC','Laminacao Madeira','Marceneiro','Espumacao','Laminacao Espuma','Montagem Estrutural','Preparacao'];
-  buildMetaColMes('mm-marc',rMarc.reduce(function(s,r){return s+r.ac;},0),calcMetaMesSubs(['Marcenaria','CNC','Laminacao Madeira','Marceneiro']));
-  buildMetaColMes('mm-espu',rEspu.reduce(function(s,r){return s+r.ac;},0),calcMetaMesSubs(['Espumacao','Laminacao Espuma']));
-  buildMetaColMes('mm-mont',rMont.reduce(function(s,r){return s+r.ac;},0),calcMetaMesSubs(['Montagem Estrutural','Preparacao']));
-  buildMetaCol('mc-marc',tM,calcMetaDiaPessoas(rMarc),'#8B3A0F');
-  buildMetaCol('mc-espu',tE,calcMetaDiaPessoas(rEspu),'#8a6010');
-  buildMetaCol('mc-mont',tMo,calcMetaDiaPessoas(rMont),'#1a5f8a');
-  buildMetaRanking('tb-marc',rMarc,'#0070C0');
-  buildMetaRanking('tb-espu',rEspu,'#EF9F27');
-  buildMetaRanking('tb-mont',rMont,'#FF0066');
+  var rM=ag(SUBS_MARC),rE=ag(SUBS_ESPU),rMo=ag(SUBS_MONT);
+  var tM=rM.reduce(function(s,r){return s+r.dia;},0);
+  var tE=rE.reduce(function(s,r){return s+r.dia;},0);
+  var tMo=rMo.reduce(function(s,r){return s+r.dia;},0);
+  var tMAc=rM.reduce(function(s,r){return s+r.ac;},0);
+  var tEAc=rE.reduce(function(s,r){return s+r.ac;},0);
+  var tMoAc=rMo.reduce(function(s,r){return s+r.ac;},0);
+  set('s-marc-h',tM);set('s-marc-ac',tMAc);
+  set('s-espu-h',tE);set('s-espu-ac',tEAc);
+  set('s-mont-h',tMo);set('s-mont-ac',tMoAc);
+  buildMetaColMes('mm-marc',tMAc,calcMetaMesSubs(SUBS_MARC));
+  buildMetaColMes('mm-espu',tEAc,calcMetaMesSubs(SUBS_ESPU));
+  buildMetaColMes('mm-mont',tMoAc,calcMetaMesSubs(SUBS_MONT));
+  buildMetaCol('mc-marc',tM,calcMetaDiaPessoas(rM),'#1a5f8a');
+  buildMetaCol('mc-espu',tE,calcMetaDiaPessoas(rE),'#8a6010');
+  buildMetaCol('mc-mont',tMo,calcMetaDiaPessoas(rMo),'#8B3A0F');
+  buildMetaRanking('tb-marc',rM,'#1a5f8a');
+  buildMetaRanking('tb-espu',rE,'#8a6010');
+  buildMetaRanking('tb-mont',rMo,'#8B3A0F');
   setTimeout(function(){
-    buildPizza('chart-marc',rMarc,'#0070C0');
-    buildPizza('chart-espu',rEspu,'#EF9F27');
-    buildPizza('chart-mont',rMont,'#FF0066');
+    buildPizza('chart-marc',rM,'#1a5f8a');
+    buildPizza('chart-espu',rE,'#8a6010');
+    buildPizza('chart-mont',rMo,'#8B3A0F');
   },100);
 }
 carregarDados();
