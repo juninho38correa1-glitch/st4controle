@@ -22,19 +22,74 @@
       <div class="dt" id="dt">--</div>
     </div>
   </div>
-  <div id="meta-mes" style="background:#E8E0D5;padding:10px 16px;border-left:4px solid #FFD700"></div>
-  <div class="grid3col">
-  <div class="col-card"><div id="mc-tap"></div><div class="col-header" style="color:#1a6b3a;border-color:rgba(44,37,32,0.3)">// Tapecaria</div><div id="tb-tap"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-tap"></canvas></div></div>
-  <div class="col-card"><div id="mc-mont"></div><div class="col-header" style="color:#1a5f8a;border-color:rgba(44,37,32,0.3)">// Montagem Final</div><div id="tb-mont"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-mont"></canvas></div></div>
-  <div class="col-card"><div id="mc-emb"></div><div class="col-header" style="color:#8a6010;border-color:rgba(44,37,32,0.3)">// Embalagem</div><div id="tb-emb"></div><div class="rank-title" style="margin-top:10px">// distribuicao</div><div class="chart-wrap"><canvas id="chart-emb"></canvas></div></div>
+  <div class="grid3col" style="flex:1">
+  <div class="col-card">
+    <div id="mm-tap"></div>
+    <div id="mc-tap"></div>
+    <div class="col-header" style="color:#1a6b3a;border-color:rgba(44,37,32,0.3)">// Tapeçaria</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #1a6b3a">
+        <div class="score-label">Hoje</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#1a6b3a" id="s-tap-h">-</div>
+      </div>
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #1a6b3a">
+        <div class="score-label">Acumulado</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#1a6b3a" id="s-tap-ac">-</div>
+      </div>
+    </div>
+    <div id="tb-tap"></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-tap"></canvas></div></div>
+    
+  </div>
+  <div class="col-card">
+    <div id="mm-mont"></div>
+    <div id="mc-mont"></div>
+    <div class="col-header" style="color:#1a5f8a;border-color:rgba(44,37,32,0.3)">// Montagem Final</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #1a5f8a">
+        <div class="score-label">Hoje</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#1a5f8a" id="s-mont-h">-</div>
+      </div>
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #1a5f8a">
+        <div class="score-label">Acumulado</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#1a5f8a" id="s-mont-ac">-</div>
+      </div>
+    </div>
+    <div id="tb-mont"></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-mont"></canvas></div></div>
+    
+  </div>
+  <div class="col-card">
+    <div id="mm-emb"></div>
+    <div id="mc-emb"></div>
+    <div class="col-header" style="color:#8a6010;border-color:rgba(44,37,32,0.3)">// Embalagem</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #8a6010">
+        <div class="score-label">Hoje</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#8a6010" id="s-emb-h">-</div>
+      </div>
+      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #8a6010">
+        <div class="score-label">Acumulado</div>
+        <div style="font-size:36px;font-weight:700;line-height:1;color:#8a6010" id="s-emb-ac">-</div>
+      </div>
+    </div>
+    <div id="tb-emb"></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div>
+    <div class="chart-wrap" style="height:200px"><canvas id="chart-emb"></canvas></div></div>
+    
+  </div>
 </div>
   <div class="footer">
     <div>Atualizado as <span id="upd">--:--:--</span></div>
     <div>Proxima atualizacao em <span id="ctd" style="color:#1a6b3a">--:--</span></div>
-    <div>STUDYO4 - Painel de Producao &nbsp;·&nbsp; <span style="color:#6B5A4E">© Junior Corrêa · Todos os direitos reservados</span></div>
+    <div>STUDYO4 - Painel de Produção &nbsp;·&nbsp; <span style="color:#8a7060">© Junior Corrêa · Todos os direitos reservados</span></div>
   </div>
 </div>
 <script>
+
+
 var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
 var CONFIG_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=626803240&single=true&output=csv';
 var COLAB_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1534833771&single=true&output=csv';
@@ -268,6 +323,8 @@ async function carregarDados(){
     console.error('carregarDados error:',e);
   }
 }
+
+
 function processar(csv){
   var linhas=csv.split('\n').filter(function(l){return l.trim();});
   var lancamentos=[];
@@ -295,23 +352,25 @@ function processar(csv){
   var tT=tap.reduce(function(s,r){return s+r.dia;},0);
   var tM=mont.reduce(function(s,r){return s+r.dia;},0);
   var tE=emb.reduce(function(s,r){return s+r.dia;},0);
-  set('s-tap',tT);set('s-mont',tM);set('s-emb',tE);
-  setBar('sb-tap',tT,Math.max(tT+tM+tE,1));
-  setBar('sb-mont',tM,Math.max(tT+tM+tE,1));
-  setBar('sb-emb',tE,Math.max(tT+tM+tE,1));
-  buildMetaColMes('mm-tap',tap.reduce(function(s,r){return s+r.ac;},0),calcMetaMes('Tapecaria'));
-  buildMetaColMes('mm-mont',mont.reduce(function(s,r){return s+r.ac;},0),calcMetaMes('Montagem Final'));
-  buildMetaColMes('mm-emb',emb.reduce(function(s,r){return s+r.ac;},0),calcMetaMes('Embalagem'));
+  var tTAc=tap.reduce(function(s,r){return s+r.ac;},0);
+  var tMAc=mont.reduce(function(s,r){return s+r.ac;},0);
+  var tEAc=emb.reduce(function(s,r){return s+r.ac;},0);
+  set('s-tap-h',tT);set('s-tap-ac',tTAc);
+  set('s-mont-h',tM);set('s-mont-ac',tMAc);
+  set('s-emb-h',tE);set('s-emb-ac',tEAc);
+  buildMetaColMes('mm-tap',tTAc,calcMetaMes('Tapecaria'));
+  buildMetaColMes('mm-mont',tMAc,calcMetaMes('Montagem Final'));
+  buildMetaColMes('mm-emb',tEAc,calcMetaMes('Embalagem'));
   buildMetaCol('mc-tap',tT,calcMetaDiaPessoas(tap),'#1a6b3a');
   buildMetaCol('mc-mont',tM,calcMetaDiaPessoas(mont),'#1a5f8a');
   buildMetaCol('mc-emb',tE,calcMetaDiaPessoas(emb),'#8a6010');
-  buildMetaRanking('tb-tap',tap,'#00B050');
-  buildMetaRanking('tb-mont',mont,'#0070C0');
-  buildMetaRanking('tb-emb',emb,'#EF9F27');
+  buildMetaRanking('tb-tap',tap,'#1a6b3a');
+  buildMetaRanking('tb-mont',mont,'#1a5f8a');
+  buildMetaRanking('tb-emb',emb,'#8a6010');
   setTimeout(function(){
-    buildPizza('chart-tap',tap,'#00B050');
-    buildPizza('chart-mont',mont,'#0070C0');
-    buildPizza('chart-emb',emb,'#EF9F27');
+    buildPizza('chart-tap',tap,'#1a6b3a');
+    buildPizza('chart-mont',mont,'#1a5f8a');
+    buildPizza('chart-emb',emb,'#8a6010');
   },100);
 }
 carregarDados();
