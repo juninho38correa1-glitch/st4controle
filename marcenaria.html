@@ -233,6 +233,14 @@ function calcMetaMesSubs(subList){
 function calcMetaDiaPessoas(rows){
   return rows.reduce(function(s,r){return s+(getMetaPessoa(r.nome)||35);},0);
 }
+
+function buildMetaColMes(cid,totalAc,metaMes){
+  var el=document.getElementById(cid);if(!el)return;
+  var pct=metaMes>0?Math.min(Math.round(totalAc/metaMes*100),150):0;
+  var barColor=pct>=100?'#1a6b3a':pct>=70?'#8a6010':'#8B3A0F';
+  var metaPos=metaMes>0?Math.min(100,Math.round(metaMes/Math.max(metaMes,totalAc)*100)):100;
+  el.innerHTML='<div style="font-size:9px;color:#6B5A4E;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;font-weight:600">Meta Mês: '+totalAc+' / '+metaMes+' ('+pct+'%)</div><div style="position:relative;height:6px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:'+barColor+';border-radius:3px;transition:width .8s ease"></div><div style="position:absolute;top:0;height:100%;width:2px;background:rgba(44,37,32,0.3);left:'+metaPos+'%"></div></div>';
+}
 async function carregarDados(){
   try{
     var r0=await fetch(COLAB_URL);
@@ -301,9 +309,9 @@ function processar(csv){
   setBar('sb-espu',tE,Math.max(tTotal,1));
   setBar('sb-mont',tMo,Math.max(tTotal,1));
   var SUBS_ALL=['Marcenaria','CNC','Laminacao Madeira','Marceneiro','Espumacao','Laminacao Espuma','Montagem Estrutural','Preparacao'];
-  var metaMesMarcenaria=calcMetaMesSubs(SUBS_ALL);
-  var totalAcMes=rMarc.reduce(function(s,r){return s+r.ac;},0)+rEspu.reduce(function(s,r){return s+r.ac;},0)+rMont.reduce(function(s,r){return s+r.ac;},0);
-  buildMetaMes('meta-mes',totalAcMes,metaMesMarcenaria);
+  buildMetaColMes('mm-marc',rMarc.reduce(function(s,r){return s+r.ac;},0),calcMetaMesSubs(['Marcenaria','CNC','Laminacao Madeira','Marceneiro']));
+  buildMetaColMes('mm-espu',rEspu.reduce(function(s,r){return s+r.ac;},0),calcMetaMesSubs(['Espumacao','Laminacao Espuma']));
+  buildMetaColMes('mm-mont',rMont.reduce(function(s,r){return s+r.ac;},0),calcMetaMesSubs(['Montagem Estrutural','Preparacao']));
   buildMetaCol('mc-marc',tM,calcMetaDiaPessoas(rMarc),'#8B3A0F');
   buildMetaCol('mc-espu',tE,calcMetaDiaPessoas(rEspu),'#8a6010');
   buildMetaCol('mc-mont',tMo,calcMetaDiaPessoas(rMont),'#1a5f8a');
