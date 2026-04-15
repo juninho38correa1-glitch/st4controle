@@ -18,8 +18,7 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
 .report-sub{font-size:12px;color:#6B5A4E;margin-top:4px;letter-spacing:1px}
 .period-btns{display:flex;gap:8px}
 .pbtn{font-size:11px;font-weight:700;letter-spacing:1px;padding:8px 20px;border:1px solid rgba(44,37,32,0.3);background:transparent;color:#2C2520;cursor:pointer;text-transform:uppercase;transition:all .2s}
-.pbtn.active{background:#2C2520;color:#DCCCBE;border-color:#2C2520}
-.pbtn:hover{background:#2C2520;color:#DCCCBE}
+.pbtn.active,.pbtn:hover{background:#2C2520;color:#DCCCBE;border-color:#2C2520}
 .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
 .sum-card{background:#DCCCBE;padding:14px 16px;border-left:4px solid}
 .sum-label{font-size:9px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:4px}
@@ -48,9 +47,7 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
   .no-print{display:none!important}
   body{background:#fff}
   .page{padding:10px}
-  .sum-card{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .table th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .setor-title{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sum-card,.table th,.setor-title{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
 </head>
@@ -66,10 +63,9 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
       <a href="index.html" class="back-btn no-print">&larr; Voltar</a>
     </div>
   </div>
-
   <div class="report-header no-print">
     <div>
-      <div class="report-title" id="report-title">RELATORIO DO DIA</div>
+      <div class="report-title" id="report-title">RELATORIO — DIA</div>
       <div class="report-sub" id="report-sub">Carregando...</div>
     </div>
     <div class="period-btns">
@@ -78,18 +74,9 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
       <button class="pbtn" onclick="setPeriodo('mes')">Mes</button>
     </div>
   </div>
-  <div id="print-header" style="display:none">
-    <div class="report-title" id="report-title-print">RELATORIO DO DIA</div>
-    <div class="report-sub" id="report-sub-print"></div>
-  </div>
-
-  <div id="app">
-    <div class="loading-msg"><div class="spinner"></div>Carregando dados...</div>
-  </div>
-
+  <div id="app"><div class="loading-msg"><div class="spinner"></div>Carregando dados...</div></div>
   <div class="footer">&copy; Junior Corr&ecirc;a &middot; Todos os direitos reservados &middot; STUDYO4 Estofados</div>
 </div>
-
 <script>
 
 
@@ -108,21 +95,20 @@ function nomeCurto(nome,max){
 }
 function tickClock(){
   var n=new Date();
-  var clk=document.getElementById('clk');
-  if(clk)clk.textContent=pad(n.getHours())+':'+pad(n.getMinutes());
+  document.getElementById('clk').textContent=pad(n.getHours())+':'+pad(n.getMinutes());
   var ds=['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
   var ms=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  var dt=document.getElementById('dt');if(dt)dt.textContent=ds[n.getDay()]+', '+n.getDate()+' de '+ms[n.getMonth()]+' de '+n.getFullYear();
-  var upd=document.getElementById('upd');if(upd)upd.textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+  document.getElementById('dt').textContent=ds[n.getDay()]+', '+n.getDate()+' de '+ms[n.getMonth()]+' de '+n.getFullYear();
+  document.getElementById('upd').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
   var mel=document.getElementById('mes-atual');if(mel)mel.textContent='Acumulado: '+ms[n.getMonth()]+' '+n.getFullYear();
 }
 var countdown=INTERVALO_MIN*60;
 function tickCountdown(){
   countdown--;
   if(countdown<=0){countdown=INTERVALO_MIN*60;carregarDados();}
-  var ctd=document.getElementById('ctd');if(ctd)ctd.textContent=pad(Math.floor(countdown/60))+':'+pad(countdown%60);
+  document.getElementById('ctd').textContent=pad(Math.floor(countdown/60))+':'+pad(countdown%60);
 }
-tickClock();setInterval(tickClock,1000);
+tickClock();setInterval(tickClock,1000);setInterval(tickCountdown,1000);
 function set(id,val){var e=document.getElementById(id);if(e)e.textContent=val;}
 function setBar(id,val,max){var e=document.getElementById(id);if(e)e.style.width=(max>0?Math.min(100,Math.round(val/max*100)):0)+'%';}
 function parseCSVLine(line){
@@ -359,14 +345,14 @@ var PERIODO='dia';
 var ALL_LANCAMENTOS=[];
 
 var SETORES=[
-  {nome:'Costura',cor:'#8B3A0F',subs:['Costura'],tipo:'setor'},
-  {nome:'Corte',cor:'#1a6b3a',subs:['Corte'],tipo:'setor'},
-  {nome:'Marcenaria / CNC / Laminacao Madeira',cor:'#1a5f8a',subs:['Marcenaria','CNC','Laminacao Madeira','Marceneiro'],tipo:'sub'},
-  {nome:'Espumacao / Laminacao Espuma',cor:'#8a6010',subs:['Espumacao','Laminacao Espuma'],tipo:'sub'},
-  {nome:'Montagem Estrutural / Preparacao',cor:'#7030A0',subs:['Montagem Estrutural','Preparacao'],tipo:'sub'},
-  {nome:'Tapecaria',cor:'#1a6b3a',subs:['Tapecaria'],tipo:'setor'},
-  {nome:'Montagem Final',cor:'#1a5f8a',subs:['Montagem Final'],tipo:'setor'},
-  {nome:'Embalagem',cor:'#8a6010',subs:['Embalagem'],tipo:'setor'},
+  {nome:'Costura',cor:'#8B3A0F',subs:['Costura'],tipo:'setor',duplo:true},
+  {nome:'Corte',cor:'#1a6b3a',subs:['Corte'],tipo:'setor',duplo:false},
+  {nome:'Marcenaria / CNC / Laminacao Madeira',cor:'#1a5f8a',subs:['Marcenaria','CNC','Laminacao Madeira','Marceneiro'],tipo:'sub',duplo:false},
+  {nome:'Espumacao / Laminacao Espuma',cor:'#8a6010',subs:['Espumacao','Laminacao Espuma'],tipo:'sub',duplo:false},
+  {nome:'Montagem Estrutural / Preparacao',cor:'#7030A0',subs:['Montagem Estrutural','Preparacao'],tipo:'sub',duplo:false},
+  {nome:'Tapecaria',cor:'#1a6b3a',subs:['Tapecaria'],tipo:'setor',duplo:false},
+  {nome:'Montagem Final',cor:'#1a5f8a',subs:['Montagem Final'],tipo:'setor',duplo:false},
+  {nome:'Embalagem',cor:'#8a6010',subs:['Embalagem'],tipo:'setor',duplo:false}
 ];
 
 function setPeriodo(p){
@@ -394,166 +380,164 @@ function getPeriodoDatas(){
 function getPeriodoLabel(){
   var meses=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var hoje=new Date();
-  if(PERIODO==='dia') return 'Producao de hoje — '+hoje.getDate()+' de '+meses[hoje.getMonth()]+' de '+hoje.getFullYear();
-  if(PERIODO==='semana') return 'Producao desta semana';
+  if(PERIODO==='dia')return 'Producao de hoje — '+hoje.getDate()+' de '+meses[hoje.getMonth()]+' de '+hoje.getFullYear();
+  if(PERIODO==='semana')return 'Producao desta semana';
   return 'Producao de '+meses[hoje.getMonth()]+' '+hoje.getFullYear();
 }
 
-function filtrarPorPeriodo(){
-  var d=getPeriodoDatas();
-  return ALL_LANCAMENTOS.filter(function(l){
-    var dt=parseDate(l.data);
-    if(!dt)return false;
-    return dt>=d.ini&&dt<=d.fim;
-  });
+function colaboradorNoSetor(cd,setor){
+  if(!cd||cd.meta<=0)return false;
+  var match=false;
+  if(setor.tipo==='setor'){
+    setor.subs.forEach(function(s){if(cd.setor===s)match=true;});
+  }else{
+    setor.subs.forEach(function(s){if(cd.sub===s)match=true;});
+  }
+  return match;
 }
 
-function getColabsSetor(setor){
-  var lista=[];
-  Object.keys(COLAB_DATA).forEach(function(nome){
-    var cd=COLAB_DATA[nome];
-    if(!cd||cd.meta<=0)return;
-    var match=false;
-    if(setor.tipo==='setor'){
-      setor.subs.forEach(function(s){if(cd.setor===s)match=true;});
-    }else{
-      setor.subs.forEach(function(s){if(cd.sub===s)match=true;});
-    }
-    if(match)lista.push({nome:nome,meta:cd.meta,setor:cd.setor,sub:cd.sub});
-  });
-  return lista;
+function getMetaPeriodo(meta){
+  if(PERIODO==='dia')return meta;
+  if(PERIODO==='semana'){
+    var dow=new Date().getDay();
+    return meta*(dow===0?7:(dow===6?6:dow));
+  }
+  return meta*diasUteisMes();
 }
 
 function renderRelatorio(){
-  console.log('COLAB_DATA keys:', Object.keys(COLAB_DATA).length);
-  console.log('ALL_LANCAMENTOS:', ALL_LANCAMENTOS.length);
-  console.log('Sample colab:', JSON.stringify(Object.values(COLAB_DATA)[0]));
-  var lans=filtrarPorPeriodo();
-  var label=getPeriodoLabel();
-  document.getElementById('report-title').textContent='RELATORIO — '+PERIODO.toUpperCase();
-  document.getElementById('report-sub').textContent=label;
+  var d=getPeriodoDatas();
+  var lans=ALL_LANCAMENTOS.filter(function(l){
+    var dt=parseDate(l.data);
+    return dt&&dt>=d.ini&&dt<=d.fim;
+  });
 
-  var totalProd=0,totalMeta=0,totalColab=0,totalMeta100=0;
+  document.getElementById('report-title').textContent='RELATORIO — '+PERIODO.toUpperCase();
+  document.getElementById('report-sub').textContent=getPeriodoLabel();
+
+  var totalProd=0,totalMeta=0,totalMeta100=0;
   var html='';
 
   SETORES.forEach(function(setor){
-    var colabs=getColabsSetor(setor);
+    var colabs=[];
+    Object.keys(COLAB_DATA).forEach(function(nome){
+      var cd=COLAB_DATA[nome];
+      if(colaboradorNoSetor(cd,setor))colabs.push({nome:nome,meta:cd.meta,sub:cd.sub});
+    });
     if(colabs.length===0)return;
-    totalColab+=colabs.length;
 
-    var mapProd={};
+    var mapCorpo={};var mapAlmof={};var mapTotal={};
     lans.forEach(function(l){
       var cd=COLAB_DATA[l.nome];
-      if(!cd)return;
-      var match=false;
-      if(setor.tipo==='setor')setor.subs.forEach(function(s){if(cd.setor===s)match=true;});
-      else setor.subs.forEach(function(s){if(cd.sub===s)match=true;});
-      if(!match)return;
-      if(!mapProd[l.nome])mapProd[l.nome]=0;
-      mapProd[l.nome]+=Number(l.prodCorpo)||0;
-      if(setor.nome==='Costura'){mapProd[l.nome]+=Number(l.prodAlmof)||0;}
+      if(!cd||!colaboradorNoSetor(cd,setor))return;
+      if(!mapCorpo[l.nome])mapCorpo[l.nome]=0;
+      if(!mapAlmof[l.nome])mapAlmof[l.nome]=0;
+      if(!mapTotal[l.nome])mapTotal[l.nome]=0;
+      var vCorpo=Number(l.prodCorpo)||0;
+      var vAlmof=Number(l.prodAlmof)||0;
+      mapCorpo[l.nome]+=vCorpo;
+      mapAlmof[l.nome]+=vAlmof;
+      mapTotal[l.nome]+=setor.duplo?(vCorpo+vAlmof):vCorpo;
     });
 
     var setorProd=0,setorMeta=0;
     colabs.forEach(function(c){
-      var metaPeriodo=c.meta;
-      if(PERIODO==='semana'){
-        var dow=new Date().getDay();
-        var diasSemana=dow===0?7:(dow===6?6:dow);
-        metaPeriodo=c.meta*diasSemana;
-      }else if(PERIODO==='mes'){
-        metaPeriodo=c.meta*diasUteisMes();
-      }
-      setorMeta+=metaPeriodo;
-      setorProd+=(mapProd[c.nome]||0);
+      setorProd+=(mapTotal[c.nome]||0);
+      setorMeta+=getMetaPeriodo(c.meta);
     });
     totalProd+=setorProd;
     totalMeta+=setorMeta;
-
     var pctSetor=setorMeta>0?Math.round(setorProd/setorMeta*100):0;
     var barColor=pctSetor>=100?'#1a6b3a':pctSetor>=70?'#8a6010':'#8B3A0F';
 
     html+='<div class="setor-block">';
     html+='<div class="setor-title" style="background:'+setor.cor+';color:#DCCCBE">'+setor.nome.toUpperCase()+'</div>';
-    html+='<table class="table">';
-    var isCostura=setor.nome==='Costura';
-    if(isCostura){
-      html+='<thead><tr><th style="width:200px">Colaborador</th><th style="width:80px;text-align:center">Corpo</th><th style="width:80px;text-align:center">Almofada</th><th style="width:90px;text-align:center">Total</th><th style="width:90px;text-align:center">Meta</th><th style="width:100px;text-align:center">%</th><th style="width:140px">Progresso</th><th style="width:80px;text-align:center">Status</th></tr></thead>';
+    html+='<table class="table"><thead><tr>';
+    html+='<th style="width:220px">Colaborador</th>';
+    if(setor.duplo){
+      html+='<th style="width:80px;text-align:center;color:#8B3A0F">Corpo</th>';
+      html+='<th style="width:80px;text-align:center;color:#1a5f8a">Almofada</th>';
+      html+='<th style="width:80px;text-align:center">Total</th>';
     }else{
-      html+='<thead><tr><th style="width:200px">Colaborador</th><th>Sub-setor</th><th style="width:90px;text-align:center">Producao</th><th style="width:90px;text-align:center">Meta</th><th style="width:120px;text-align:center">%</th><th style="width:160px">Progresso</th><th style="width:80px;text-align:center">Status</th></tr></thead>';
+      html+='<th style="width:100px">Sub-setor</th>';
+      html+='<th style="width:80px;text-align:center">Producao</th>';
     }
-    html+='<tbody>';
+    html+='<th style="width:80px;text-align:center">Meta</th>';
+    html+='<th style="width:90px;text-align:center">%</th>';
+    html+='<th>Progresso</th>';
+    html+='<th style="width:100px;text-align:center">Status</th>';
+    html+='</tr></thead><tbody>';
 
-    colabs.sort(function(a,b){return (mapProd[b.nome]||0)-(mapProd[a.nome]||0);});
+    colabs.sort(function(a,b){return(mapTotal[b.nome]||0)-(mapTotal[a.nome]||0);});
     colabs.forEach(function(c){
-      var prod=mapProd[c.nome]||0;
-      var metaPeriodo=c.meta;
-      if(PERIODO==='semana'){var dow=new Date().getDay();metaPeriodo=c.meta*(dow===0?7:(dow===6?6:dow));}
-      else if(PERIODO==='mes')metaPeriodo=c.meta*diasUteisMes();
-      var pct=metaPeriodo>0?Math.round(prod/metaPeriodo*100):0;
+      var prod=mapTotal[c.nome]||0;
+      var meta=getMetaPeriodo(c.meta);
+      var pct=meta>0?Math.round(prod/meta*100):0;
       var pctCap=Math.min(pct,100);
       var bc=pct>=100?'#1a6b3a':pct>=70?'#8a6010':'#8B3A0F';
-      var badge=prod===0?'<span class="badge badge-zer">SEM LANCAMENTO</span>':pct>=100?'<span class="badge badge-ok">META &#11088;</span>':'<span class="badge badge-no">'+pct+'%</span>';
       if(pct>=100)totalMeta100++;
-      html+='<tr>';
-      html+='<td style="font-weight:700">'+c.nome+'</td>';
-      if(isCostura){
+      var badge=prod===0?'<span class="badge badge-zer">SEM LANCAMENTO</span>':pct>=100?'<span class="badge badge-ok">META \u2B50</span>':'<span class="badge badge-no">'+pct+'%</span>';
+      html+='<tr><td style="font-weight:700">'+c.nome+'</td>';
+      if(setor.duplo){
         html+='<td style="text-align:center;font-weight:700;color:#8B3A0F">'+(mapCorpo[c.nome]||0)+'</td>';
         html+='<td style="text-align:center;font-weight:700;color:#1a5f8a">'+(mapAlmof[c.nome]||0)+'</td>';
+        html+='<td style="text-align:center;font-weight:700;color:'+setor.cor+'">'+prod+'</td>';
       }else{
         html+='<td style="color:#6B5A4E;font-size:11px">'+c.sub+'</td>';
+        html+='<td style="text-align:center;font-weight:700;color:'+setor.cor+'">'+prod+'</td>';
       }
-      html+='<td style="text-align:center;font-weight:700;color:'+setor.cor+'">'+prod+'</td>';
-      html+='<td style="text-align:center;color:#6B5A4E">'+metaPeriodo+'</td>';
+      html+='<td style="text-align:center;color:#6B5A4E">'+meta+'</td>';
       html+='<td style="text-align:center;font-weight:700;color:'+bc+'">'+pct+'%</td>';
       html+='<td><div class="bar-wrap"><div class="bar-fill" style="width:'+pctCap+'%;background:'+bc+'"></div></div></td>';
-      html+='<td style="text-align:center">'+badge+'</td>';
-      html+='</tr>';
+      html+='<td style="text-align:center">'+badge+'</td></tr>';
     });
-    html+='<tr style="background:#2C2520!important">';
-    html+='<td colspan="2" style="font-weight:700;color:#DCCCBE;font-size:11px;letter-spacing:1px;background:#2C2520">TOTAL DO SETOR</td>';
+
+    html+='<tr><td colspan="2" style="font-weight:700;color:#DCCCBE;font-size:11px;letter-spacing:1px;background:#2C2520">TOTAL DO SETOR</td>';
+    var extraCols=setor.duplo?'<td style="background:#2C2520"></td><td style="background:#2C2520"></td>':'';
+    html+=extraCols;
     html+='<td style="text-align:center;font-weight:700;color:#DCCCBE;background:#2C2520">'+setorProd+'</td>';
     html+='<td style="text-align:center;color:#DCCCBE;background:#2C2520">'+setorMeta+'</td>';
     html+='<td style="text-align:center;font-weight:700;color:'+barColor+';background:#2C2520">'+pctSetor+'%</td>';
     html+='<td colspan="2" style="background:#2C2520"><div class="bar-wrap" style="background:rgba(220,204,190,0.15)"><div class="bar-fill" style="width:'+Math.min(pctSetor,100)+'%;background:'+barColor+'"></div></div></td>';
-    html+='</tr>';
-    html+='</tbody></table></div>';
+    html+='</tr></tbody></table></div>';
   });
 
   var pctGeral=totalMeta>0?Math.round(totalProd/totalMeta*100):0;
-  var summaryHTML='<div class="summary-grid">';
-  summaryHTML+='<div class="sum-card" style="border-color:#8B3A0F"><div class="sum-label">Total Produzido</div><div class="sum-val" style="color:#8B3A0F">'+totalProd+'</div><div class="sum-sub">pecas no periodo</div></div>';
-  summaryHTML+='<div class="sum-card" style="border-color:#1a5f8a"><div class="sum-label">Meta do Periodo</div><div class="sum-val" style="color:#1a5f8a">'+totalMeta+'</div><div class="sum-sub">pecas esperadas</div></div>';
-  summaryHTML+='<div class="sum-card" style="border-color:'+(pctGeral>=100?'#1a6b3a':pctGeral>=70?'#8a6010':'#8B3A0F')+'"><div class="sum-label">Desempenho Geral</div><div class="sum-val" style="color:'+(pctGeral>=100?'#1a6b3a':pctGeral>=70?'#8a6010':'#8B3A0F')+'">'+pctGeral+'%</div><div class="sum-sub">da meta atingida</div></div>';
-  summaryHTML+='<div class="sum-card" style="border-color:#7030A0"><div class="sum-label">Meta 100%</div><div class="sum-val" style="color:#7030A0">'+totalMeta100+'</div><div class="sum-sub">colaboradores</div></div>';
-  summaryHTML+='</div>';
-
-  document.getElementById('app').innerHTML=summaryHTML+html;
+  var gcor=pctGeral>=100?'#1a6b3a':pctGeral>=70?'#8a6010':'#8B3A0F';
+  var summary='<div class="summary-grid">';
+  summary+='<div class="sum-card" style="border-color:#8B3A0F"><div class="sum-label">Total Produzido</div><div class="sum-val" style="color:#8B3A0F">'+totalProd+'</div><div class="sum-sub">pecas no periodo</div></div>';
+  summary+='<div class="sum-card" style="border-color:#1a5f8a"><div class="sum-label">Meta do Periodo</div><div class="sum-val" style="color:#1a5f8a">'+totalMeta+'</div><div class="sum-sub">pecas esperadas</div></div>';
+  summary+='<div class="sum-card" style="border-color:'+gcor+'"><div class="sum-label">Desempenho Geral</div><div class="sum-val" style="color:'+gcor+'">'+pctGeral+'%</div><div class="sum-sub">da meta atingida</div></div>';
+  summary+='<div class="sum-card" style="border-color:#7030A0"><div class="sum-label">Meta 100%</div><div class="sum-val" style="color:#7030A0">'+totalMeta100+'</div><div class="sum-sub">colaboradores</div></div>';
+  summary+='</div>';
+  document.getElementById('app').innerHTML=summary+html;
 }
 
 async function carregarDados(){
   document.getElementById('app').innerHTML='<div class="loading-msg"><div class="spinner"></div>Carregando dados...</div>';
   try{
     var r0=await fetch(COLAB_URL);
-    if(r0.ok){COLAB_DATA=parseColab(await r0.text());}
+    if(r0.ok)COLAB_DATA=parseColab(await r0.text());
     var r1=await fetch(CONFIG_URL);
-    if(r1.ok){METAS=parseConfig(await r1.text());}
+    if(r1.ok)METAS=parseConfig(await r1.text());
     var r2=await fetch(LANCAMENTOS_URL);
     if(!r2.ok)throw new Error('HTTP '+r2.status);
     var txt=await r2.text();
     var linhas=txt.split('\n').filter(function(l){return l.trim();});
     ALL_LANCAMENTOS=[];
     for(var i=3;i<linhas.length;i++){
-      var c=parseCSVLine(linhas[i]);
-      if(!c[0]||!c[1])continue;
-      ALL_LANCAMENTOS.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3],prodAlmof:c[4],retrabalho:c[5]});
+      var cc=parseCSVLine(linhas[i]);
+      if(!cc[0]||!cc[1])continue;
+      ALL_LANCAMENTOS.push({data:cc[0],nome:cc[1],setor:cc[2],prodCorpo:cc[3],prodAlmof:cc[4],retrabalho:cc[5]});
     }
     renderRelatorio();
   }catch(e){
     document.getElementById('app').innerHTML='<div class="loading-msg" style="color:#8B3A0F">Erro: '+e.message+'</div>';
+    console.error(e);
   }
 }
 carregarDados();
+
 </script>
 </body>
 </html>
