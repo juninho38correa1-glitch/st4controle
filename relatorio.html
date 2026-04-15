@@ -349,18 +349,43 @@ var ABA='relatorio';
 var ALL_LANCAMENTOS=[];
 
 // Todos os setores/sub-setores da base — sem filtro de TV
-var SETORES=[
-  {nome:'Costura',cor:'#8B3A0F',subs:['Costura'],tipo:'setor',duplo:true},
-  {nome:'Corte',cor:'#1a6b3a',subs:['Corte'],tipo:'setor',duplo:false},
-  {nome:'Marcenaria / CNC / Laminacao Madeira',cor:'#1a5f8a',subs:['Marcenaria','CNC','Laminacao Madeira','Marceneiro'],tipo:'sub',duplo:false},
-  {nome:'Espumacao / Laminacao Espuma',cor:'#8a6010',subs:['Espumacao','Laminacao Espuma'],tipo:'sub',duplo:false},
-  {nome:'Montagem Estrutural / Preparacao',cor:'#7030A0',subs:['Montagem Estrutural','Preparacao'],tipo:'sub',duplo:false},
-  {nome:'Tapecaria',cor:'#1a6b3a',subs:['Tapecaria'],tipo:'setor',duplo:false},
-  {nome:'Montagem Final',cor:'#1a5f8a',subs:['Montagem Final'],tipo:'setor',duplo:false},
-  {nome:'Embalagem',cor:'#8a6010',subs:['Embalagem'],tipo:'setor',duplo:false},
-  {nome:'Almoxarifado',cor:'#6B5A4E',subs:['Almoxarifado'],tipo:'setor',duplo:false},
-  {nome:'Desenvolvimento',cor:'#6B5A4E',subs:['Desenvolvimento','Programacao','Documentacao visual','Desenvolvedor','CAD'],tipo:'sub',duplo:false}
-];
+var SETORES=[];
+
+// Configuracao de setores — agrupamentos especiais de sub-setores
+var SETOR_CONFIG={
+  'Costura':{cor:'#8B3A0F',duplo:true},
+  'Corte':{cor:'#1a6b3a',duplo:false},
+  'Marcenaria/Espumacao':{cor:'#1a5f8a',duplo:false},
+  'Tapecaria':{cor:'#1a6b3a',duplo:false},
+  'Montagem Final':{cor:'#1a5f8a',duplo:false},
+  'Embalagem':{cor:'#8a6010',duplo:false},
+  'Almoxarifado':{cor:'#6B5A4E',duplo:false},
+  'Desenvolvimento':{cor:'#888780',duplo:false}
+};
+
+function buildSetores(){
+  // Agrupar todos colaboradores por setor da base
+  var map={};
+  Object.keys(COLAB_DATA).forEach(function(nome){
+    var cd=COLAB_DATA[nome];
+    if(!cd||!cd.setor)return;
+    var s=cd.setor.trim();
+    if(!map[s])map[s]=[];
+    map[s].push(nome);
+  });
+  SETORES=[];
+  Object.keys(map).sort().forEach(function(setor){
+    var cfg=SETOR_CONFIG[setor]||{cor:'#6B5A4E',duplo:false};
+    SETORES.push({
+      nome:setor,
+      cor:cfg.cor,
+      duplo:cfg.duplo,
+      tipo:'setor',
+      subs:[setor],
+      membros:map[setor]
+    });
+  });
+}
 
 function getClasse(pct){
   if(pct>=80)return 'A';
@@ -404,12 +429,18 @@ function getPeriodoLabel(){
   if(PERIODO==='semana')return 'Producao desta semana';
   return 'Producao de '+meses[hoje.getMonth()]+' '+hoje.getFullYear();
 }
+function norm(s){
+  if(!s)return '';
+  return s.toLowerCase().trim()
+    .replace(/ç/g,'c').replace(/ã/g,'a').replace(/â/g,'a')
+    .replace(/ê/g,'e').replace(/é/g,'e').replace(/ê/g,'e')
+    .replace(/õ/g,'o').replace(/ó/g,'o').replace(/ú/g,'u')
+    .replace(/á/g,'a').replace(/í/g,'i');
+}
 function colaboradorNoSetor(cd,setor){
   if(!cd)return false;
-  var match=false;
-  if(setor.tipo==='setor'){setor.subs.forEach(function(s){if(cd.setor===s)match=true;});}
-  else{setor.subs.forEach(function(s){if(cd.sub===s)match=true;});}
-  return match;
+  if(setor.membros)return setor.membros.indexOf(Object.keys(COLAB_DATA).find(function(n){return COLAB_DATA[n]===cd;}))===-1?false:true;
+  return norm(cd.setor)===norm(setor.nome);
 }
 function getMetaPeriodo(meta){
   if(PERIODO==='dia')return meta;
@@ -426,7 +457,8 @@ function calcSetorData(setor,lans){
   var colabs=[];
   Object.keys(COLAB_DATA).forEach(function(nome){
     var cd=COLAB_DATA[nome];
-    if(colaboradorNoSetor(cd,setor))colabs.push({nome:nome,meta:cd.meta||0,sub:cd.sub||''});
+    if(!cd)return;
+    if(norm(cd.setor)===norm(setor.nome))colabs.push({nome:nome,meta:cd.meta||0,sub:cd.sub||''});
   });
   var mapCorpo={};var mapAlmof={};var mapTotal={};
   colabs.forEach(function(c){mapCorpo[c.nome]=0;mapAlmof[c.nome]=0;mapTotal[c.nome]=0;});
@@ -789,6 +821,7 @@ async function carregarDados(){
       if(!cc[0]||!cc[1])continue;
       ALL_LANCAMENTOS.push({data:cc[0],nome:cc[1],setor:cc[2],prodCorpo:cc[3],prodAlmof:cc[4],retrabalho:cc[5]});
     }
+    buildSetores();
     render();
   }catch(e){
     document.getElementById('app').innerHTML='<div class="loading-msg" style="color:#8B3A0F">Erro: '+e.message+'</div>';
