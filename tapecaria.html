@@ -233,6 +233,14 @@ function calcMetaMesSubs(subList){
 function calcMetaDiaPessoas(rows){
   return rows.reduce(function(s,r){return s+(getMetaPessoa(r.nome)||35);},0);
 }
+
+function buildMetaColMes(cid,totalAc,metaMes){
+  var el=document.getElementById(cid);if(!el)return;
+  var pct=metaMes>0?Math.min(Math.round(totalAc/metaMes*100),150):0;
+  var barColor=pct>=100?'#1a6b3a':pct>=70?'#8a6010':'#8B3A0F';
+  var metaPos=metaMes>0?Math.min(100,Math.round(metaMes/Math.max(metaMes,totalAc)*100)):100;
+  el.innerHTML='<div style="font-size:9px;color:#6B5A4E;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;font-weight:600">Meta Mês: '+totalAc+' / '+metaMes+' ('+pct+'%)</div><div style="position:relative;height:6px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:'+barColor+';border-radius:3px;transition:width .8s ease"></div><div style="position:absolute;top:0;height:100%;width:2px;background:rgba(44,37,32,0.3);left:'+metaPos+'%"></div></div>';
+}
 async function carregarDados(){
   try{
     var r0=await fetch(COLAB_URL);
@@ -292,12 +300,9 @@ function processar(csv){
   setBar('sb-tap',tT,Math.max(tT+tM+tE,1));
   setBar('sb-mont',tM,Math.max(tT+tM+tE,1));
   setBar('sb-emb',tE,Math.max(tT+tM+tE,1));
-  var metaMesTap=calcMetaMes('Tapecaria');
-  var metaMesMont=calcMetaMes('Montagem Final');
-  var metaMesEmb=calcMetaMes('Embalagem');
-  var metaMesTotal=metaMesTap+metaMesMont+metaMesEmb;
-  var totalAcMes=tap.reduce(function(s,r){return s+r.ac;},0)+mont.reduce(function(s,r){return s+r.ac;},0)+emb.reduce(function(s,r){return s+r.ac;},0);
-  buildMetaMes('meta-mes',totalAcMes,metaMesTotal);
+  buildMetaColMes('mm-tap',tap.reduce(function(s,r){return s+r.ac;},0),calcMetaMes('Tapecaria'));
+  buildMetaColMes('mm-mont',mont.reduce(function(s,r){return s+r.ac;},0),calcMetaMes('Montagem Final'));
+  buildMetaColMes('mm-emb',emb.reduce(function(s,r){return s+r.ac;},0),calcMetaMes('Embalagem'));
   buildMetaCol('mc-tap',tT,calcMetaDiaPessoas(tap),'#1a6b3a');
   buildMetaCol('mc-mont',tM,calcMetaDiaPessoas(mont),'#1a5f8a');
   buildMetaCol('mc-emb',tE,calcMetaDiaPessoas(emb),'#8a6010');
