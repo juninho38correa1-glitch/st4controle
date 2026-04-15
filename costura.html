@@ -39,7 +39,7 @@
       </div>
     </div>
     <div id="tb-corpo-rank"></div>
-    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:200px"><canvas id="chart-corpo"></canvas></div></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:240px"><canvas id="chart-corpo"></canvas></div></div>
   </div>
   <div class="col-card">
     <div id="mm-almof"></div>
@@ -56,7 +56,7 @@
       </div>
     </div>
     <div id="tb-almof-rank"></div>
-    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:200px"><canvas id="chart-almof"></canvas></div></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:240px"><canvas id="chart-almof"></canvas></div></div>
   </div>
   <div class="col-card">
     <div id="mm-corte"></div>
@@ -73,7 +73,7 @@
       </div>
     </div>
     <div id="tb-corte-rank"></div>
-    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:180px"><canvas id="chart-corte"></canvas></div></div>
+    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:240px"><canvas id="chart-corte"></canvas></div></div>
     <div style="margin-top:10px"><div class="rank-title">// retrabalho</div><div id="retrab-status"></div></div>
   </div>
 </div>
@@ -186,9 +186,10 @@ function buildPizza(canvasId,rows,color){
   var hasData=sorted.some(function(r){return r.dia>0;});
   var total=sorted.reduce(function(s,r){return s+r.dia;},0);
   var palette=['#8B3A0F','#1a5f8a','#1a6b3a','#8a6010','#7030A0','#5B3A8B','#1a7a6a','#8B5A2B'];
-  var legW=110;
-  var pieR=Math.min((H-16)/2,(W-legW-16)/2);
-  var cx=legW+12+(W-legW-12)/2;
+  var legW=115;
+  var pieAreaW=W-legW-8;
+  var pieR=Math.min(pieAreaW/2,H/2)-8;
+  var cx=legW+8+pieAreaW/2;
   var cy=H/2;
   if(hasData){
     var angle=-Math.PI/2;
@@ -200,9 +201,9 @@ function buildPizza(canvasId,rows,color){
       ctx.closePath();
       ctx.fillStyle=palette[i%palette.length];ctx.fill();
       ctx.strokeStyle='rgba(245,240,234,0.9)';ctx.lineWidth=2;ctx.stroke();
-      if(slice>0.18){
-        ctx.fillStyle='#fff';ctx.font='bold 12px Arial';ctx.textAlign='center';
-        ctx.fillText(row.dia,cx+Math.cos(angle+slice/2)*pieR*0.65,cy+Math.sin(angle+slice/2)*pieR*0.65+4);
+      if(slice>0.15){
+        ctx.fillStyle='#fff';ctx.font='bold 13px Arial';ctx.textAlign='center';
+        ctx.fillText(row.dia,cx+Math.cos(angle+slice/2)*pieR*0.65,cy+Math.sin(angle+slice/2)*pieR*0.65+5);
       }
       angle+=slice;
     });
@@ -213,7 +214,7 @@ function buildPizza(canvasId,rows,color){
     ctx.fillText('sem dados hoje',cx,cy+4);
   }
   var legX=4;
-  var legY=cy-(sorted.length*20)/2;
+  var legY=cy-(sorted.length*22)/2;
   if(legY<8)legY=8;
   sorted.forEach(function(row,i){
     ctx.beginPath();ctx.arc(legX+6,legY+6,6,0,2*Math.PI);
@@ -221,7 +222,7 @@ function buildPizza(canvasId,rows,color){
     ctx.fillStyle='#2C2520';ctx.font='11px Arial';ctx.textAlign='left';
     var nome=row.nome.length>13?row.nome.slice(0,13)+'...':row.nome;
     ctx.fillText(nome+' ('+row.dia+')',legX+16,legY+10);
-    legY+=20;
+    legY+=22;
   });
 }
 function buildMetaTotal(cid,totalDia,meta,color){
