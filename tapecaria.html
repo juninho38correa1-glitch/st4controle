@@ -197,6 +197,36 @@ function buildMetaCol(cid,totalDia,meta,color){
   var metaPos=meta>0?Math.min(100,Math.round(meta/Math.max(meta,totalDia)*100)):100;
   el.innerHTML='<div style="font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Meta dia: '+totalDia+' / '+meta+' ('+pct+'%)</div><div style="position:relative;height:8px;background:#1a1a1a;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:'+barColor+';border-radius:4px;transition:width .8s ease"></div><div style="position:absolute;top:0;height:100%;width:2px;background:rgba(255,255,255,0.4);left:'+metaPos+'%"></div></div>';
 }
+
+function diasUteisMes(){
+  var hoje=new Date();
+  var ano=hoje.getFullYear(),mes=hoje.getMonth();
+  var diasNoMes=new Date(ano,mes+1,0).getDate();
+  var uteis=0;
+  for(var d=1;d<=diasNoMes;d++){
+    var dow=new Date(ano,mes,d).getDay();
+    if(dow!==0&&dow!==6)uteis++;
+  }
+  return uteis;
+}
+function calcMetaMes(setorFiltro){
+  var uteis=diasUteisMes();
+  var total=0;
+  Object.keys(COLAB_DATA).forEach(function(nome){
+    var cd=COLAB_DATA[nome];
+    if(cd&&cd.setor===setorFiltro&&cd.meta>0)total+=cd.meta;
+  });
+  return total*uteis;
+}
+function calcMetaMesSubs(subList){
+  var uteis=diasUteisMes();
+  var total=0;
+  Object.keys(COLAB_DATA).forEach(function(nome){
+    var cd=COLAB_DATA[nome];
+    if(cd&&subList.indexOf(cd.sub)!==-1&&cd.meta>0)total+=cd.meta;
+  });
+  return total*uteis;
+}
 async function carregarDados(){
   try{
     var r0=await fetch(COLAB_URL);
@@ -247,9 +277,12 @@ function processar(csv){
   setBar('sb-tap',tT,Math.max(tT+tM+tE,1));
   setBar('sb-mont',tM,Math.max(tT+tM+tE,1));
   setBar('sb-emb',tE,Math.max(tT+tM+tE,1));
-  var metaMes=METAS['Meta_Total_Mes']||720;
+  var metaMesTap=calcMetaMes('Tapecaria');
+  var metaMesMont=calcMetaMes('Montagem Final');
+  var metaMesEmb=calcMetaMes('Embalagem');
+  var metaMesTotal=metaMesTap+metaMesMont+metaMesEmb;
   var totalAcMes=tap.reduce(function(s,r){return s+r.ac;},0)+mont.reduce(function(s,r){return s+r.ac;},0)+emb.reduce(function(s,r){return s+r.ac;},0);
-  buildMetaMes('meta-mes',totalAcMes,metaMes);
+  buildMetaMes('meta-mes',totalAcMes,metaMesTotal);
   buildMetaCol('mc-tap',tT,METAS['Meta_Tapecaria_Total']||35,'#00B050');
   buildMetaCol('mc-mont',tM,METAS['Meta_MontFinal_Total']||35,'#0070C0');
   buildMetaCol('mc-emb',tE,METAS['Meta_Embalagem_Total']||35,'#EF9F27');
