@@ -22,9 +22,10 @@
       <div class="dt" id="dt">--</div>
     </div>
   </div>
-  <div id="meta-mes" style="background:#E8E0D5;padding:10px 16px;border-left:4px solid #8a6010"></div>
+  
   <div class="grid3col" style="flex:1">
   <div class="col-card">
+    <div id="mm-corpo"></div>
     <div id="mc-corpo"></div>
     <div class="col-header" style="color:#8B3A0F;border-color:#8B3A0F">// Costura Corpo</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
@@ -41,6 +42,7 @@
     <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:200px"><canvas id="chart-corpo"></canvas></div></div>
   </div>
   <div class="col-card">
+    <div id="mm-almof"></div>
     <div id="mc-almof"></div>
     <div class="col-header" style="color:#1a5f8a;border-color:#1a5f8a">// Costura Almofada</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
@@ -57,6 +59,7 @@
     <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div><div class="chart-wrap" style="height:200px"><canvas id="chart-almof"></canvas></div></div>
   </div>
   <div class="col-card">
+    <div id="mm-corte"></div>
     <div id="mc-corte"></div>
     <div class="col-header" style="color:#1a6b3a;border-color:#1a6b3a">// Corte</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
@@ -280,6 +283,14 @@ function calcMetaMesSubs(subList){
 function calcMetaDiaPessoas(rows){
   return rows.reduce(function(s,r){return s+(getMetaPessoa(r.nome)||35);},0);
 }
+
+function buildMetaColMes(cid,totalAc,metaMes){
+  var el=document.getElementById(cid);if(!el)return;
+  var pct=metaMes>0?Math.min(Math.round(totalAc/metaMes*100),150):0;
+  var barColor=pct>=100?'#1a6b3a':pct>=70?'#8a6010':'#8B3A0F';
+  var metaPos=metaMes>0?Math.min(100,Math.round(metaMes/Math.max(metaMes,totalAc)*100)):100;
+  el.innerHTML='<div style="font-size:9px;color:#6B5A4E;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;font-weight:600">Meta Mês: '+totalAc+' / '+metaMes+' ('+pct+'%)</div><div style="position:relative;height:6px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+Math.min(pct,100)+'%;background:'+barColor+';border-radius:3px;transition:width .8s ease"></div><div style="position:absolute;top:0;height:100%;width:2px;background:rgba(44,37,32,0.3);left:'+metaPos+'%"></div></div>';
+}
 async function carregarDados(){
   try{
     var r0=await fetch(COLAB_URL);
@@ -358,9 +369,13 @@ function processar(csv){
   set('s-corpo-dia',tCD);set('s-corpo-ac',tCA);
   set('s-almof-dia',tAD);set('s-almof-ac',tAA);
   set('s-corte-dia',tCtD);set('s-corte-ac',tCtA);
-  var metaMesTotal=metaMesCostura+metaMesCorte;
-  var totalAcMes=tCA+tAA+tCtA;
-  buildMetaMes('meta-mes',totalAcMes,metaMesTotal);
+
+  var mmCorpo=calcMetaMes('Costura');
+  var mmAlmof=calcMetaMes('Costura');
+  var mmCorte=calcMetaMes('Corte');
+  buildMetaColMes('mm-corpo',tCA,mmCorpo);
+  buildMetaColMes('mm-almof',tAA,mmAlmof);
+  buildMetaColMes('mm-corte',tCtA,mmCorte);
   buildMetaCol('mc-corpo',tCD,calcMetaDiaPessoas(rowsC)||metaCorpoDia,'#8B3A0F');
   buildMetaCol('mc-almof',tAD,calcMetaDiaPessoas(rowsA)||metaAlmofDia,'#1a5f8a');
   buildMetaCol('mc-corte',tCtD,calcMetaDiaPessoas(rowsCt)||metaCorteDia,'#1a6b3a');
