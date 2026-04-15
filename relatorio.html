@@ -108,20 +108,21 @@ function nomeCurto(nome,max){
 }
 function tickClock(){
   var n=new Date();
-  document.getElementById('clk').textContent=pad(n.getHours())+':'+pad(n.getMinutes());
+  var clk=document.getElementById('clk');
+  if(clk)clk.textContent=pad(n.getHours())+':'+pad(n.getMinutes());
   var ds=['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
   var ms=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('dt').textContent=ds[n.getDay()]+', '+n.getDate()+' de '+ms[n.getMonth()]+' de '+n.getFullYear();
-  document.getElementById('upd').textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+  var dt=document.getElementById('dt');if(dt)dt.textContent=ds[n.getDay()]+', '+n.getDate()+' de '+ms[n.getMonth()]+' de '+n.getFullYear();
+  var upd=document.getElementById('upd');if(upd)upd.textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
   var mel=document.getElementById('mes-atual');if(mel)mel.textContent='Acumulado: '+ms[n.getMonth()]+' '+n.getFullYear();
 }
 var countdown=INTERVALO_MIN*60;
 function tickCountdown(){
   countdown--;
   if(countdown<=0){countdown=INTERVALO_MIN*60;carregarDados();}
-  document.getElementById('ctd').textContent=pad(Math.floor(countdown/60))+':'+pad(countdown%60);
+  var ctd=document.getElementById('ctd');if(ctd)ctd.textContent=pad(Math.floor(countdown/60))+':'+pad(countdown%60);
 }
-tickClock();setInterval(tickClock,1000);setInterval(tickCountdown,1000);
+tickClock();setInterval(tickClock,1000);
 function set(id,val){var e=document.getElementById(id);if(e)e.textContent=val;}
 function setBar(id,val,max){var e=document.getElementById(id);if(e)e.style.width=(max>0?Math.min(100,Math.round(val/max*100)):0)+'%';}
 function parseCSVLine(line){
