@@ -295,8 +295,17 @@ async function carregarDados(){
     document.getElementById('erro').style.display='none';
   }catch(e){
     document.getElementById('loading').style.display='none';
-    document.getElementById('erro').style.display='block';
-    document.getElementById('erro').innerHTML='<strong>Erro ao carregar</strong><br>'+e.message;
+    var er=document.getElementById('erro');
+    er.style.display='block';
+    er.style.position='fixed';
+    er.style.top='60px';
+    er.style.left='10px';
+    er.style.right='10px';
+    er.style.zIndex='9999';
+    er.style.padding='20px';
+    er.style.fontSize='14px';
+    er.innerHTML='<strong style="color:#c00">ERRO AO CARREGAR</strong><br><br>'+e.message+'<br><br><small>Verifique o console (F12)</small>';
+    console.error('carregarDados error:',e);
   }
 }
 
