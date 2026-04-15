@@ -843,6 +843,11 @@ async function carregarDados(){
       ALL_LANCAMENTOS.push({data:cc[0],nome:cc[1],setor:cc[2],prodCorpo:cc[3],prodAlmof:cc[4],retrabalho:cc[5]});
     }
     buildSetores();
+    // Debug: verificar Pablo
+    var pabloLans=ALL_LANCAMENTOS.filter(function(l){return norm(l.nome).indexOf('pablo')!==-1;});
+    console.log('Pablo lancamentos:',JSON.stringify(pabloLans));
+    var pabloColab=Object.keys(COLAB_DATA).filter(function(n){return norm(n).indexOf('pablo')!==-1;});
+    console.log('Pablo na base:',pabloColab,pabloColab.length?COLAB_DATA[pabloColab[0]]:'nao encontrado');
     render();
   }catch(e){
     document.getElementById('app').innerHTML='<div class="loading-msg" style="color:#8B3A0F">Erro: '+e.message+'</div>';
