@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="refresh" content="300">
 <title>TV Tapecaria - Studyo4</title>
-<style>*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;background:#F5F0EA;font-family:Arial,sans-serif}.tv{background:#F5F0EA;padding:14px;display:flex;flex-direction:column;gap:12px;min-height:100vh}.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px}.logo{font-size:14px;font-weight:700;letter-spacing:3px;color:#2C2520}.logo span{color:#8B3A0F}.setor-tag{font-size:11px;font-weight:700;letter-spacing:2px;padding:4px 14px;text-transform:uppercase}.clk{font-size:28px;font-weight:700;color:#2C2520;letter-spacing:4px}.dt{font-size:11px;color:#6B5A4E;margin-top:2px;text-align:right}.score-grid{display:grid;gap:2px}.score-cell{background:#E8E0D5;padding:14px 18px;display:flex;flex-direction:column;gap:4px;border-left:4px solid}.score-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase}.score-val{font-size:50px;font-weight:700;line-height:1;letter-spacing:-2px;color:#2C2520}.score-sub{font-size:10px;color:#6B5A4E}.score-bar-bg{height:4px;background:rgba(44,37,32,0.1);border-radius:2px;overflow:hidden;margin-top:4px}.score-bar-f{height:100%;border-radius:2px;transition:width .6s ease}.main-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;flex:1}.grid3col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;flex:1}.side-stack{display:flex;flex-direction:column;gap:12px}.rank-card{background:#E8E0D5;padding:14px 16px;flex:1}.col-card{background:#E8E0D5;padding:14px 16px;display:flex;flex-direction:column;gap:10px}.rank-title{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;margin-bottom:10px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid rgba(44,37,32,0.12)}.col-header{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid;margin-bottom:4px}.meta-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(44,37,32,0.12)}.meta-row:last-child{border:none;padding-top:8px;border-top:1px solid rgba(44,37,32,0.12);margin-top:4px}.mpos{font-size:18px;font-weight:700;width:28px;color:rgba(44,37,32,0.2);flex-shrink:0;text-align:center}.mpos.g{color:#FFD700}.mpos.s{color:#C0C0C0}.mpos.b{color:#CD7F32}.mname{font-size:13px;font-weight:700;color:#2C2520;width:110px;flex-shrink:0;line-height:1.3}.mbar-wrap{flex:1;position:relative}.mbar-bg{height:12px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden;position:relative}.mbar-f{height:100%;border-radius:3px;transition:width .8s ease}.mbar-meta{position:absolute;top:0;width:2px;height:100%;background:rgba(255,255,255,0.4)}.mpct{font-size:11px;font-weight:700;width:36px;text-align:right;flex-shrink:0}.mqty{font-size:14px;font-weight:700;width:34px;text-align:right;flex-shrink:0}.meta-badge{font-size:9px;padding:2px 6px;border-radius:10px;font-weight:700;flex-shrink:0;min-width:46px;text-align:center}.badge-ok{background:rgba(26,107,58,0.12);color:#1a6b3a;border:1px solid rgba(74,124,89,0.3)}.badge-no{background:rgba(139,58,15,0.1);color:rgba(255,0,102,0.5);border:1px solid rgba(139,58,15,0.25)}.chart-wrap{position:relative;width:100%;height:160px}.mini-card{background:#E8E0D5;padding:12px 16px}.mini-title{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;margin-bottom:8px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid rgba(44,37,32,0.12)}.status-ok{background:#0a1a0a;border:1px solid rgba(74,124,89,0.5);padding:8px 14px;font-size:11px;color:#1a6b3a;font-weight:700;letter-spacing:1px;text-align:center}.status-alert{background:rgba(139,58,15,0.1);border:1px solid #8B4513;padding:8px 14px;font-size:11px;color:#8B3A0F;font-weight:700;letter-spacing:1px;text-align:center;margin-bottom:4px}.meta-row-mini{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #111;font-size:12px;color:#2C2520}.meta-row-mini:last-child{border:none}.mtb-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:8px}.mtb-wrap{position:relative;height:20px;background:rgba(44,37,32,0.1);border-radius:4px;overflow:hidden}.mtb-fill{height:100%;border-radius:4px;transition:width .8s ease}.mtb-line{position:absolute;top:0;height:100%;width:2px;background:rgba(255,255,255,0.5)}.mtb-pct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:#2C2520}.footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid #2a1f18;font-size:11px;color:#6B5A4E;font-weight:700}.footer span{color:#6B5A4E}#loading{position:fixed;inset:0;background:#F5F0EA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999}.spinner{width:40px;height:40px;border:2px solid rgba(44,37,32,0.15);border-top-color:#2C2520;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#loading p{color:#6B5A4E;font-size:12px;letter-spacing:2px;text-transform:uppercase}#erro{display:none;background:rgba(139,58,15,0.1);border:1px solid #8B4513;padding:16px;color:#FF6060;font-size:12px;margin:10px;line-height:1.8}</style>
+<style>*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;background:#F5F0EA;font-family:Arial,sans-serif}.tv{background:#F5F0EA;padding:14px;display:flex;flex-direction:column;gap:12px;min-height:100vh}.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px}.logo{font-size:14px;font-weight:700;letter-spacing:3px;color:#2C2520}.logo span{color:#8B3A0F}.setor-tag{font-size:11px;font-weight:700;letter-spacing:2px;padding:4px 14px;text-transform:uppercase}.clk{font-size:28px;font-weight:700;color:#2C2520;letter-spacing:4px}.dt{font-size:11px;color:#6B5A4E;margin-top:2px;text-align:right}.score-grid{display:grid;gap:2px}.score-cell{background:#E8E0D5;padding:14px 18px;display:flex;flex-direction:column;gap:4px;border-left:4px solid}.score-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase}.score-val{font-size:50px;font-weight:700;line-height:1;letter-spacing:-2px;color:#2C2520}.score-sub{font-size:10px;color:#6B5A4E}.score-bar-bg{height:4px;background:rgba(44,37,32,0.1);border-radius:2px;overflow:hidden;margin-top:4px}.score-bar-f{height:100%;border-radius:2px;transition:width .6s ease}.main-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;flex:1}.grid3col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;flex:1}.side-stack{display:flex;flex-direction:column;gap:12px}.rank-card{background:#E8E0D5;padding:14px 16px;flex:1}.col-card{background:#E8E0D5;padding:14px 16px;display:flex;flex-direction:column;gap:10px}.rank-title{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;margin-bottom:10px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid rgba(44,37,32,0.12)}.col-header{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid;margin-bottom:4px}.meta-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(44,37,32,0.12)}.meta-row:last-child{border:none;padding-top:8px;border-top:1px solid rgba(44,37,32,0.12);margin-top:4px}.mpos{font-size:18px;font-weight:700;width:28px;color:rgba(44,37,32,0.2);flex-shrink:0;text-align:center}.mpos.g{color:#FFD700}.mpos.s{color:#C0C0C0}.mpos.b{color:#CD7F32}.mname{font-size:13px;font-weight:700;color:#2C2520;width:110px;flex-shrink:0;line-height:1.3}.mbar-wrap{flex:1;position:relative}.mbar-bg{height:12px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden;position:relative}.mbar-f{height:100%;border-radius:3px;transition:width .8s ease}.mbar-meta{position:absolute;top:0;width:2px;height:100%;background:rgba(255,255,255,0.4)}.mpct{font-size:11px;font-weight:700;width:36px;text-align:right;flex-shrink:0}.mqty{font-size:14px;font-weight:700;width:34px;text-align:right;flex-shrink:0}.meta-badge{font-size:9px;padding:2px 6px;border-radius:10px;font-weight:700;flex-shrink:0;min-width:46px;text-align:center}.badge-ok{background:rgba(26,107,58,0.12);color:#1a6b3a;border:1px solid rgba(74,124,89,0.3)}.badge-no{background:rgba(139,58,15,0.1);color:rgba(255,0,102,0.5);border:1px solid rgba(139,58,15,0.25)}.chart-wrap{position:relative;width:100%;height:160px}.mini-card{background:#E8E0D5;padding:12px 16px}.mini-title{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;margin-bottom:8px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid rgba(44,37,32,0.12)}.status-ok{background:#0a1a0a;border:1px solid rgba(74,124,89,0.5);padding:8px 14px;font-size:11px;color:#1a6b3a;font-weight:700;letter-spacing:1px;text-align:center}.status-alert{background:rgba(139,58,15,0.1);border:1px solid #8B4513;padding:8px 14px;font-size:11px;color:#8B3A0F;font-weight:700;letter-spacing:1px;text-align:center;margin-bottom:4px}.meta-row-mini{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #111;font-size:12px;color:#2C2520}.meta-row-mini:last-child{border:none}.mtb-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:8px}.mtb-wrap{position:relative;height:20px;background:rgba(44,37,32,0.1);border-radius:4px;overflow:hidden}.mtb-fill{height:100%;border-radius:4px;transition:width .8s ease}.mtb-line{position:absolute;top:0;height:100%;width:2px;background:rgba(255,255,255,0.5)}.mtb-pct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:#2C2520}.footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid #2a1f18;font-size:11px;color:#6B5A4E;font-weight:700}.footer span{color:#6B5A4E}#loading{position:fixed;inset:0;background:#F5F0EA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999}.spinner{width:40px;height:40px;border:2px solid rgba(44,37,32,0.15);border-top-color:#2C2520;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#loading p{color:#6B5A4E;font-size:12px;letter-spacing:2px;text-transform:uppercase}#erro{display:none;background:rgba(139,58,15,0.1);border:1px solid #8B4513;padding:16px;color:#FF6060;font-size:12px;margin:10px;line-height:1.8}
+.grid-auto{display:grid;gap:12px;flex:1}
+.grid-auto.cols-1{grid-template-columns:1fr}
+.grid-auto.cols-2{grid-template-columns:1fr 1fr}
+.grid-auto.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid-row-2{display:grid;gap:12px;grid-template-columns:repeat(var(--row2-cols),minmax(0,1fr));max-width:calc(var(--row2-pct) * 100%);margin:12px auto 0}
+</style>
 </head>
 <body>
 <div id="loading"><div class="spinner"></div><p>CARREGANDO PRODUCAO...</p></div>
@@ -15,72 +21,14 @@
     <div style="display:flex;align-items:center;gap:14px">
       <div style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;color:#2C2520">STUDYO4 <span style="font-weight:400;letter-spacing:2px;color:#6B5A4E">ESTOFADOS</span></div>
       <div style="width:1px;height:24px;background:rgba(44,37,32,0.2)"></div>
-      <div class="setor-tag" style="color:#2C2520;background:rgba(44,37,32,0.08);border:1px solid rgba(44,37,32,0.3)">TAPEÇARIA / MONTAGEM</div>
+      <div class="setor-tag" style="color:#2C2520;background:rgba(44,37,32,0.08);border:1px solid rgba(44,37,32,0.3)">TV 3 — TAPEÇARIA</div>
     </div>
     <div style="text-align:right">
       <div class="clk" id="clk">--:--</div>
       <div class="dt" id="dt">--</div>
     </div>
   </div>
-  <div class="grid3col" style="flex:1">
-  <div class="col-card">
-    <div id="mm-tap"></div>
-    <div id="mc-tap"></div>
-    <div class="col-header" style="color:#1a6b3a;border-color:rgba(44,37,32,0.3)">// Tapeçaria</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
-      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #1a6b3a">
-        <div class="score-label">Hoje</div>
-        <div style="font-size:36px;font-weight:700;line-height:1;color:#1a6b3a" id="s-tap-h">-</div>
-      </div>
-      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #1a6b3a">
-        <div class="score-label">Acumulado</div>
-        <div style="font-size:36px;font-weight:700;line-height:1;color:#1a6b3a" id="s-tap-ac">-</div>
-      </div>
-    </div>
-    <div id="tb-tap"></div>
-    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div>
-    <div class="chart-wrap" style="height:240px"><canvas id="chart-tap"></canvas></div></div>
-    
-  </div>
-  <div class="col-card">
-    <div id="mm-mont"></div>
-    <div id="mc-mont"></div>
-    <div class="col-header" style="color:#1a5f8a;border-color:rgba(44,37,32,0.3)">// Montagem Final</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
-      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #1a5f8a">
-        <div class="score-label">Hoje</div>
-        <div style="font-size:36px;font-weight:700;line-height:1;color:#1a5f8a" id="s-mont-h">-</div>
-      </div>
-      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #1a5f8a">
-        <div class="score-label">Acumulado</div>
-        <div style="font-size:36px;font-weight:700;line-height:1;color:#1a5f8a" id="s-mont-ac">-</div>
-      </div>
-    </div>
-    <div id="tb-mont"></div>
-    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div>
-    <div class="chart-wrap" style="height:240px"><canvas id="chart-mont"></canvas></div></div>
-    
-  </div>
-  <div class="col-card">
-    <div id="mm-emb"></div>
-    <div id="mc-emb"></div>
-    <div class="col-header" style="color:#8a6010;border-color:rgba(44,37,32,0.3)">// Embalagem</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">
-      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #8a6010">
-        <div class="score-label">Hoje</div>
-        <div style="font-size:36px;font-weight:700;line-height:1;color:#8a6010" id="s-emb-h">-</div>
-      </div>
-      <div style="background:#E8E0D5;padding:10px 14px;border-left:3px solid #8a6010">
-        <div class="score-label">Acumulado</div>
-        <div style="font-size:36px;font-weight:700;line-height:1;color:#8a6010" id="s-emb-ac">-</div>
-      </div>
-    </div>
-    <div id="tb-emb"></div>
-    <div style="margin-top:10px"><div class="rank-title">// distribuicao hoje</div>
-    <div class="chart-wrap" style="height:240px"><canvas id="chart-emb"></canvas></div></div>
-    
-  </div>
-</div>
+  <div id="grid-container" style="flex:1;display:flex;flex-direction:column"></div>
   <div class="footer">
     <div>Atualizado as <span id="upd">--:--:--</span></div>
     <div>Proxima atualizacao em <span id="ctd" style="color:#1a6b3a">--:--</span></div>
@@ -88,6 +36,7 @@
   </div>
 </div>
 <script>
+var TV_NUM='TV 3';
 
 
 var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
@@ -350,53 +299,235 @@ async function carregarDados(){
 }
 
 
-function processar(csv){
-  var linhas=csv.split('\n').filter(function(l){return l.trim();});
+function processar(txt){
+  var linhas=txt.split('\n').filter(function(l){return l.trim();});
   var lancamentos=[];
   for(var i=3;i<linhas.length;i++){
     var c=parseCSVLine(linhas[i]);
     if(!c[0]||!c[1])continue;
-    lancamentos.push({data:c[0],nome:c[1],setor:c[2],prodCorpo:c[3]});
+    lancamentos.push({
+      data:c[0],nome:c[1],setor:c[2],
+      sub:c[3]||'',tv:c[4]||'',
+      prodCorpo:c[5],prodAlmof:c[6],retrabalho:c[7]
+    });
   }
+  // filtrar pela TV deste painel
+  lancamentos=lancamentos.filter(function(l){return l.tv==='TV 3';});
+
   var hoje=new Date();hoje.setHours(0,0,0,0);
   var mes=hoje.getMonth(),ano=hoje.getFullYear();
-  function ag(setorFiltro){
-    var map={};
-    lancamentos.forEach(function(l){
-      if(l.setor!==setorFiltro)return;
-      var dt=parseDate(l.data);if(!dt)return;
-      if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
-      var eHoje=dt.getTime()===hoje.getTime();
-      if(!map[l.nome])map[l.nome]={dia:0,ac:0};
-      map[l.nome].ac+=Number(l.prodCorpo)||0;
-      if(eHoje)map[l.nome].dia+=Number(l.prodCorpo)||0;
+
+  // Agrupar por sub-setor
+  var grupos={};
+  lancamentos.forEach(function(l){
+    var dt=parseDate(l.data);if(!dt)return;
+    if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
+    var key=l.sub||l.setor;
+    if(!grupos[key])grupos[key]={sub:key,setor:l.setor,map:{},mapAlmof:{}};
+    var eHoje=dt.getTime()===hoje.getTime();
+    if(!grupos[key].map[l.nome])grupos[key].map[l.nome]={dia:0,ac:0};
+    if(!grupos[key].mapAlmof[l.nome])grupos[key].mapAlmof[l.nome]={dia:0,ac:0};
+    grupos[key].map[l.nome].ac+=Number(l.prodCorpo)||0;
+    grupos[key].mapAlmof[l.nome].ac+=Number(l.prodAlmof)||0;
+    if(eHoje){
+      grupos[key].map[l.nome].dia+=Number(l.prodCorpo)||0;
+      grupos[key].mapAlmof[l.nome].dia+=Number(l.prodAlmof)||0;
+    }
+  });
+
+  // Adicionar colaboradores da base que ainda não lançaram (meta>0 e TV certa)
+  Object.keys(COLAB_DATA).forEach(function(nome){
+    var cd=COLAB_DATA[nome];
+    if(!cd||!cd.tv||cd.tv!=='TV 3'||cd.meta<=0)return;
+    var key=cd.sub||cd.setor;
+    if(!grupos[key])grupos[key]={sub:key,setor:cd.setor,map:{},mapAlmof:{}};
+    if(!grupos[key].map[nome])grupos[key].map[nome]={dia:0,ac:0};
+    if(!grupos[key].mapAlmof[nome])grupos[key].mapAlmof[nome]={dia:0,ac:0};
+  });
+
+  // Detectar se Costura (sub duplo corpo+almofada)
+  var setCostura=['Costura','Corpo','Almofada'];
+  var setKeys=Object.keys(grupos);
+
+  // Converter grupos em array de colunas
+  var colunas=setKeys.map(function(key){
+    var g=grupos[key];
+    var isCostura=setCostura.indexOf(g.setor)!==-1||setCostura.indexOf(key)!==-1;
+    var rows=Object.keys(g.map).map(function(n){
+      return{nome:n,dia:g.map[n].dia,ac:g.map[n].ac,
+             diaAlmof:g.mapAlmof[n]?g.mapAlmof[n].dia:0,
+             acAlmof:g.mapAlmof[n]?g.mapAlmof[n].ac:0};
     });
-    return Object.keys(map).map(function(n){return{nome:n,dia:map[n].dia,ac:map[n].ac};});
+    var tDia=rows.reduce(function(s,r){return s+r.dia+(isCostura?r.diaAlmof:0);},0);
+    var tAc=rows.reduce(function(s,r){return s+r.ac+(isCostura?r.acAlmof:0);},0);
+    var metaDia=calcMetaDiaSetor2(key,g.setor);
+    var metaMes=calcMetaMesSetor2(key,g.setor);
+    return{key:key,setor:g.setor,rows:rows,tDia:tDia,tAc:tAc,
+           metaDia:metaDia,metaMes:metaMes,isCostura:isCostura};
+  });
+
+  renderColunas(colunas);
+}
+
+function calcMetaDiaSetor2(sub,setor){
+  var total=0;
+  Object.keys(COLAB_DATA).forEach(function(nome){
+    var cd=COLAB_DATA[nome];
+    if(!cd||cd.meta<=0||cd.tv!=='TV 3')return;
+    var key=cd.sub||cd.setor;
+    if(key===sub)total+=cd.meta;
+  });
+  return total;
+}
+
+function calcMetaMesSetor2(sub,setor){
+  return calcMetaDiaSetor2(sub,setor)*diasUteisMes();
+}
+
+function renderColunas(colunas){
+  var n=colunas.length;
+  var container=document.getElementById('grid-container');
+  if(!container)return;
+
+  // Layout dinâmico opção C
+  var html='';
+  if(n<=3){
+    html='<div class="grid-auto cols-'+n+'">';
+    colunas.forEach(function(col){html+=buildCol(col);});
+    html+='</div>';
+  }else if(n===4){
+    html='<div class="grid-auto cols-2">';
+    colunas.forEach(function(col){html+=buildCol(col);});
+    html+='</div>';
+  }else{
+    // 5+: primeira linha com 3, segunda centralizada com o resto
+    var linha1=colunas.slice(0,3);
+    var linha2=colunas.slice(3);
+    var pct=linha2.length===1?0.34:linha2.length===2?0.67:1;
+    html='<div class="grid-auto cols-3">';
+    linha1.forEach(function(col){html+=buildCol(col);});
+    html+='</div>';
+    html+='<div style="display:grid;grid-template-columns:repeat('+linha2.length+',minmax(0,1fr));gap:12px;width:'+(pct*100)+'%;margin:12px auto 0">';
+    linha2.forEach(function(col){html+=buildCol(col);});
+    html+='</div>';
   }
-  var tap=ag('Tapecaria'),mont=ag('Montagem Final'),emb=ag('Embalagem');
-  var tT=tap.reduce(function(s,r){return s+r.dia;},0);
-  var tM=mont.reduce(function(s,r){return s+r.dia;},0);
-  var tE=emb.reduce(function(s,r){return s+r.dia;},0);
-  var tTAc=tap.reduce(function(s,r){return s+r.ac;},0);
-  var tMAc=mont.reduce(function(s,r){return s+r.ac;},0);
-  var tEAc=emb.reduce(function(s,r){return s+r.ac;},0);
-  set('s-tap-h',tT);set('s-tap-ac',tTAc);
-  set('s-mont-h',tM);set('s-mont-ac',tMAc);
-  set('s-emb-h',tE);set('s-emb-ac',tEAc);
-  buildMetaColMes('mm-tap',tTAc,calcMetaMes('Tapecaria'));
-  buildMetaColMes('mm-mont',tMAc,calcMetaMes('Montagem Final'));
-  buildMetaColMes('mm-emb',tEAc,calcMetaMes('Embalagem'));
-  buildMetaCol('mc-tap',tT,calcMetaDiaSetor('Tapecaria'),'#1a6b3a');
-  buildMetaCol('mc-mont',tM,calcMetaDiaSetor('Montagem Final'),'#1a5f8a');
-  buildMetaCol('mc-emb',tE,calcMetaDiaSetor('Embalagem'),'#8a6010');
-  buildMetaRanking('tb-tap',tap,'#1a6b3a');
-  buildMetaRanking('tb-mont',mont,'#1a5f8a');
-  buildMetaRanking('tb-emb',emb,'#8a6010');
+  container.innerHTML=html;
+
+  // Desenhar pizzas após render
   setTimeout(function(){
-    buildPizza('chart-tap',tap,'#1a6b3a');
-    buildPizza('chart-mont',mont,'#1a5f8a');
-    buildPizza('chart-emb',emb,'#8a6010');
+    colunas.forEach(function(col){
+      buildPizza('pizza-'+col.key.replace(/\s/g,'_'),col.rows,col.isCostura);
+    });
   },100);
+}
+
+function buildCol(col){
+  var cor=getCor(col.setor,col.key);
+  var pctMes=col.metaMes>0?Math.min(Math.round(col.tAc/col.metaMes*100),150):0;
+  var pctDia=col.metaDia>0?Math.min(Math.round(col.tDia/col.metaDia*100),150):0;
+  var bcMes=pctMes>=100?'#1a6b3a':pctMes>=70?'#8a6010':'#8B3A0F';
+  var bcDia=pctDia>=100?'#1a6b3a':pctDia>=70?'#8a6010':'#8B3A0F';
+  var chartId='pizza-'+col.key.replace(/\s/g,'_');
+  var html='<div class="col-card">';
+  // Meta mês
+  if(col.metaMes>0){
+    html+='<div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#6B5A4E;text-transform:uppercase;margin-bottom:3px">Meta Mes: '+col.tAc+' / '+col.metaMes+' ('+pctMes+'%)</div>';
+    html+='<div style="height:5px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+Math.min(pctMes,100)+'%;background:'+bcMes+';border-radius:3px"></div></div>';
+  }
+  // Meta dia
+  if(col.metaDia>0){
+    html+='<div style="font-size:9px;font-weight:700;letter-spacing:1px;color:#6B5A4E;text-transform:uppercase;margin-bottom:3px">Meta Dia: '+col.tDia+' / '+col.metaDia+' ('+pctDia+'%)</div>';
+    html+='<div style="height:5px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:100%;width:'+Math.min(pctDia,100)+'%;background:'+bcDia+';border-radius:3px"></div></div>';
+  }
+  // Header
+  html+='<div class="col-header" style="color:'+cor+';border-color:rgba(44,37,32,0.3)">// '+col.key+'</div>';
+  // KPIs
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">';
+  html+='<div style="background:#E8E0D5;padding:8px 10px;border-left:3px solid '+cor+'"><div class="score-label">Hoje</div><div style="font-size:28px;font-weight:700;color:'+cor+'">'+col.tDia+'</div></div>';
+  html+='<div style="background:#E8E0D5;padding:8px 10px;border-left:3px solid '+cor+'"><div class="score-label">Acumulado</div><div style="font-size:28px;font-weight:700;color:'+cor+'">'+col.tAc+'</div></div>';
+  html+='</div>';
+  // Ranking
+  html+=buildRanking(col);
+  // Pizza
+  html+='<div class="rank-title" style="margin-top:8px">// distribuicao hoje</div>';
+  html+='<div class="chart-wrap" style="height:220px"><canvas id="'+chartId+'"></canvas></div>';
+  html+='</div>';
+  return html;
+}
+
+function buildRanking(col){
+  var cor=getCor(col.setor,col.key);
+  var sorted=col.rows.slice().sort(function(a,b){
+    var pa=a.dia+(col.isCostura?a.diaAlmof:0);
+    var pb=b.dia+(col.isCostura?b.diaAlmof:0);
+    return pb-pa;
+  });
+  var medals=['g','s','b'];var prev=-1;var pos=0;
+  var html='';
+  sorted.forEach(function(r,i){
+    var prod=r.dia+(col.isCostura?r.diaAlmof:0);
+    if(prod!==prev){pos=i+1;prev=prod;}
+    var meta=getMetaPessoa(r.nome);
+    var pct=meta>0?Math.round(prod/meta*100):0;
+    var pctCap=Math.min(pct,100);
+    var bc=pct>=100?'#1a6b3a':pct>=70?'#8a6010':'#8B3A0F';
+    var medal=pos<=3?medals[pos-1]:'';
+    var badge=meta>0?(pct>=100?'<div class="meta-badge badge-ok">META \u2B50</div>':'<div class="meta-badge badge-no">'+pct+'%</div>'):'';
+    html+='<div class="meta-row">';
+    html+='<div class="mpos '+medal+'">'+String(pos).padStart(2,'0')+'</div>';
+    html+='<div class="mname"><div>'+nomeCurto(r.nome,16)+'</div>';
+    html+='<div style="font-size:11px;color:#6B5A4E;margin-top:2px">Acumulado: '+r.ac+(col.isCostura&&r.acAlmof?' / '+r.acAlmof:'')+(meta?' · meta:'+meta:'')+'</div></div>';
+    html+='<div class="mbar-wrap"><div class="mbar-bg"><div class="mbar-f" style="width:'+pctCap+'%;background:'+bc+'"></div></div></div>';
+    html+='<div class="mpct" style="color:'+bc+'">'+(meta?pct+'%':'')+'</div>';
+    html+='<div class="mqty" style="color:'+cor+'">'+prod+'</div>';
+    html+=badge;
+    html+='</div>';
+  });
+  var tDia=col.rows.reduce(function(s,r){return s+r.dia+(col.isCostura?r.diaAlmof:0);},0);
+  var tAc=col.rows.reduce(function(s,r){return s+r.ac+(col.isCostura?r.acAlmof:0);},0);
+  html+='<div class="meta-row"><div class="mpos"></div><div class="mname" style="color:#6B5A4E;font-size:11px">TOTAL</div><div class="mbar-wrap"></div><div class="mpct"></div><div class="mqty" style="color:#6B5A4E">'+tDia+'</div><div class="meta-badge" style="font-size:9px;color:#8a7060">ac:'+tAc+'</div></div>';
+  return html;
+}
+
+var COR_MAP={'Costura':'#8B3A0F','Corpo':'#8B3A0F','Almofada':'#1a5f8a','Corte':'#1a6b3a',
+  'Tapecaria':'#1a6b3a','Montagem Final':'#1a5f8a','Embalagem':'#8a6010',
+  'Espumacao':'#8a6010','Laminacao Espuma':'#8a6010','Laminacao Madeira':'#1a5f8a',
+  'Marcenaria':'#1a5f8a','CNC':'#1a5f8a','Marceneiro':'#1a5f8a',
+  'Montagem Estrutural':'#7030A0','Preparacao':'#7030A0','Almoxarifado':'#6B5A4E',
+  'Desenvolvimento':'#6B5A4E'};
+function getCor(setor,sub){
+  return COR_MAP[sub]||COR_MAP[setor]||'#6B5A4E';
+}
+
+async function carregarDados(){
+  try{
+    var r0=await fetch(COLAB_URL);
+    if(r0.ok){
+      var csv0=await r0.text();
+      COLAB_DATA=parseColab(csv0);
+      // Ler TV da coluna 4 da aba Colaboradores
+      var linhas=csv0.split('\n').filter(function(l){return l.trim();});
+      for(var i=2;i<linhas.length;i++){
+        var c=parseCSVLine(linhas[i]);
+        if(c[0]&&COLAB_DATA[c[0].trim()]){
+          COLAB_DATA[c[0].trim()].tv=c[4]?c[4].trim():'';
+        }
+      }
+    }
+    var r1=await fetch(CONFIG_URL);
+    if(r1.ok)METAS=parseConfig(await r1.text());
+    var r2=await fetch(LANCAMENTOS_URL);
+    if(!r2.ok)throw new Error('HTTP '+r2.status);
+    processar(await r2.text());
+    document.getElementById('loading').style.display='none';
+    document.getElementById('app').style.display='flex';
+    document.getElementById('erro').style.display='none';
+  }catch(e){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('erro').style.display='block';
+    document.getElementById('erro').innerHTML='<strong>Erro</strong><br>'+e.message;
+    console.error(e);
+  }
 }
 carregarDados();
 </script>
