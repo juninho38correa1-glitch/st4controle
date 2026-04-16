@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta http-equiv="refresh" content="300">
-<title>TV Marcenaria - Studyo4</title>
+<title>TV Tapecaria - Studyo4</title>
 <style>*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;background:#F5F0EA;font-family:Arial,sans-serif}.tv{background:#F5F0EA;padding:14px;display:flex;flex-direction:column;gap:12px;min-height:100vh}.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:12px}.logo{font-size:14px;font-weight:700;letter-spacing:3px;color:#2C2520}.logo span{color:#8B3A0F}.setor-tag{font-size:11px;font-weight:700;letter-spacing:2px;padding:4px 14px;text-transform:uppercase}.clk{font-size:28px;font-weight:700;color:#2C2520;letter-spacing:4px}.dt{font-size:11px;color:#6B5A4E;margin-top:2px;text-align:right}.score-grid{display:grid;gap:2px}.score-cell{background:#E8E0D5;padding:14px 18px;display:flex;flex-direction:column;gap:4px;border-left:4px solid}.score-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase}.score-val{font-size:50px;font-weight:700;line-height:1;letter-spacing:-2px;color:#2C2520}.score-sub{font-size:10px;color:#6B5A4E}.score-bar-bg{height:4px;background:rgba(44,37,32,0.1);border-radius:2px;overflow:hidden;margin-top:4px}.score-bar-f{height:100%;border-radius:2px;transition:width .6s ease}.main-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;flex:1}.grid3col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;flex:1}.side-stack{display:flex;flex-direction:column;gap:12px}.rank-card{background:#E8E0D5;padding:14px 16px;flex:1}.col-card{background:#E8E0D5;padding:14px 16px;display:flex;flex-direction:column;gap:10px}.rank-title{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;margin-bottom:10px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid rgba(44,37,32,0.12)}.col-header{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid;margin-bottom:4px}.meta-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(44,37,32,0.12)}.meta-row:last-child{border:none;padding-top:8px;border-top:1px solid rgba(44,37,32,0.12);margin-top:4px}.mpos{font-size:18px;font-weight:700;width:28px;color:rgba(44,37,32,0.2);flex-shrink:0;text-align:center}.mpos.g{color:#FFD700}.mpos.s{color:#C0C0C0}.mpos.b{color:#CD7F32}.mname{font-size:13px;font-weight:700;color:#2C2520;width:110px;flex-shrink:0;line-height:1.3}.mbar-wrap{flex:1;position:relative}.mbar-bg{height:12px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden;position:relative}.mbar-f{height:100%;border-radius:3px;transition:width .8s ease}.mbar-meta{position:absolute;top:0;width:2px;height:100%;background:rgba(255,255,255,0.4)}.mpct{font-size:11px;font-weight:700;width:36px;text-align:right;flex-shrink:0}.mqty{font-size:14px;font-weight:700;width:34px;text-align:right;flex-shrink:0}.meta-badge{font-size:9px;padding:2px 6px;border-radius:10px;font-weight:700;flex-shrink:0;min-width:46px;text-align:center}.badge-ok{background:rgba(26,107,58,0.12);color:#1a6b3a;border:1px solid rgba(74,124,89,0.3)}.badge-no{background:rgba(139,58,15,0.1);color:rgba(255,0,102,0.5);border:1px solid rgba(139,58,15,0.25)}.chart-wrap{position:relative;width:100%;height:160px}.mini-card{background:#E8E0D5;padding:12px 16px}.mini-title{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;margin-bottom:8px;text-transform:uppercase;padding-bottom:6px;border-bottom:1px solid rgba(44,37,32,0.12)}.status-ok{background:#0a1a0a;border:1px solid rgba(74,124,89,0.5);padding:8px 14px;font-size:11px;color:#1a6b3a;font-weight:700;letter-spacing:1px;text-align:center}.status-alert{background:rgba(139,58,15,0.1);border:1px solid #8B4513;padding:8px 14px;font-size:11px;color:#8B3A0F;font-weight:700;letter-spacing:1px;text-align:center;margin-bottom:4px}.meta-row-mini{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #111;font-size:12px;color:#2C2520}.meta-row-mini:last-child{border:none}.mtb-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:8px}.mtb-wrap{position:relative;height:20px;background:rgba(44,37,32,0.1);border-radius:4px;overflow:hidden}.mtb-fill{height:100%;border-radius:4px;transition:width .8s ease}.mtb-line{position:absolute;top:0;height:100%;width:2px;background:rgba(255,255,255,0.5)}.mtb-pct{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:#2C2520}.footer{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid #2a1f18;font-size:11px;color:#6B5A4E;font-weight:700}.footer span{color:#6B5A4E}#loading{position:fixed;inset:0;background:#F5F0EA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:999}.spinner{width:40px;height:40px;border:2px solid rgba(44,37,32,0.15);border-top-color:#2C2520;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#loading p{color:#6B5A4E;font-size:12px;letter-spacing:2px;text-transform:uppercase}#erro{display:none;background:rgba(139,58,15,0.1);border:1px solid #8B4513;padding:16px;color:#FF6060;font-size:12px;margin:10px;line-height:1.8}
 .grid-auto{display:grid;gap:12px;flex:1}
 .grid-auto.cols-1{grid-template-columns:1fr}
@@ -26,11 +26,11 @@
 <div id="loading"><div class="spinner"></div><p>CARREGANDO PRODUCAO...</p></div>
 <div id="erro"></div>
 <div class="tv" id="app" style="display:none">
-  <div class="topbar" style="border-bottom:2px solid #1a5f8a">
+  <div class="topbar" style="border-bottom:2px solid #1a6b3a">
     <div style="display:flex;align-items:center;gap:14px">
       <div style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;letter-spacing:3px;color:#2C2520">STUDYO4 <span style="font-weight:400;letter-spacing:2px;color:#6B5A4E">ESTOFADOS</span></div>
       <div style="width:1px;height:24px;background:rgba(44,37,32,0.2)"></div>
-      <div class="setor-tag" style="color:#2C2520;background:rgba(44,37,32,0.08);border:1px solid rgba(44,37,32,0.3)">TV 2 — MARCENARIA</div>
+      <div class="setor-tag" style="color:#2C2520;background:rgba(44,37,32,0.08);border:1px solid rgba(44,37,32,0.3)">TV 3 — TAPEÇARIA</div>
     </div>
     <div style="text-align:right">
       <div class="clk" id="clk">--:--</div>
@@ -40,12 +40,12 @@
   <div id="grid-container" style="flex:1;display:flex;flex-direction:column"></div>
   <div class="footer">
     <div>Atualizado as <span id="upd">--:--:--</span></div>
-    <div>Proxima atualizacao em <span id="ctd" style="color:#1a5f8a">--:--</span></div>
+    <div>Proxima atualizacao em <span id="ctd" style="color:#1a6b3a">--:--</span></div>
     <div>STUDYO4 - Painel de Produção &nbsp;·&nbsp; <span style="color:#8a7060">© Junior Corrêa · Todos os direitos reservados</span></div>
   </div>
 </div>
 <script>
-var TV_NUM='TV 2';
+var TV_NUM='TV 3';
 
 
 var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
@@ -358,7 +358,7 @@ function processar(txt){
     });
   }
   // filtrar pela TV deste painel
-  lancamentos=lancamentos.filter(function(l){return l.tv==='TV 2';});
+  lancamentos=lancamentos.filter(function(l){return l.tv==='TV 3';});
 
   var hoje=new Date();hoje.setHours(0,0,0,0);
   var mes=hoje.getMonth(),ano=hoje.getFullYear();
@@ -417,7 +417,7 @@ function calcMetaDiaSetor2(sub,setor){
   var total=0;
   Object.keys(COLAB_DATA).forEach(function(nome){
     var cd=COLAB_DATA[nome];
-    if(!cd||cd.meta<=0||cd.tv!=='TV 2')return;
+    if(!cd||cd.meta<=0||cd.tv!=='TV 3')return;
     var key=cd.sub||cd.setor;
     if(key===sub)total+=cd.meta;
   });
