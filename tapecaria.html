@@ -352,7 +352,7 @@ function processar(txt){
   // Converter grupos em array de colunas
   var colunas=setKeys.map(function(key){
     var g=grupos[key];
-    var isCostura=setCostura.indexOf(g.setor)!==-1||setCostura.indexOf(key)!==-1;
+    var isCostura=setCostura.indexOf(g.setor)!==-1;
     var rows=Object.keys(g.map).map(function(n){
       return{nome:n,dia:g.map[n].dia,ac:g.map[n].ac,
              diaAlmof:g.mapAlmof[n]?g.mapAlmof[n].dia:0,
@@ -360,9 +360,9 @@ function processar(txt){
     });
     var tDia=rows.reduce(function(s,r){return s+r.dia+(isCostura?r.diaAlmof:0);},0);
     var tAc=rows.reduce(function(s,r){return s+r.ac+(isCostura?r.acAlmof:0);},0);
-    var metaDia=calcMetaDiaSetor2(key,g.setor);
-    var metaMes=calcMetaMesSetor2(key,g.setor);
-    return{key:key,setor:g.setor,rows:rows,tDia:tDia,tAc:tAc,
+    var metaDia=calcMetaDiaSetor2(g.setor);
+    var metaMes=calcMetaMesSetor2(g.setor);
+    return{setor:key,rows:rows,tDia:tDia,tAc:tAc,
            metaDia:metaDia,metaMes:metaMes,isCostura:isCostura};
   });
 
@@ -440,7 +440,7 @@ function buildCol(col){
     html+='<div style="height:5px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden;margin-bottom:8px"><div style="height:100%;width:'+Math.min(pctDia,100)+'%;background:'+bcDia+';border-radius:3px"></div></div>';
   }
   // Header
-  html+='<div class="col-header" style="color:'+cor+';border-color:rgba(44,37,32,0.3)">// '+col.key+'</div>';
+  html+='<div class="col-header" style="color:'+cor+';border-color:rgba(44,37,32,0.3)">// '+col.setor+'</div>';
   // KPIs
   html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px">';
   html+='<div style="background:#E8E0D5;padding:8px 10px;border-left:3px solid '+cor+'"><div class="score-label">Hoje</div><div style="font-size:28px;font-weight:700;color:'+cor+'">'+col.tDia+'</div></div>';
