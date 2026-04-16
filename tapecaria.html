@@ -11,6 +11,15 @@
 .grid-auto.cols-2{grid-template-columns:1fr 1fr}
 .grid-auto.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .grid-row-2{display:grid;gap:12px;grid-template-columns:repeat(var(--row2-cols),minmax(0,1fr));max-width:calc(var(--row2-pct) * 100%);margin:12px auto 0}
+
+.carrossel-container{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.carrossel-pagina{display:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;flex:1}
+.carrossel-pagina.ativa{display:grid}
+.indicadores{display:flex;justify-content:center;gap:8px;padding:8px 0}
+.indicador{width:8px;height:8px;border-radius:50%;background:rgba(44,37,32,0.2);cursor:pointer;transition:all .3s}
+.indicador.ativo{background:#8B3A0F;width:24px;border-radius:4px}
+.progresso-barra{height:2px;background:rgba(44,37,32,0.1);position:relative;overflow:hidden}
+.progresso-fill{height:100%;background:#8B3A0F;width:0%;transition:none}
 </style>
 </head>
 <body>
@@ -269,6 +278,43 @@ function calcMetaDiaSubs(subList){
   });
   return total;
 }
+
+var INTERVALO_PAGINA=8;
+var paginaAtual=0;
+var totalPaginas=0;
+var timerPagina=null;
+var progressoTimer=null;
+
+function iniciarCarrossel(){
+  var paginas=document.querySelectorAll('.carrossel-pagina');
+  totalPaginas=paginas.length;
+  if(totalPaginas<=1){if(paginas[0])paginas[0].classList.add('ativa');return;}
+  mostrarPagina(0);iniciarProgresso();
+}
+function mostrarPagina(idx){
+  document.querySelectorAll('.carrossel-pagina').forEach(function(p,i){p.classList.toggle('ativa',i===idx);});
+  document.querySelectorAll('.indicador').forEach(function(ind,i){ind.classList.toggle('ativo',i===idx);});
+  paginaAtual=idx;
+}
+function proximaPagina(){
+  mostrarPagina((paginaAtual+1)%totalPaginas);
+  resetProgresso();
+}
+function iniciarProgresso(){resetProgresso();}
+function resetProgresso(){
+  var fill=document.getElementById('prog-fill');
+  if(!fill)return;
+  clearInterval(progressoTimer);
+  fill.style.transition='none';fill.style.width='0%';
+  setTimeout(function(){
+    fill.style.transition='width '+INTERVALO_PAGINA+'s linear';
+    fill.style.width='100%';
+  },50);
+  clearTimeout(timerPagina);
+  timerPagina=setTimeout(proximaPagina,INTERVALO_PAGINA*1000);
+}
+function irParaPagina(idx){mostrarPagina(idx);resetProgresso();}
+
 async function carregarDados(){
   try{
     var r0=await fetch(COLAB_URL);
@@ -385,39 +431,33 @@ function calcMetaMesSetor2(sub,setor){
 }
 
 function renderColunas(colunas){
-  var n=colunas.length;
   var container=document.getElementById('grid-container');
   if(!container)return;
-
-  // Layout dinâmico opção C
-  var html='';
-  if(n<=3){
-    html='<div class="grid-auto cols-'+n+'">';
-    colunas.forEach(function(col){html+=buildCol(col);});
+  var paginas=[];
+  for(var i=0;i<colunas.length;i+=3){paginas.push(colunas.slice(i,i+3));}
+  var html='<div class="progresso-barra"><div class="progresso-fill" id="prog-fill"></div></div>';
+  html+='<div class="carrossel-container">';
+  paginas.forEach(function(pg,pi){
+    html+='<div class="carrossel-pagina">';
+    pg.forEach(function(col){html+=buildCol(col);});
+    for(var j=pg.length;j<3;j++){html+='<div></div>';}
     html+='</div>';
-  }else if(n===4){
-    html='<div class="grid-auto cols-2">';
-    colunas.forEach(function(col){html+=buildCol(col);});
-    html+='</div>';
-  }else{
-    // 5+: primeira linha com 3, segunda centralizada com o resto
-    var linha1=colunas.slice(0,3);
-    var linha2=colunas.slice(3);
-    var pct=linha2.length===1?0.34:linha2.length===2?0.67:1;
-    html='<div class="grid-auto cols-3">';
-    linha1.forEach(function(col){html+=buildCol(col);});
-    html+='</div>';
-    html+='<div style="display:grid;grid-template-columns:repeat('+linha2.length+',minmax(0,1fr));gap:12px;width:'+(pct*100)+'%;margin:12px auto 0">';
-    linha2.forEach(function(col){html+=buildCol(col);});
+  });
+  html+='</div>';
+  if(paginas.length>1){
+    html+='<div class="indicadores">';
+    paginas.forEach(function(pg,pi){
+      html+='<div class="indicador" onclick="irParaPagina('+pi+')"></div>';
+    });
     html+='</div>';
   }
   container.innerHTML=html;
-
-  // Desenhar pizzas após render
   setTimeout(function(){
     colunas.forEach(function(col){
-      buildPizza('pizza-'+col.key.replace(/\s/g,'_'),col.rows,col.isCostura);
+      var id='pizza-'+col.setor.replace(/[^a-zA-Z0-9]/g,'_');
+      buildPizza(id,col.rows,col.isCostura);
     });
+    iniciarCarrossel();
   },100);
 }
 
@@ -427,7 +467,7 @@ function buildCol(col){
   var pctDia=col.metaDia>0?Math.min(Math.round(col.tDia/col.metaDia*100),150):0;
   var bcMes=pctMes>=100?'#1a6b3a':pctMes>=70?'#8a6010':'#8B3A0F';
   var bcDia=pctDia>=100?'#1a6b3a':pctDia>=70?'#8a6010':'#8B3A0F';
-  var chartId='pizza-'+col.key.replace(/\s/g,'_');
+  var chartId='pizza-'+col.setor.replace(/[^a-zA-Z0-9]/g,'_');
   var html='<div class="col-card">';
   // Meta mês
   if(col.metaMes>0){
@@ -498,6 +538,43 @@ var COR_MAP={'Costura':'#8B3A0F','Corpo':'#8B3A0F','Almofada':'#1a5f8a','Corte':
 function getCor(setor,sub){
   return COR_MAP[sub]||COR_MAP[setor]||'#6B5A4E';
 }
+
+
+var INTERVALO_PAGINA=8;
+var paginaAtual=0;
+var totalPaginas=0;
+var timerPagina=null;
+var progressoTimer=null;
+
+function iniciarCarrossel(){
+  var paginas=document.querySelectorAll('.carrossel-pagina');
+  totalPaginas=paginas.length;
+  if(totalPaginas<=1){if(paginas[0])paginas[0].classList.add('ativa');return;}
+  mostrarPagina(0);iniciarProgresso();
+}
+function mostrarPagina(idx){
+  document.querySelectorAll('.carrossel-pagina').forEach(function(p,i){p.classList.toggle('ativa',i===idx);});
+  document.querySelectorAll('.indicador').forEach(function(ind,i){ind.classList.toggle('ativo',i===idx);});
+  paginaAtual=idx;
+}
+function proximaPagina(){
+  mostrarPagina((paginaAtual+1)%totalPaginas);
+  resetProgresso();
+}
+function iniciarProgresso(){resetProgresso();}
+function resetProgresso(){
+  var fill=document.getElementById('prog-fill');
+  if(!fill)return;
+  clearInterval(progressoTimer);
+  fill.style.transition='none';fill.style.width='0%';
+  setTimeout(function(){
+    fill.style.transition='width '+INTERVALO_PAGINA+'s linear';
+    fill.style.width='100%';
+  },50);
+  clearTimeout(timerPagina);
+  timerPagina=setTimeout(proximaPagina,INTERVALO_PAGINA*1000);
+}
+function irParaPagina(idx){mostrarPagina(idx);resetProgresso();}
 
 async function carregarDados(){
   try{
