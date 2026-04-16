@@ -279,7 +279,7 @@ function calcMetaDiaSubs(subList){
   return total;
 }
 
-var INTERVALO_PAGINA=8;
+var INTERVALO_PAGINA=30;
 var paginaAtual=0;
 var totalPaginas=0;
 var timerPagina=null;
@@ -365,11 +365,21 @@ function processar(txt){
 
   // Agrupar por sub-setor
   var grupos={};
+  // Primeiro: todos colaboradores da base com esta TV
+  Object.keys(COLAB_DATA).forEach(function(nome){
+    var cd=COLAB_DATA[nome];
+    if(!cd||!cd.tv||cd.tv!==TV_NUM||cd.meta<=0)return;
+    var key=cd.setor;
+    if(!grupos[key])grupos[key]={setor:key,map:{},mapAlmof:{}};
+    if(!grupos[key].map[nome])grupos[key].map[nome]={dia:0,ac:0};
+    if(!grupos[key].mapAlmof[nome])grupos[key].mapAlmof[nome]={dia:0,ac:0};
+  });
+  // Depois: somar lançamentos por setor
   lancamentos.forEach(function(l){
     var dt=parseDate(l.data);if(!dt)return;
     if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
-    var key=l.sub||l.setor;
-    if(!grupos[key])grupos[key]={sub:key,setor:l.setor,map:{},mapAlmof:{}};
+    var key=l.setor;
+    if(!grupos[key])return;
     var eHoje=dt.getTime()===hoje.getTime();
     if(!grupos[key].map[l.nome])grupos[key].map[l.nome]={dia:0,ac:0};
     if(!grupos[key].mapAlmof[l.nome])grupos[key].mapAlmof[l.nome]={dia:0,ac:0};
@@ -380,18 +390,6 @@ function processar(txt){
       grupos[key].mapAlmof[l.nome].dia+=Number(l.prodAlmof)||0;
     }
   });
-
-  // Adicionar colaboradores da base que ainda não lançaram (meta>0 e TV certa)
-  Object.keys(COLAB_DATA).forEach(function(nome){
-    var cd=COLAB_DATA[nome];
-    if(!cd||!cd.tv||cd.tv!=='TV 2'||cd.meta<=0)return;
-    var key=cd.sub||cd.setor;
-    if(!grupos[key])grupos[key]={sub:key,setor:cd.setor,map:{},mapAlmof:{}};
-    if(!grupos[key].map[nome])grupos[key].map[nome]={dia:0,ac:0};
-    if(!grupos[key].mapAlmof[nome])grupos[key].mapAlmof[nome]={dia:0,ac:0};
-  });
-
-  // Detectar se Costura (sub duplo corpo+almofada)
   var setCostura=['Costura','Corpo','Almofada'];
   var setKeys=Object.keys(grupos);
 
@@ -540,7 +538,7 @@ function getCor(setor,sub){
 }
 
 
-var INTERVALO_PAGINA=8;
+var INTERVALO_PAGINA=30;
 var paginaAtual=0;
 var totalPaginas=0;
 var timerPagina=null;
