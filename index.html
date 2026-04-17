@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -10,7 +11,6 @@ html,body{height:100%;font-family:'Georgia',serif}
 .page{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
 .left{background:#DCCCBE;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:60px 64px;position:relative}
 .logo-area{display:flex;align-items:center;gap:16px;margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid rgba(44,37,32,0.2)}
-.logo-box{width:52px;height:52px;border:1.5px solid #2C2520;display:flex;align-items:center;justify-content:center}
 .logo-name{font-family:'Arial',sans-serif;font-size:13px;font-weight:700;letter-spacing:4px;color:#2C2520}
 .title-sub{font-family:'Arial',sans-serif;font-size:11px;font-weight:700;letter-spacing:4px;color:#8a7060;text-transform:uppercase;margin-bottom:12px}
 .title-main{font-size:52px;font-weight:700;line-height:1.1;color:#2C2520;letter-spacing:-1px}
@@ -26,13 +26,23 @@ html,body{height:100%;font-family:'Georgia',serif}
 .ring-center{text-align:center}
 .ring-year{font-family:'Arial',sans-serif;font-size:10px;font-weight:700;letter-spacing:4px;color:rgba(220,204,190,0.4);text-transform:uppercase;display:block;margin-bottom:8px}
 .ring-logo{font-family:'Arial',sans-serif;font-size:15px;font-weight:700;letter-spacing:6px;color:#DCCCBE}
-
 .clock-area{position:absolute;bottom:48px;right:48px;text-align:right}
 .clock-time{font-family:'Arial',sans-serif;font-size:32px;font-weight:700;letter-spacing:4px;color:#DCCCBE}
 .clock-date{font-family:'Arial',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(220,204,190,0.4);margin-top:4px;text-transform:uppercase}
 .dot-grid{position:absolute;top:32px;left:32px;display:grid;grid-template-columns:repeat(6,1fr);gap:12px;opacity:.15}
 .dot{width:3px;height:3px;border-radius:50%;background:#DCCCBE}
+
+@media (max-width: 768px){
+.page{grid-template-columns:1fr;grid-template-rows:auto}
+.left{padding:40px 28px 80px}
+.title-main{font-size:36px}
+.nav-buttons{margin-top:32px}
+.btn{padding:14px 18px;font-size:11px}
+.right{display:none}
+.footer-left{left:28px;bottom:24px}
+}
 </style>
+
 </head>
 <body>
 <div class="page">
@@ -53,12 +63,10 @@ html,body{height:100%;font-family:'Georgia',serif}
       <a href="tapecaria.html" class="btn"><span>Tapeçaria|Montagem TV 2</span><span class="btn-arrow">&#x2192;</span></a>
       <a href="marcenaria.html" class="btn"><span>Marcenaria|Espumação TV 3</span><span class="btn-arrow">&#x2192;</span></a>
       <a href="dashboard-nc.html" class="btn"><span>DashBoard Nc's</span><span class="btn-arrow">&#x2192;</span></a>
-
-    <a href="relatorio.html" class="btn" style="margin-top:8px;border-color:#1a6b3a;color:#1a6b3a"><span>Relatório de Produção</span><span class="btn-arrow">&#x2192;</span></a>
+      <a href="relatorio.html" class="btn" style="margin-top:8px;border-color:#1a6b3a;color:#1a6b3a"><span>Relatório de Produção</span><span class="btn-arrow">&#x2192;</span></a>
     </div>
     <div class="footer-left">Studyo 4 Estofados | © Junior Corrêa · Todos os direitos reservados</div>
   </div>
-
   <div class="right">
     <div class="dot-grid" id="dots"></div>
     <canvas id="ringCanvas" width="340" height="340" style="position:absolute;inset:calc(50% - 170px) auto auto calc(50% - 170px)"></canvas>
@@ -90,36 +98,15 @@ tick();setInterval(tick,1000);
 var canvas=document.getElementById('ringCanvas');
 var ctx=canvas.getContext('2d');
 var angle=0;
-var txt='STUDYO4  \u00B7  2026  \u00B7  ';
-txt=txt+txt+txt;
+var txt='STUDYO4  ·  2026  ·  ';txt=txt+txt+txt;
 function drawRing(){
-  ctx.clearRect(0,0,340,340);
-  var cx=170,cy=170,r=155;
-  ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);
-  ctx.strokeStyle='rgba(220,204,190,0.12)';ctx.lineWidth=1;
-  ctx.setLineDash([4,8]);ctx.stroke();ctx.setLineDash([]);
-  ctx.save();
-  ctx.font='bold 9px Arial';
-  ctx.fillStyle='rgba(220,204,190,0.35)';
-  var chars=txt.split('');
-  var total=chars.length;
-  var angStep=2*Math.PI/total;
-  chars.forEach(function(ch,i){
-    var a=angle+i*angStep;
-    ctx.save();
-    ctx.translate(cx+r*Math.cos(a),cy+r*Math.sin(a));
-    ctx.rotate(a+Math.PI/2);
-    ctx.fillText(ch,0,0);
-    ctx.restore();
-  });
-  [0,Math.PI/2,Math.PI,3*Math.PI/2].forEach(function(a){
-    ctx.beginPath();
-    ctx.arc(cx+(r+12)*Math.cos(a),cy+(r+12)*Math.sin(a),2.5,0,2*Math.PI);
-    ctx.fillStyle='rgba(220,204,190,0.5)';ctx.fill();
-  });
-  ctx.restore();
-  angle+=0.003;
-  requestAnimationFrame(drawRing);
+  ctx.clearRect(0,0,340,340);var cx=170,cy=170,r=155;
+  ctx.beginPath();ctx.arc(cx,cy,r,0,2*Math.PI);ctx.strokeStyle='rgba(220,204,190,0.12)';ctx.lineWidth=1;ctx.setLineDash([4,8]);ctx.stroke();ctx.setLineDash([]);
+  ctx.save();ctx.font='bold 9px Arial';ctx.fillStyle='rgba(220,204,190,0.35)';
+  var chars=txt.split('');var total=chars.length;var angStep=2*Math.PI/total;
+  chars.forEach(function(ch,i){var a=angle+i*angStep;ctx.save();ctx.translate(cx+r*Math.cos(a),cy+r*Math.sin(a));ctx.rotate(a+Math.PI/2);ctx.fillText(ch,0,0);ctx.restore();});
+  [0,Math.PI/2,Math.PI,3*Math.PI/2].forEach(function(a){ctx.beginPath();ctx.arc(cx+(r+12)*Math.cos(a),cy+(r+12)*Math.sin(a),2.5,0,2*Math.PI);ctx.fillStyle='rgba(220,204,190,0.5)';ctx.fill();});
+  ctx.restore();angle+=0.003;requestAnimationFrame(drawRing);
 }
 drawRing();
 </script>
