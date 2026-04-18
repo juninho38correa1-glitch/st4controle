@@ -47,50 +47,23 @@ html,body{height:100%;font-family:Arial,sans-serif;background:#F5F0EA}
 .indicador.ativo{background:#8B3A0F;width:26px;border-radius:5px}
 .prog-barra{height:3px;background:rgba(44,37,32,0.1);overflow:hidden}
 .prog-fill{height:100%;background:#8B3A0F;width:0%;transition:none}
-/* ── MOBILE ──────────────────────────────────────── */
-@media (max-width: 768px){
-  .tv{padding:8px;gap:6px}
-  .topbar{padding-bottom:8px}
-  .logo{font-size:13px;letter-spacing:2px}
-  .setor-tag{font-size:11px;letter-spacing:1px;padding:3px 10px}
-  .clk{font-size:24px;letter-spacing:2px}
-  .dt{font-size:11px}
-  .col-card{padding:10px 12px;gap:6px}
-  .col-header{font-size:12px}
-  .score-label{font-size:11px}
-  .mini-bar{height:5px}
-  .mpos{font-size:14px;width:24px}
-  .mname{font-size:13px;width:110px}
-  .mbar-bg{height:10px}
-  .mpct{font-size:12px;width:36px}
-  .mqty{font-size:14px;width:28px}
-  .meta-badge{font-size:9px;min-width:40px}
-  .chart-wrap{height:160px}
-  .footer{font-size:10px;flex-direction:column;gap:4px;text-align:center}
-  .carrossel-pagina{grid-template-columns:1fr !important;gap:8px}
-  .indicadores{padding:6px 0}
-  .indicador{width:8px;height:8px}
-  .indicador.ativo{width:20px}
-}
-@media (min-width:769px) and (max-width:1024px){
-  .logo{font-size:14px}
-  .setor-tag{font-size:12px}
-  .clk{font-size:28px}
-  .dt{font-size:12px}
-  .col-header{font-size:12px}
-  .score-label{font-size:11px}
-  .mpos{font-size:16px}
-  .mname{font-size:13px;width:110px}
-  .mpct{font-size:12px}
-  .mqty{font-size:14px}
-}
-@media (max-width: 768px){
-  .kpi-num{font-size:36px !important}
-  .kpi-box{padding:8px 10px !important}
-}
-@media (min-width:769px) and (max-width:1024px){
-  .kpi-num{font-size:40px !important}
-}
+
+#meta-popup{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0)}
+#meta-popup.show{display:flex;animation:bgFadeIn .4s ease forwards}
+.mp-center{text-align:center;position:relative;z-index:2;padding:20px}
+.mp-emoji{font-size:72px;display:block;animation:emojiPop .5s cubic-bezier(.175,.885,.32,1.275) forwards}
+.mp-titulo{font-size:13px;font-weight:700;letter-spacing:4px;color:#FFD700;text-transform:uppercase;margin:16px 0 8px;animation:fadeUp .4s ease .2s both}
+.mp-nome{font-size:36px;font-weight:700;color:#fff;letter-spacing:3px;margin-bottom:6px;animation:fadeUp .4s ease .3s both;text-shadow:0 0 30px rgba(255,215,0,0.6)}
+.mp-setor{font-size:13px;color:rgba(255,255,255,0.6);letter-spacing:3px;text-transform:uppercase;animation:fadeUp .4s ease .4s both}
+.mp-pct{font-size:80px;font-weight:700;color:#FFD700;line-height:1;margin:12px 0;animation:fadeUp .4s ease .5s both;text-shadow:0 0 40px rgba(255,215,0,0.4)}
+.mp-tap{font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:2px;margin-top:20px;animation:fadeUp .4s ease .8s both}
+@keyframes bgFadeIn{from{background:rgba(0,0,0,0)}to{background:rgba(0,0,0,0.82)}}
+@keyframes emojiPop{from{transform:scale(0) rotate(-30deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}
+@keyframes fadeUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.confete-piece{position:fixed;pointer-events:none;z-index:10000;animation:confeteFall linear forwards}
+@keyframes confeteFall{0%{opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+.fogo{position:fixed;pointer-events:none;z-index:10001;border-radius:50%;animation:fogoExplode ease-out forwards}
+@keyframes fogoExplode{0%{transform:scale(0);opacity:1}70%{opacity:1}100%{transform:scale(1);opacity:0}}
 </style>
 </head>
 <body>
@@ -281,7 +254,119 @@ function processar(txt){
     return{setor:key,rows:rows,tDia:tDia,tAc:tAc,isCostura:isDuplo,metaDia:calcMetaDia(key),metaMes:calcMetaMesSetor(key)};
   });
   renderColunas(colunas);
+  verificarMetas(colunas);
 }
+
+
+
+
+var META_BATIDA_PREV={};
+var popupTimer=null;
+var POPUP_QUEUE=[];
+var POPUP_SHOWING=false;
+var CONFETE_CORES=['#FFD700','#FF6B35','#1a6b3a','#1a5f8a','#fff','#8a6010','#FF3366','#00E5FF','#ADFF2F'];
+
+function criarConfete(){
+  var total=120;
+  for(var i=0;i<total;i++){
+    (function(idx){
+      setTimeout(function(){
+        var el=document.createElement('div');
+        el.className='confete-piece';
+        var w=6+Math.random()*10;
+        var h=6+Math.random()*14;
+        el.style.cssText=[
+          'left:'+Math.random()*100+'vw',
+          'top:-20px',
+          'width:'+w+'px',
+          'height:'+h+'px',
+          'background:'+CONFETE_CORES[Math.floor(Math.random()*CONFETE_CORES.length)],
+          'border-radius:'+(Math.random()>0.5?'50%':'2px'),
+          'animation-duration:'+(2+Math.random()*3).toFixed(2)+'s',
+          'animation-delay:'+(Math.random()*0.8).toFixed(2)+'s',
+          'transform:rotate('+Math.random()*360+'deg)'
+        ].join(';');
+        document.body.appendChild(el);
+        setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},5000);
+      },idx*15);
+    })(i);
+  }
+}
+
+function criarFogos(){
+  var posicoes=[[15,20],[85,15],[10,75],[90,70],[50,10],[30,50],[70,40]];
+  posicoes.forEach(function(pos,idx){
+    setTimeout(function(){
+      var el=document.createElement('div');
+      el.className='fogo';
+      var size=80+Math.random()*120;
+      el.style.cssText=[
+        'left:'+pos[0]+'vw',
+        'top:'+pos[1]+'vh',
+        'width:'+size+'px',
+        'height:'+size+'px',
+        'margin-left:'+(size/-2)+'px',
+        'margin-top:'+(size/-2)+'px',
+        'box-shadow:0 0 '+(size/2)+'px '+(size/4)+'px '+CONFETE_CORES[idx%CONFETE_CORES.length],
+        'animation-duration:0.8s',
+        'animation-delay:'+( idx*0.15)+'s'
+      ].join(';');
+      document.body.appendChild(el);
+      setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},2000);
+    },idx*150);
+  });
+}
+
+function mostrarPopup(nome,setor,pct){
+  var popup=document.getElementById('meta-popup');
+  if(!popup)return;
+  document.getElementById('mp-nome').textContent=nome.toUpperCase();
+  document.getElementById('mp-setor').textContent=setor.toUpperCase();
+  document.getElementById('mp-pct').textContent=pct+'%';
+  popup.classList.add('show');
+  criarConfete();
+  criarFogos();
+  clearTimeout(popupTimer);
+  popupTimer=setTimeout(fecharPopup,7000);
+}
+
+function fecharPopup(){
+  var popup=document.getElementById('meta-popup');
+  if(popup)popup.classList.remove('show');
+  clearTimeout(popupTimer);
+  POPUP_SHOWING=false;
+  setTimeout(function(){
+    if(POPUP_QUEUE.length>0){
+      var next=POPUP_QUEUE.shift();
+      POPUP_SHOWING=true;
+      mostrarPopup(next.nome,next.setor,next.pct);
+    }
+  },500);
+}
+
+function verificarMetas(colunas){
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var dKey=hoje.toDateString();
+  colunas.forEach(function(col){
+    col.rows.forEach(function(r){
+      var meta=getMetaPessoa(r.nome);
+      if(meta<=0)return;
+      var prod=r.dia+(col.isCostura?r.diaAlmof:0);
+      var pct=Math.round(prod/meta*100);
+      var key=dKey+'__'+r.nome;
+      if(pct>=100&&!META_BATIDA_PREV[key]){
+        META_BATIDA_PREV[key]=true;
+        if(!POPUP_SHOWING){POPUP_SHOWING=true;mostrarPopup(r.nome,col.setor,pct);}
+        else{POPUP_QUEUE.push({nome:r.nome,setor:col.setor,pct:pct});}
+      }
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  var popup=document.getElementById('meta-popup');
+  if(popup)popup.addEventListener('click',fecharPopup);
+});
 
 async function carregarDados(){
   try{
@@ -302,5 +387,30 @@ async function carregarDados(){
 carregarDados();
 
 </script>
+
+<div id="meta-popup">
+  <div class="mp-box">
+    <span class="mp-emoji">🎉</span>
+    <div class="mp-titulo">META BATIDA!</div>
+    <div class="mp-nome" id="mp-nome">—</div>
+    <div class="mp-setor" id="mp-setor">—</div>
+    <div class="mp-pct" id="mp-pct">100%</div>
+    <div class="mp-bar"><div class="mp-bar-fill" id="mp-bar-fill"></div></div>
+    <div class="mp-dismiss">Tocando em qualquer lugar para fechar</div>
+  </div>
+</div>
+
+
+<div id="meta-popup">
+  <div class="mp-center">
+    <span class="mp-emoji">🎉</span>
+    <div class="mp-titulo">META BATIDA!</div>
+    <div class="mp-nome" id="mp-nome">—</div>
+    <div class="mp-setor" id="mp-setor">—</div>
+    <div class="mp-pct" id="mp-pct">100%</div>
+    <div class="mp-tap">Toque para fechar</div>
+  </div>
+</div>
+
 </body>
 </html>
