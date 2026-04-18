@@ -86,21 +86,25 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
       <button class="pbtn" id="pbtn-semana" onclick="setPeriodo('semana')">Semana</button>
       <button class="pbtn" id="pbtn-mes" onclick="setPeriodo('mes')">Mês Atual</button>
       <button class="pbtn" onclick="mostrarSelectMes()" title="Escolher mês específico">&#128197; Outro Mês</button>
-      <select id="sel-mes" onchange="setMesSelecionado(this.value)" style="font-size:11px;font-weight:700;letter-spacing:1px;padding:7px 12px;border:1px solid rgba(44,37,32,0.3);background:#F5F0EA;color:#2C2520;cursor:pointer;text-transform:uppercase;outline:none;display:none">
-        <option value="">-- Selecionar Mês --</option>
-        <option value="0">Janeiro</option>
-        <option value="1">Fevereiro</option>
-        <option value="2">Março</option>
-        <option value="3">Abril</option>
-        <option value="4">Maio</option>
-        <option value="5">Junho</option>
-        <option value="6">Julho</option>
-        <option value="7">Agosto</option>
-        <option value="8">Setembro</option>
-        <option value="9">Outubro</option>
-        <option value="10">Novembro</option>
-        <option value="11">Dezembro</option>
-      </select>
+      <div id="sel-container" style="display:none;display:none;gap:4px;align-items:center">
+        <select id="sel-mes" onchange="setMesSelecionado()" style="font-size:11px;font-weight:700;letter-spacing:1px;padding:7px 12px;border:1px solid rgba(44,37,32,0.3);background:#F5F0EA;color:#2C2520;cursor:pointer;outline:none">
+          <option value="">Mês</option>
+          <option value="0">Janeiro</option>
+          <option value="1">Fevereiro</option>
+          <option value="2">Março</option>
+          <option value="3">Abril</option>
+          <option value="4">Maio</option>
+          <option value="5">Junho</option>
+          <option value="6">Julho</option>
+          <option value="7">Agosto</option>
+          <option value="8">Setembro</option>
+          <option value="9">Outubro</option>
+          <option value="10">Novembro</option>
+          <option value="11">Dezembro</option>
+        </select>
+        <select id="sel-ano" onchange="setMesSelecionado()" style="font-size:11px;font-weight:700;letter-spacing:1px;padding:7px 12px;border:1px solid rgba(44,37,32,0.3);background:#F5F0EA;color:#2C2520;cursor:pointer;outline:none">
+        </select>
+      </div>
     </div>
   </div>
   <div id="app"><div class="loading-msg"><div class="spinner"></div>Carregando dados...</div></div>
@@ -137,23 +141,37 @@ function setPeriodo(p){
   MES_SEL=null;
   document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('active');});
   event.target.classList.add('active');
-  var sel=document.getElementById('sel-mes');
-  if(sel){sel.style.display='none';sel.value='';}
+  var cont=document.getElementById('sel-container');
+  if(cont){cont.style.display='none';}
+  var selMes=document.getElementById('sel-mes');
+  if(selMes)selMes.value='';
   render();
 }
-function setMesSelecionado(val){
-  if(val==='')return;
-  MES_SEL=parseInt(val);
-  ANO_SEL=new Date().getFullYear();
+function setMesSelecionado(){
+  var selMes=document.getElementById('sel-mes');
+  var selAno=document.getElementById('sel-ano');
+  if(!selMes||selMes.value==='')return;
+  MES_SEL=parseInt(selMes.value);
+  ANO_SEL=selAno&&selAno.value?parseInt(selAno.value):new Date().getFullYear();
   PERIODO='mesEspec';
   document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('active');});
-  var sel=document.getElementById('sel-mes');
-  if(sel)sel.style.display='inline-block';
   render();
 }
 function mostrarSelectMes(){
-  var sel=document.getElementById('sel-mes');
-  if(sel)sel.style.display='inline-block';
+  var cont=document.getElementById('sel-container');
+  if(!cont)return;
+  cont.style.display='flex';
+  // Preencher anos: de 2024 até ano atual
+  var selAno=document.getElementById('sel-ano');
+  if(selAno&&selAno.options.length<=1){
+    var anoAtual=new Date().getFullYear();
+    for(var a=anoAtual;a>=2024;a--){
+      var opt=document.createElement('option');
+      opt.value=a;opt.textContent=a;
+      if(a===anoAtual)opt.selected=true;
+      selAno.appendChild(opt);
+    }
+  }
 }
 function render(){if(ABA==='relatorio')renderRelatorio();else renderGraficos();}
 
