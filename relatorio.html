@@ -80,6 +80,7 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
     <div>
       <div class="report-title" id="report-title">RELATÓRIO</div>
       <div class="report-sub" id="report-sub">Carregando...</div>
+      <div id="dias-uteis-info" style="font-size:10px;color:#8a7060;margin-top:3px;letter-spacing:1px"></div>
     </div>
     <div id="periodo-row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap" class="no-print">
       <button class="pbtn active" id="pbtn-dia" onclick="setPeriodo('dia')">Hoje</button>
@@ -173,7 +174,23 @@ function mostrarSelectMes(){
     }
   }
 }
-function render(){if(ABA==='relatorio')renderRelatorio();else renderGraficos();}
+function render(){
+  // Atualizar info de dias úteis
+  var info=document.getElementById('dias-uteis-info');
+  if(info){
+    var du=0;
+    if(PERIODO==='dia'){du=1;}
+    else if(PERIODO==='semana'){var dow=new Date().getDay();du=(dow===0?7:(dow===6?6:dow));}
+    else if(PERIODO==='mesEspec'&&MES_SEL!==null){du=diasUteisMesEspec(MES_SEL,ANO_SEL);}
+    else{du=diasUteisMes();}
+    var meses=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+    if(PERIODO==='dia'){info.textContent='';}
+    else if(PERIODO==='semana'){info.textContent=du+' dias úteis esta semana';}
+    else if(PERIODO==='mesEspec'&&MES_SEL!==null){info.textContent=du+' dias úteis em '+meses[MES_SEL]+' '+ANO_SEL;}
+    else{var hoje=new Date();info.textContent=du+' dias úteis em '+meses[hoje.getMonth()]+' '+hoje.getFullYear();}
+  }
+  if(ABA==='relatorio')renderRelatorio();else renderGraficos();
+}
 
 function getPeriodoDatas(){
   var hoje=new Date();hoje.setHours(0,0,0,0);
