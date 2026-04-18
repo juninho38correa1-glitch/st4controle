@@ -88,7 +88,7 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
     </div>
   </div>
   <div id="app"><div class="loading-msg"><div class="spinner"></div>Carregando dados...</div></div>
-  <div class="footer">&copy; Junior Corr&ecirc;a &middot; Todos os direitos reservados &middot; Studyo 4 Estofados</div>
+  <div class="footer">&copy; Junior Corr&ecirc;a &middot; Todos os direitos reservados &middot; STUDYO4 Estofados</div>
 </div>
 <script>
 
@@ -431,9 +431,9 @@ function drawSetores(blocos,lans){
 async function carregarDados(){
   document.getElementById('app').innerHTML='<div class="loading-msg"><div class="spinner"></div>Carregando dados...</div>';
   try{
-    var r0=await fetch(COLAB_URL);if(r0.ok)COLAB_DATA=parseColab(await r0.text());
-    var r1=await fetch(CONFIG_URL);if(r1.ok)METAS=parseConfig(await r1.text());
-    var r2=await fetch(LANCAMENTOS_URL);if(!r2.ok)throw new Error('HTTP '+r2.status);
+    var r0=await fetch(COLAB_URL+'&t='+Date.now());if(r0.ok)COLAB_DATA=parseColab(await r0.text());
+    var r1=await fetch(CONFIG_URL+'&t='+Date.now());if(r1.ok)METAS=parseConfig(await r1.text());
+    var r2=await fetch(LANCAMENTOS_URL+'&t='+Date.now());if(!r2.ok)throw new Error('HTTP '+r2.status);
     var txt=await r2.text();
     var linhas=txt.split('\n').filter(function(l){return l.trim();});
     ALL_LANCAMENTOS=[];
