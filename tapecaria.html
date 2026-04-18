@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0">
-<meta http-equiv="refresh" content="300">
 <title>TV 2 - Studyo4</title>
 <style>*{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:Arial,sans-serif;background:#F5F0EA}
@@ -64,6 +63,27 @@ html,body{height:100%;font-family:Arial,sans-serif;background:#F5F0EA}
 @keyframes confeteFall{0%{opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
 .fogo{position:fixed;pointer-events:none;z-index:10001;border-radius:50%;animation:fogoExplode ease-out forwards}
 @keyframes fogoExplode{0%{transform:scale(0);opacity:1}70%{opacity:1}100%{transform:scale(1);opacity:0}}
+
+@media (max-width:768px){
+  .tv{padding:8px;gap:6px}
+  .logo{font-size:13px}
+  .setor-tag{font-size:11px;padding:3px 8px}
+  .clk{font-size:24px}
+  .dt{font-size:11px}
+  .col-header{font-size:12px}
+  .score-label{font-size:11px}
+  .mpos{font-size:14px;width:22px}
+  .mname{font-size:13px;width:100px}
+  .mbar-bg{height:10px}
+  .mpct{font-size:12px}
+  .mqty{font-size:14px}
+  .meta-badge{font-size:9px}
+  .chart-wrap{height:160px}
+  .footer{font-size:10px;flex-direction:column;gap:3px;text-align:center}
+  .carrossel-pagina{grid-template-columns:1fr !important}
+  .kpi-num{font-size:36px !important}
+  .kpi-box{padding:8px 10px !important}
+}
 </style>
 </head>
 <body>
