@@ -81,14 +81,30 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
       <div class="report-title" id="report-title">RELATÓRIO</div>
       <div class="report-sub" id="report-sub">Carregando...</div>
     </div>
-    <div id="periodo-row" style="display:flex;gap:8px" class="no-print">
-      <button class="pbtn active" onclick="setPeriodo('dia')">Hoje</button>
-      <button class="pbtn" onclick="setPeriodo('semana')">Semana</button>
-      <button class="pbtn" onclick="setPeriodo('mes')">Mês</button>
+    <div id="periodo-row" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap" class="no-print">
+      <button class="pbtn active" id="pbtn-dia" onclick="setPeriodo('dia')">Hoje</button>
+      <button class="pbtn" id="pbtn-semana" onclick="setPeriodo('semana')">Semana</button>
+      <button class="pbtn" id="pbtn-mes" onclick="setPeriodo('mes')">Mês Atual</button>
+      <button class="pbtn" onclick="mostrarSelectMes()" title="Escolher mês específico">&#128197; Outro Mês</button>
+      <select id="sel-mes" onchange="setMesSelecionado(this.value)" style="font-size:11px;font-weight:700;letter-spacing:1px;padding:7px 12px;border:1px solid rgba(44,37,32,0.3);background:#F5F0EA;color:#2C2520;cursor:pointer;text-transform:uppercase;outline:none;display:none">
+        <option value="">-- Selecionar Mês --</option>
+        <option value="0">Janeiro</option>
+        <option value="1">Fevereiro</option>
+        <option value="2">Março</option>
+        <option value="3">Abril</option>
+        <option value="4">Maio</option>
+        <option value="5">Junho</option>
+        <option value="6">Julho</option>
+        <option value="7">Agosto</option>
+        <option value="8">Setembro</option>
+        <option value="9">Outubro</option>
+        <option value="10">Novembro</option>
+        <option value="11">Dezembro</option>
+      </select>
     </div>
   </div>
   <div id="app"><div class="loading-msg"><div class="spinner"></div>Carregando dados...</div></div>
-  <div class="footer">&copy; Junior Corr&ecirc;a &middot; Todos os direitos reservados &middot; Studyo 4 Estofados</div>
+  <div class="footer">&copy; Junior Corr&ecirc;a &middot; Todos os direitos reservados &middot; STUDYO4 Estofados</div>
 </div>
 <script>
 
@@ -96,6 +112,8 @@ var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIj
 var CONFIG_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=626803240&single=true&output=csv';
 var COLAB_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1534833771&single=true&output=csv';
 var PERIODO='dia';
+var MES_SEL=null;
+var ANO_SEL=new Date().getFullYear();
 var ABA='relatorio';
 var ALL_LANCAMENTOS=[];
 var COLAB_DATA={};
@@ -111,14 +129,31 @@ function setAba(a){
   ABA=a;
   document.querySelectorAll('.abtn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('abtn-'+a).classList.add('active');
-  document.getElementById('periodo-row').style.display=a==='relatorio'?'flex':'none';
+  document.getElementById('periodo-row').style.display='flex';
   render();
 }
 function setPeriodo(p){
   PERIODO=p;
+  MES_SEL=null;
   document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('active');});
   event.target.classList.add('active');
+  var sel=document.getElementById('sel-mes');
+  if(sel){sel.style.display='none';sel.value='';}
   render();
+}
+function setMesSelecionado(val){
+  if(val==='')return;
+  MES_SEL=parseInt(val);
+  ANO_SEL=new Date().getFullYear();
+  PERIODO='mesEspec';
+  document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('active');});
+  var sel=document.getElementById('sel-mes');
+  if(sel)sel.style.display='inline-block';
+  render();
+}
+function mostrarSelectMes(){
+  var sel=document.getElementById('sel-mes');
+  if(sel)sel.style.display='inline-block';
 }
 function render(){if(ABA==='relatorio')renderRelatorio();else renderGraficos();}
 
@@ -127,7 +162,10 @@ function getPeriodoDatas(){
   var ini,fim=new Date(hoje);fim.setHours(23,59,59);
   if(PERIODO==='dia'){ini=new Date(hoje);}
   else if(PERIODO==='semana'){ini=new Date(hoje);var dow=ini.getDay();ini.setDate(ini.getDate()-(dow===0?6:dow-1));}
-  else{ini=new Date(hoje.getFullYear(),hoje.getMonth(),1);}
+  else if(PERIODO==='mesEspec'&&MES_SEL!==null){
+    ini=new Date(ANO_SEL,MES_SEL,1);
+    fim=new Date(ANO_SEL,MES_SEL+1,0);fim.setHours(23,59,59);
+  }else{ini=new Date(hoje.getFullYear(),hoje.getMonth(),1);}
   return{ini:ini,fim:fim};
 }
 function getPeriodoLabel(){
@@ -137,9 +175,15 @@ function getPeriodoLabel(){
   if(PERIODO==='semana')return 'Producao desta semana';
   return 'Producao de '+meses[hoje.getMonth()]+' '+hoje.getFullYear();
 }
+function diasUteisMesEspec(mes,ano){
+  var total=new Date(ano,mes+1,0).getDate();var u=0;
+  for(var d=1;d<=total;d++){var dow=new Date(ano,mes,d).getDay();if(dow!==0&&dow!==6)u++;}
+  return u;
+}
 function getMetaPeriodo(meta){
   if(PERIODO==='dia')return meta;
   if(PERIODO==='semana'){var dow=new Date().getDay();return meta*(dow===0?7:(dow===6?6:dow));}
+  if(PERIODO==='mesEspec'&&MES_SEL!==null)return meta*diasUteisMesEspec(MES_SEL,ANO_SEL);
   return meta*diasUteisMes();
 }
 function getLansPeriodo(){
