@@ -139,6 +139,18 @@ function parseCSVLine(line){var r=[],cur='',inQ=false;for(var i=0;i<line.length;
 function parseDate(str){if(!str)return null;str=str.trim();var parts,d,m,y,sl=str.indexOf('/'),da=str.indexOf('-');if(sl!==-1){parts=str.split('/');if(parts[2]&&parts[2].length===4){d=+parts[0];m=+parts[1];y=+parts[2];}else{m=+parts[0];d=+parts[1];y=+parts[2];}}else if(da!==-1){parts=str.split('-');y=+parts[0];m=+parts[1];d=+parts[2];}else return null;if(!y||!m||!d)return null;return new Date(y,m-1,d);}
 function parseColab(csv){var linhas=csv.split('\n').filter(function(l){return l.trim();});var map={};for(var i=2;i<linhas.length;i++){var c=parseCSVLine(linhas[i]);if(!c[0])continue;map[c[0].trim()]={setor:c[1]?c[1].trim():'',sub:c[2]?c[2].trim():'',meta:Number(c[3])||0,tv:c[4]?c[4].trim():''};}return map;}
 function parseConfig(csv){var linhas=csv.split('\n').filter(function(l){return l.trim();});var map={};for(var i=2;i<linhas.length;i++){var c=parseCSVLine(linhas[i]);if(c[0]&&c[1])map[c[0].trim()]=Number(c[1])||0;}return map;}
+function diasUteisSemanAte(){
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var dow=hoje.getDay();
+  var seg=new Date(hoje);
+  seg.setDate(hoje.getDate()-(dow===0?6:dow-1));
+  var u=0;
+  for(var d=new Date(seg);d<=hoje;d.setDate(d.getDate()+1)){
+    var dw=d.getDay();
+    if(dw>=1&&dw<=5)u++;
+  }
+  return u;
+}
 function diasUteisMes(){var hoje=new Date();var ano=hoje.getFullYear(),mes=hoje.getMonth();var total=new Date(ano,mes+1,0).getDate();var u=0;for(var d=1;d<=total;d++){var dow=new Date(ano,mes,d).getDay();if(dow!==0&&dow!==6)u++;}return u;}
 function getMetaPessoa(nome){var d=COLAB_DATA[nome];return d?d.meta:0;}
 
