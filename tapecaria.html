@@ -95,7 +95,7 @@ var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIj
 var CONFIG_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=626803240&single=true&output=csv';
 var COLAB_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1534833771&single=true&output=csv';
 var TV_NUM='TV 2';
-var INTERVALO_MIN=5;
+var INTERVALO_MIN=1;
 var INTERVALO_PAG=30;
 var METAS={};
 var COLAB_DATA={};
@@ -379,19 +379,26 @@ document.addEventListener('DOMContentLoaded',function(){
   if(popup)popup.addEventListener('click',fecharPopup);
 });
 
+var PRIMEIRA_CARGA=true;
+
 async function carregarDados(){
   try{
-    var r0=await fetch(COLAB_URL);if(r0.ok)COLAB_DATA=parseColab(await r0.text());
-    var r1=await fetch(CONFIG_URL);if(r1.ok)METAS=parseConfig(await r1.text());
-    var r2=await fetch(LANCAMENTOS_URL);if(!r2.ok)throw new Error('HTTP '+r2.status);
+    var r0=await fetch(COLAB_URL+'&t='+Date.now());if(r0.ok)COLAB_DATA=parseColab(await r0.text());
+    var r1=await fetch(CONFIG_URL+'&t='+Date.now());if(r1.ok)METAS=parseConfig(await r1.text());
+    var r2=await fetch(LANCAMENTOS_URL+'&t='+Date.now());if(!r2.ok)throw new Error('HTTP '+r2.status);
     processar(await r2.text());
-    document.getElementById('loading').style.display='none';
-    document.getElementById('app').style.display='flex';
-    document.getElementById('erro').style.display='none';
+    if(PRIMEIRA_CARGA){
+      PRIMEIRA_CARGA=false;
+      document.getElementById('loading').style.display='none';
+      document.getElementById('app').style.display='flex';
+      document.getElementById('erro').style.display='none';
+    }
   }catch(e){
-    document.getElementById('loading').style.display='none';
-    document.getElementById('erro').style.display='block';
-    document.getElementById('erro').innerHTML='<strong>Erro</strong><br>'+e.message;
+    if(PRIMEIRA_CARGA){
+      document.getElementById('loading').style.display='none';
+      document.getElementById('erro').style.display='block';
+      document.getElementById('erro').innerHTML='<strong>Erro</strong><br>'+e.message;
+    }
     console.error(e);
   }
 }
