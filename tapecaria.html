@@ -260,11 +260,35 @@ function processar(txt){
 
 
 
-var META_BATIDA_PREV={};
-var popupTimer=null;
-var POPUP_QUEUE=[];
+
+var POPUP_QUEUE=[];var popupTimer=null;
 var POPUP_SHOWING=false;
 var CONFETE_CORES=['#FFD700','#FF6B35','#1a6b3a','#1a5f8a','#fff','#8a6010','#FF3366','#00E5FF','#ADFF2F'];
+
+function getMetaBatidaKey(){
+  var hoje=new Date();
+  return 'metabatida__'+hoje.getFullYear()+'_'+(hoje.getMonth()+1)+'_'+hoje.getDate();
+}
+function jaComemorou(nome){
+  try{
+    var key=getMetaBatidaKey();
+    var data=JSON.parse(localStorage.getItem(key)||'{}');
+    return !!data[nome];
+  }catch(e){return false;}
+}
+function marcarComemorou(nome){
+  try{
+    var key=getMetaBatidaKey();
+    var data=JSON.parse(localStorage.getItem(key)||'{}');
+    data[nome]=true;
+    localStorage.setItem(key,JSON.stringify(data));
+    // Limpar chaves de dias anteriores
+    Object.keys(localStorage).forEach(function(k){
+      if(k.startsWith('metabatida__')&&k!==key)localStorage.removeItem(k);
+    });
+  }catch(e){}
+}
+
 
 function criarConfete(){
   var total=120;
@@ -273,19 +297,14 @@ function criarConfete(){
       setTimeout(function(){
         var el=document.createElement('div');
         el.className='confete-piece';
-        var w=6+Math.random()*10;
-        var h=6+Math.random()*14;
-        el.style.cssText=[
-          'left:'+Math.random()*100+'vw',
-          'top:-20px',
-          'width:'+w+'px',
-          'height:'+h+'px',
-          'background:'+CONFETE_CORES[Math.floor(Math.random()*CONFETE_CORES.length)],
+        var w=6+Math.random()*10;var h=6+Math.random()*14;
+        var cores=['#FFD700','#FF6B35','#1a6b3a','#1a5f8a','#fff','#8a6010','#FF3366','#00E5FF','#ADFF2F'];
+        el.style.cssText=['left:'+Math.random()*100+'vw','top:-20px','width:'+w+'px','height:'+h+'px',
+          'background:'+cores[Math.floor(Math.random()*cores.length)],
           'border-radius:'+(Math.random()>0.5?'50%':'2px'),
           'animation-duration:'+(2+Math.random()*3).toFixed(2)+'s',
           'animation-delay:'+(Math.random()*0.8).toFixed(2)+'s',
-          'transform:rotate('+Math.random()*360+'deg)'
-        ].join(';');
+          'transform:rotate('+Math.random()*360+'deg)'].join(';');
         document.body.appendChild(el);
         setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},5000);
       },idx*15);
@@ -294,23 +313,17 @@ function criarConfete(){
 }
 
 function criarFogos(){
-  var posicoes=[[15,20],[85,15],[10,75],[90,70],[50,10],[30,50],[70,40]];
-  posicoes.forEach(function(pos,idx){
+  var pos=[[15,20],[85,15],[10,75],[90,70],[50,10],[30,50],[70,40]];
+  var cores=['#FFD700','#FF6B35','#1a6b3a','#1a5f8a','#fff','#8a6010','#FF3366'];
+  pos.forEach(function(p,idx){
     setTimeout(function(){
       var el=document.createElement('div');
       el.className='fogo';
       var size=80+Math.random()*120;
-      el.style.cssText=[
-        'left:'+pos[0]+'vw',
-        'top:'+pos[1]+'vh',
-        'width:'+size+'px',
-        'height:'+size+'px',
-        'margin-left:'+(size/-2)+'px',
-        'margin-top:'+(size/-2)+'px',
-        'box-shadow:0 0 '+(size/2)+'px '+(size/4)+'px '+CONFETE_CORES[idx%CONFETE_CORES.length],
-        'animation-duration:0.8s',
-        'animation-delay:'+( idx*0.15)+'s'
-      ].join(';');
+      el.style.cssText=['left:'+p[0]+'vw','top:'+p[1]+'vh','width:'+size+'px','height:'+size+'px',
+        'margin-left:'+(size/-2)+'px','margin-top:'+(size/-2)+'px',
+        'box-shadow:0 0 '+(size/2)+'px '+(size/4)+'px '+cores[idx%cores.length],
+        'animation-duration:0.8s','animation-delay:'+(idx*0.15)+'s'].join(';');
       document.body.appendChild(el);
       setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},2000);
     },idx*150);
@@ -345,17 +358,14 @@ function fecharPopup(){
 }
 
 function verificarMetas(colunas){
-  var hoje=new Date();hoje.setHours(0,0,0,0);
-  var dKey=hoje.toDateString();
   colunas.forEach(function(col){
     col.rows.forEach(function(r){
       var meta=getMetaPessoa(r.nome);
       if(meta<=0)return;
       var prod=r.dia+(col.isCostura?r.diaAlmof:0);
       var pct=Math.round(prod/meta*100);
-      var key=dKey+'__'+r.nome;
-      if(pct>=100&&!META_BATIDA_PREV[key]){
-        META_BATIDA_PREV[key]=true;
+      if(pct>=100&&!jaComemorou(r.nome)){
+        marcarComemorou(r.nome);
         if(!POPUP_SHOWING){POPUP_SHOWING=true;mostrarPopup(r.nome,col.setor,pct);}
         else{POPUP_QUEUE.push({nome:r.nome,setor:col.setor,pct:pct});}
       }
