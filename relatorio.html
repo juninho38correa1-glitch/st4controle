@@ -57,7 +57,16 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
   .sum-val{font-size:22px}
   .pbtn{padding:6px 12px;font-size:10px}
 }
-@media print{.no-print{display:none!important}body{background:#fff}.page{padding:10px}.sum-card,.table th,.setor-title{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@page{
+  margin-top:10mm;
+  margin-bottom:10mm;
+  margin-left:10mm;
+  margin-right:10mm;
+}
+@media print{
+  @page{margin:10mm;size:A4}
+  head{display:none}
+  .no-print{display:none!important}body{background:#fff}.page{padding:10px}.sum-card,.table th,.setor-title{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 </style>
 </head>
 <body>
@@ -114,7 +123,6 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
 <script>
 
 var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
-var CONFIG_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=626803240&single=true&output=csv';
 var COLAB_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1534833771&single=true&output=csv';
 var PERIODO='dia';
 var MES_SEL=null;
@@ -122,12 +130,10 @@ var ANO_SEL=new Date().getFullYear();
 var ABA='relatorio';
 var ALL_LANCAMENTOS=[];
 var COLAB_DATA={};
-var METAS={};
 
 function parseCSVLine(line){var r=[],cur='',inQ=false;for(var i=0;i<line.length;i++){if(line[i]==='"'){inQ=!inQ;}else if(line[i]===','&&!inQ){r.push(cur.trim().replace(/^"|"$/g,''));cur='';}else if(line[i]!=='"'){cur+=line[i];}}r.push(cur.trim().replace(/^"|"$/g,''));return r;}
 function parseDate(str){if(!str)return null;str=str.trim();var parts,d,m,y,sl=str.indexOf('/'),da=str.indexOf('-');if(sl!==-1){parts=str.split('/');if(parts[2]&&parts[2].length===4){d=+parts[0];m=+parts[1];y=+parts[2];}else{m=+parts[0];d=+parts[1];y=+parts[2];}}else if(da!==-1){parts=str.split('-');y=+parts[0];m=+parts[1];d=+parts[2];}else return null;if(!y||!m||!d)return null;return new Date(y,m-1,d);}
 function parseColab(csv){var linhas=csv.split('\n').filter(function(l){return l.trim();});var map={};for(var i=2;i<linhas.length;i++){var c=parseCSVLine(linhas[i]);if(!c[0])continue;map[c[0].trim()]={setor:c[1]?c[1].trim():'',sub:c[2]?c[2].trim():'',meta:Number(c[3])||0,tv:c[4]?c[4].trim():''};}return map;}
-function parseConfig(csv){var linhas=csv.split('\n').filter(function(l){return l.trim();});var map={};for(var i=2;i<linhas.length;i++){var c=parseCSVLine(linhas[i]);if(c[0]&&c[1])map[c[0].trim()]=Number(c[1])||0;}return map;}
 function diasUteisSemanAte(){
   var hoje=new Date();hoje.setHours(0,0,0,0);
   var dow=hoje.getDay();
@@ -523,7 +529,6 @@ async function carregarDados(){
   document.getElementById('app').innerHTML='<div class="loading-msg"><div class="spinner"></div>Carregando dados...</div>';
   try{
     var r0=await fetch(COLAB_URL+'&t='+Date.now());if(r0.ok)COLAB_DATA=parseColab(await r0.text());
-    var r1=await fetch(CONFIG_URL+'&t='+Date.now());if(r1.ok)METAS=parseConfig(await r1.text());
     var r2=await fetch(LANCAMENTOS_URL+'&t='+Date.now());if(!r2.ok)throw new Error('HTTP '+r2.status);
     var txt=await r2.text();
     var linhas=txt.split('\n').filter(function(l){return l.trim();});
