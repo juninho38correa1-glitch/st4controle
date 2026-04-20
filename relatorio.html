@@ -329,7 +329,7 @@ function renderRelatorio(){
       var badge=cd.meta<=0?'<span class="badge badge-zer">S/ META</span>':prod===0?'<span class="badge badge-zer">SEM LAN\u00c7AMENTO</span>':pct>=100?'<span class="badge badge-ok">META \u2B50</span>':'<span class="badge badge-no">'+pct+'%</span>';
       html+='<tr>';
       html+='<td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:8px;background:'+classeBg+';color:'+classeCor+'">'+classe+'</span></td>';
-      html+='<td style="font-weight:700">'+nome+'</td>';
+      html+='<td style="font-weight:700">'+nomeLimpo(nome)+'</td>';
       html+='<td style="color:#6B5A4E;font-size:11px">'+cd.sub+'</td>';
       if(isCos){html+='<td style="text-align:center;font-weight:700;color:#8B3A0F">'+corpo+'</td><td style="text-align:center;font-weight:700;color:#1a5f8a">'+almof+'</td><td style="text-align:center;font-weight:700;color:'+cor+'">'+prod+'</td>';}
       else{html+='<td style="text-align:center;font-weight:700;color:'+cor+'">'+prod+'</td>';}
@@ -363,6 +363,10 @@ function renderRelatorio(){
 }
 
 // ── GRÁFICOS ──────────────────────────────────────────────
+function nomeLimpo(nome){
+  if(!nome)return '';
+  return nome.replace(/_[A-Za-z0-9]+$/,'').trim();
+}
 function nomeCurto(n,m){if(!n)return '';var p=n.trim().split(' ');var r=p[0];for(var i=1;i<p.length;i++){var t=r+' '+p[i];if(t.length<=m)r=t;else{r=r+'...';break;}}return r;}
 
 function renderGraficos(){
@@ -459,7 +463,7 @@ function drawABC(id,colabs,cor){
     ctx.fillRect(x,mt+cH+2,bW,9);
     ctx.fillStyle=col;ctx.font='bold 7px Arial';ctx.textAlign='center';ctx.fillText(c.classe,x+bW/2,mt+cH+10);
     ctx.save();ctx.translate(x+bW/2,mt+cH+15);ctx.rotate(-Math.PI/4);
-    ctx.fillStyle='#6B5A4E';ctx.font='8px Arial';ctx.textAlign='right';ctx.fillText(nomeCurto(c.nome,10),0,0);ctx.restore();
+    ctx.fillStyle='#6B5A4E';ctx.font='8px Arial';ctx.textAlign='right';ctx.fillText(nomeCurto(nomeLimpo(c.nome),10),0,0);ctx.restore();
   });
 }
 
