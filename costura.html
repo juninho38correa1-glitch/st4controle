@@ -112,12 +112,10 @@ html,body{height:100%;font-family:Arial,sans-serif;background:#F5F0EA}
 <script>
 
 var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
-var CONFIG_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=626803240&single=true&output=csv';
 var COLAB_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1534833771&single=true&output=csv';
 var TV_NUM='TV 1';
 var INTERVALO_MIN=1;
 var INTERVALO_PAG=30;
-var METAS={};
 var COLAB_DATA={};
 var pagAtual=0;var totPag=0;var tPag=null;
 
@@ -138,7 +136,6 @@ tickClock();setInterval(tickClock,1000);setInterval(tickCdwn,1000);
 function parseCSVLine(line){var r=[],cur='',inQ=false;for(var i=0;i<line.length;i++){if(line[i]==='"'){inQ=!inQ;}else if(line[i]===','&&!inQ){r.push(cur.trim().replace(/^"|"$/g,''));cur='';}else if(line[i]!=='"'){cur+=line[i];}}r.push(cur.trim().replace(/^"|"$/g,''));return r;}
 function parseDate(str){if(!str)return null;str=str.trim();var parts,d,m,y,sl=str.indexOf('/'),da=str.indexOf('-');if(sl!==-1){parts=str.split('/');if(parts[2]&&parts[2].length===4){d=+parts[0];m=+parts[1];y=+parts[2];}else{m=+parts[0];d=+parts[1];y=+parts[2];}}else if(da!==-1){parts=str.split('-');y=+parts[0];m=+parts[1];d=+parts[2];}else return null;if(!y||!m||!d)return null;return new Date(y,m-1,d);}
 function parseColab(csv){var linhas=csv.split('\n').filter(function(l){return l.trim();});var map={};for(var i=2;i<linhas.length;i++){var c=parseCSVLine(linhas[i]);if(!c[0])continue;map[c[0].trim()]={setor:c[1]?c[1].trim():'',sub:c[2]?c[2].trim():'',meta:Number(c[3])||0,tv:c[4]?c[4].trim():''};}return map;}
-function parseConfig(csv){var linhas=csv.split('\n').filter(function(l){return l.trim();});var map={};for(var i=2;i<linhas.length;i++){var c=parseCSVLine(linhas[i]);if(c[0]&&c[1])map[c[0].trim()]=Number(c[1])||0;}return map;}
 function diasUteisSemanAte(){
   var hoje=new Date();hoje.setHours(0,0,0,0);
   var dow=hoje.getDay();
@@ -416,7 +413,6 @@ var PRIMEIRA_CARGA=true;
 async function carregarDados(){
   try{
     var r0=await fetch(COLAB_URL+'&t='+Date.now());if(r0.ok)COLAB_DATA=parseColab(await r0.text());
-    var r1=await fetch(CONFIG_URL+'&t='+Date.now());if(r1.ok)METAS=parseConfig(await r1.text());
     var r2=await fetch(LANCAMENTOS_URL+'&t='+Date.now());if(!r2.ok)throw new Error('HTTP '+r2.status);
     processar(await r2.text());
     if(PRIMEIRA_CARGA){
