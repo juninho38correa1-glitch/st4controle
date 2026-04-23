@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -33,16 +32,15 @@ html,body{height:100%;font-family:'Georgia',serif}
 .dot{width:3px;height:3px;border-radius:50%;background:#DCCCBE}
 
 @media (max-width: 768px){
-.page{grid-template-columns:1fr;grid-template-rows:auto}
-.left{padding:40px 28px 80px}
-.title-main{font-size:36px}
-.nav-buttons{margin-top:32px}
-.btn{padding:14px 18px;font-size:11px}
-.right{display:none}
-.footer-left{left:28px;bottom:24px}
+  .page{grid-template-columns:1fr;grid-template-rows:auto}
+  .left{padding:40px 28px 80px}
+  .title-main{font-size:36px}
+  .nav-buttons{margin-top:32px}
+  .btn{padding:14px 18px;font-size:11px}
+  .right{display:none}
+  .footer-left{left:28px;bottom:24px}
 }
 </style>
-
 </head>
 <body>
 <div class="page">
@@ -65,7 +63,7 @@ html,body{height:100%;font-family:'Georgia',serif}
       <a href="dashboard-nc.html" class="btn"><span>DashBoard Nc's</span><span class="btn-arrow">&#x2192;</span></a>
       <a href="relatorio.html" class="btn" style="margin-top:8px;border-color:#1a6b3a;color:#1a6b3a"><span>Relatório de Produção</span><span class="btn-arrow">&#x2192;</span></a>
     </div>
-    <div class="footer-left">Studyo 4 Estofados | © Junior Corrêa · Todos os direitos reservados</div>
+    <div class="footer-left" onclick="_easterEgg()" style="cursor:default;user-select:none">Studyo 4 Estofados | © Junior Corrêa · Todos os direitos reservados</div>
   </div>
   <div class="right">
     <div class="dot-grid" id="dots"></div>
@@ -110,5 +108,26 @@ function drawRing(){
 }
 drawRing();
 </script>
+
+<div id="sheets-link" style="display:none;position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#2C2520;color:#DCCCBE;padding:12px 24px;font-family:Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;z-index:9999;text-align:center;border:1px solid rgba(220,204,190,0.2)">
+  <div style="font-size:9px;color:#6B5A4E;letter-spacing:3px;margin-bottom:6px">PLANILHA DE CONTROLE</div>
+  <a href="https://docs.google.com/spreadsheets/d/1VnZRAG6dNSXEWT-WssXrvzuUDu5IlWzVyGGtHppm12I/edit?gid=1405226140#gid=1405226140" target="_blank" style="color:#FFD700;text-decoration:none;letter-spacing:1px">Abrir Google Sheets &#x2192;</a>
+  <div style="font-size:9px;color:#6B5A4E;margin-top:8px;cursor:pointer" onclick="document.getElementById('sheets-link').style.display='none'">FECHAR</div>
+</div>
+<script>
+var _clicks=0;var _timer=null;
+function _easterEgg(){
+  _clicks++;
+  clearTimeout(_timer);
+  if(_clicks>=3){
+    _clicks=0;
+    var el=document.getElementById('sheets-link');
+    el.style.display=el.style.display==='none'?'block':'none';
+  }else{
+    _timer=setTimeout(function(){_clicks=0;},600);
+  }
+}
+</script>
+
 </body>
 </html>
