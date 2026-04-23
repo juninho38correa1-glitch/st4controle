@@ -245,7 +245,22 @@ function getLansPeriodo(){
 }
 function getClasse(pct){return pct>=80?'A':pct>=50?'B':'C';}
 function getClasseCor(cl){return cl==='A'?'#1a6b3a':cl==='B'?'#8a6010':'#8B3A0F';}
-function getCor(setor){var m={'Costura':'#8B3A0F','Corte':'#1a6b3a','Tapecaria':'#1a6b3a','Montagem Final':'#1a5f8a','Embalagem':'#8a6010','Marcenaria':'#1a5f8a','Espumacao':'#8a6010','Almoxarifado':'#6B5A4E','Desenvolvimento':'#6B5A4E'};return m[setor]||'#6B5A4E';}
+function getCor(setor){
+  var PALETA=[
+    '#8B3A0F','#1a6b3a','#1a5f8a','#8a6010','#7030A0',
+    '#5B3A8B','#1a7a6a','#8B5A2B','#2C6B8A','#6B3A8B',
+    '#8B6A1a','#3A8B5A','#8B2C6B','#1a8B6A','#6A8B1a'
+  ];
+  if(!getCor._map)getCor._map={};
+  if(!getCor._idx)getCor._idx=0;
+  if(!setor)return PALETA[0];
+  var key=setor.trim().toLowerCase();
+  if(!getCor._map[key]){
+    getCor._map[key]=PALETA[getCor._idx%PALETA.length];
+    getCor._idx++;
+  }
+  return getCor._map[key];
+}
 
 function buildSetores(){
   var map={};
