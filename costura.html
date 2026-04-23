@@ -181,7 +181,22 @@ function buildPizza(canvasId,rows){
   sorted.forEach(function(row,i){ctx.beginPath();ctx.arc(legX+6,legY+6,6,0,2*Math.PI);ctx.fillStyle=pal[i%pal.length];ctx.fill();ctx.fillStyle='#2C2520';ctx.font='11px Arial';ctx.textAlign='left';ctx.fillText(nomeCurto(nomeLimpo(row.nome),13)+' ('+row.dia+')',legX+16,legY+10);legY+=22;});
 }
 
-function getCor(setor){var m={'Costura':'#8B3A0F','Corte':'#1a6b3a','Tapecaria':'#1a6b3a','Montagem Final':'#1a5f8a','Embalagem':'#8a6010','Marcenaria':'#1a5f8a','Espumacao':'#8a6010','Almoxarifado':'#6B5A4E','Desenvolvimento':'#6B5A4E'};return m[setor]||'#6B5A4E';}
+function getCor(setor){
+  var PALETA=[
+    '#8B3A0F','#1a6b3a','#1a5f8a','#8a6010','#7030A0',
+    '#5B3A8B','#1a7a6a','#8B5A2B','#2C6B8A','#6B3A8B',
+    '#8B6A1a','#3A8B5A','#8B2C6B','#1a8B6A','#6A8B1a'
+  ];
+  if(!getCor._map)getCor._map={};
+  if(!getCor._idx)getCor._idx=0;
+  if(!setor)return PALETA[0];
+  var key=setor.trim().toLowerCase();
+  if(!getCor._map[key]){
+    getCor._map[key]=PALETA[getCor._idx%PALETA.length];
+    getCor._idx++;
+  }
+  return getCor._map[key];
+}
 var isCostura_=function(s){return s==='Costura';};
 
 function buildCol(col){
