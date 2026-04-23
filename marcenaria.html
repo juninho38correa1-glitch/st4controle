@@ -275,9 +275,17 @@ function processar(txt){
   var hoje=new Date();hoje.setHours(0,0,0,0);
   var mes=hoje.getMonth(),ano=hoje.getFullYear();
   var grupos={};
+  // Nomes que lançaram hoje (para incluir colaboradores sem meta fixa)
+  var lancouHoje={};
+  lancamentos.forEach(function(l){
+    var dt=parseDate(l.data);
+    if(dt&&dt.getTime()===hoje.getTime())lancouHoje[l.nome]=true;
+  });
   Object.keys(COLAB_DATA).forEach(function(nome){
     var cd=COLAB_DATA[nome];
-    if(!cd||cd.tv!==TV_NUM||cd.meta<=0)return;
+    if(!cd||cd.tv!==TV_NUM)return;
+    // Entra se tem meta fixa OU se lançou hoje
+    if(cd.meta<=0&&!lancouHoje[nome])return;
     var key=cd.setor;
     if(!grupos[key])grupos[key]={setor:key,map:{},mapAlmof:{}};
     if(!grupos[key].map[nome])grupos[key].map[nome]={dia:0,ac:0};
