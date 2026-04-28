@@ -510,12 +510,12 @@ function render(data) {
   }
   if (activeSetor !== 'all')
     tableData = tableData.filter(r => (r[COL.SETOR_ORIG]||'').toString().trim() === activeSetor);
-  const recent = [...tableData].reverse().slice(0,50);
+  const recentWithIdx = [...tableData].map((r) => ({ r, realIdx: allData.indexOf(r) })).reverse().slice(0,50);
   document.getElementById('tableCount').textContent = tableData.length+' registros';
   const prioClass = {'urgente':'p-urgente','alta':'p-alta','média':'p-media','media':'p-media','baixa':'p-baixa'};
   const tipoClass = {'não conformidade':'p-nc','melhoria':'p-melhoria','alteração':'p-alteracao','assistência':'p-assistencia','assistencia':'p-assistencia'};
   const statClass = s => { const v=s.toLowerCase(); if(v==='anulada') return 'p-anulada'; return (v.includes('finaliz')||v.includes('atendida'))?'p-finalizado':'p-aberto'; };
-  document.getElementById('tableBody').innerHTML = recent.map((r, i) => {
+  document.getElementById('tableBody').innerHTML = recentWithIdx.map(({ r, realIdx }, i) => {
     const pKey=(r[COL.PRIORIDADE]||'').toString().trim().toLowerCase();
     const tKey=(r[COL.TIPO]||'').toString().trim().toLowerCase();
     const sVal=(r[COL.STATUS]||'').toString().trim();
@@ -566,7 +566,7 @@ function render(data) {
           </div>
           <div class="acc-actions" id="${uid}-actions" style="display:flex;">
             <input type="password" class="acc-senha" id="${uid}-senha" placeholder="Senha" />
-            <button class="acc-btn save" onclick="salvarTratativa('${uid}', ${i})">Salvar</button>
+            <button class="acc-btn save" onclick="salvarTratativa('${uid}', ${realIdx})">Salvar</button>
             <button class="acc-btn" onclick="cancelEdit('${uid}')">Cancelar</button>
             <span class="acc-msg" id="${uid}-msg"></span>
           </div>
