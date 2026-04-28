@@ -542,14 +542,34 @@ function render(data) {
           <button class="acc-edit-btn" onclick="event.stopPropagation();startEdit('${uid}')">✎ editar</button>
         </div>
         <div id="${uid}-text">
-          ${impacto ? `<div class="accordion-text">${impacto}</div>` : '<div class="accordion-empty">Nenhuma tratativa registrada.</div>'}
+          <div style="display:flex;gap:24px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:200px;">
+              <div class="accordion-label" style="margin-bottom:4px;">Responsável</div>
+              <div style="font-size:12px;color:var(--text2);" id="${uid}-resp-text">${r[COL.RESPONSAVEL]||'—'}</div>
+            </div>
+            <div style="flex:3;min-width:200px;">
+              <div class="accordion-label" style="margin-bottom:4px;">Tratativa / Impacto</div>
+              <div id="${uid}-trat-text">${impacto ? `<div class="accordion-text">${impacto}</div>` : '<div class="accordion-empty">Nenhuma tratativa registrada.</div>'}</div>
+            </div>
+          </div>
         </div>
-        <textarea class="acc-edit-area" id="${uid}-area" placeholder="Digite a tratativa...">${impactoEscaped}</textarea>
-        <div class="acc-actions" id="${uid}-actions">
-          <input type="password" class="acc-senha" id="${uid}-senha" placeholder="Senha" />
-          <button class="acc-btn save" onclick="salvarTratativa('${uid}', ${i})">Salvar</button>
-          <button class="acc-btn" onclick="cancelEdit('${uid}')">Cancelar</button>
-          <span class="acc-msg" id="${uid}-msg"></span>
+        <div id="${uid}-editor" style="display:none;">
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+            <div style="flex:1;min-width:160px;">
+              <div class="accordion-label" style="margin-bottom:4px;">Responsável</div>
+              <input type="text" class="acc-edit-area" id="${uid}-resp" style="min-height:unset;height:36px;display:block;" placeholder="Nome do responsável" value="${r[COL.RESPONSAVEL]||''}" />
+            </div>
+            <div style="flex:3;min-width:200px;">
+              <div class="accordion-label" style="margin-bottom:4px;">Tratativa / Impacto</div>
+              <textarea class="acc-edit-area" id="${uid}-area" style="display:block;" placeholder="Digite a tratativa...">${impactoEscaped}</textarea>
+            </div>
+          </div>
+          <div class="acc-actions" id="${uid}-actions" style="display:flex;">
+            <input type="password" class="acc-senha" id="${uid}-senha" placeholder="Senha" />
+            <button class="acc-btn save" onclick="salvarTratativa('${uid}', ${i})">Salvar</button>
+            <button class="acc-btn" onclick="cancelEdit('${uid}')">Cancelar</button>
+            <span class="acc-msg" id="${uid}-msg"></span>
+          </div>
         </div>
       </td>
     </tr>`;
@@ -617,22 +637,21 @@ function toggleAccordion(uid, row) {
 
 function startEdit(uid) {
   document.getElementById(uid+'-text').style.display = 'none';
-  document.getElementById(uid+'-area').style.display = 'block';
-  document.getElementById(uid+'-actions').style.display = 'flex';
+  document.getElementById(uid+'-editor').style.display = 'block';
   document.getElementById(uid+'-area').focus();
 }
 
 function cancelEdit(uid) {
   document.getElementById(uid+'-text').style.display = 'block';
-  document.getElementById(uid+'-area').style.display = 'none';
-  document.getElementById(uid+'-actions').style.display = 'none';
+  document.getElementById(uid+'-editor').style.display = 'none';
   document.getElementById(uid+'-msg').textContent = '';
 }
 
 async function salvarTratativa(uid, rowIndex) {
-  const tratativa = document.getElementById(uid+'-area').value.trim();
-  const senha     = document.getElementById(uid+'-senha').value;
-  const msgEl     = document.getElementById(uid+'-msg');
+  const tratativa   = document.getElementById(uid+'-area').value.trim();
+  const responsavel = document.getElementById(uid+'-resp').value.trim();
+  const senha       = document.getElementById(uid+'-senha').value;
+  const msgEl       = document.getElementById(uid+'-msg');
 
   if (!senha) { msgEl.style.color='#f05b5b'; msgEl.textContent = 'Digite a senha.'; return; }
 
@@ -643,15 +662,16 @@ async function salvarTratativa(uid, rowIndex) {
     const res  = await fetch(SHEETS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ senha, rowIndex, tratativa })
+      body: JSON.stringify({ senha, rowIndex, tratativa, responsavel })
     });
     const json = await res.json();
 
     if (json.ok) {
       msgEl.style.color = '#4ecb8d';
       msgEl.textContent = '✓ Salvo!';
-      // Atualiza o texto exibido
-      document.getElementById(uid+'-text').innerHTML = tratativa
+      // Atualiza os textos exibidos
+      document.getElementById(uid+'-resp-text').textContent = responsavel || '—';
+      document.getElementById(uid+'-trat-text').innerHTML = tratativa
         ? `<div class="accordion-text">${tratativa}</div>`
         : '<div class="accordion-empty">Nenhuma tratativa registrada.</div>';
       setTimeout(() => cancelEdit(uid), 1000);
