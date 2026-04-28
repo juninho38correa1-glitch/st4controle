@@ -659,11 +659,15 @@ async function salvarTratativa(uid, rowIndex) {
   msgEl.textContent = 'Salvando...';
 
   try {
-    const res  = await fetch(SHEETS_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ senha, rowIndex, tratativa, responsavel })
+    // Apps Script não aceita POST com CORS — enviamos via GET com parâmetros
+    const params = new URLSearchParams({
+      acao: 'salvar',
+      senha,
+      rowIndex,
+      tratativa,
+      responsavel
     });
+    const res  = await fetch(SHEETS_URL + '?' + params.toString());
     const json = await res.json();
 
     if (json.ok) {
