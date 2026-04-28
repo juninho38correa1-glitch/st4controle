@@ -103,12 +103,24 @@
   .tr-main.open td { background: rgba(124,106,247,0.06); }
   .tr-accordion { display: none; }
   .tr-accordion.open { display: table-row; }
-  .tr-accordion td { padding: 10px 14px 14px; border-bottom: 0.5px solid rgba(255,255,255,0.07); background: rgba(124,106,247,0.04); }
-  .accordion-label { font-size: 9px; font-family: var(--mono); color: var(--accent2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
-  .accordion-text { font-size: 12px; color: var(--text2); line-height: 1.6; }
-  .accordion-empty { font-size: 11px; color: var(--text3); font-style: italic; }
+  .tr-accordion td { padding: 12px 14px 14px; border-bottom: 0.5px solid rgba(255,255,255,0.07); background: rgba(124,106,247,0.04); }
+  .accordion-label { font-size: 9px; font-family: var(--mono); color: var(--accent2); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .accordion-text { font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 10px; }
+  .accordion-empty { font-size: 11px; color: var(--text3); font-style: italic; margin-bottom: 10px; }
   .tr-main td:first-child::before { content: '›'; display: inline-block; margin-right: 6px; color: var(--text3); transition: transform 0.2s; font-size: 12px; }
   .tr-main.open td:first-child::before { transform: rotate(90deg); color: var(--accent2); }
+  .acc-edit-area { width: 100%; background: var(--bg3); border: 0.5px solid var(--border2); border-radius: var(--r); color: var(--text); font-family: var(--font); font-size: 12px; padding: 8px 10px; resize: vertical; min-height: 60px; display: none; margin-bottom: 8px; outline: none; }
+  .acc-edit-area:focus { border-color: var(--accent); }
+  .acc-actions { display: none; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .acc-btn { background: var(--bg4); border: 0.5px solid var(--border2); border-radius: var(--r); padding: 5px 14px; font-size: 12px; font-family: var(--mono); color: var(--text2); cursor: pointer; transition: all 0.15s; }
+  .acc-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .acc-btn.save { background: var(--accent-glow); border-color: var(--accent); color: var(--accent2); }
+  .acc-btn.save:hover { background: rgba(124,106,247,0.25); }
+  .acc-senha { background: var(--bg3); border: 0.5px solid var(--border2); border-radius: var(--r); padding: 5px 10px; font-size: 12px; font-family: var(--mono); color: var(--text); outline: none; width: 130px; }
+  .acc-senha:focus { border-color: var(--accent); }
+  .acc-msg { font-size: 11px; font-family: var(--mono); margin-left: 4px; }
+  .acc-edit-btn { font-size: 10px; font-family: var(--mono); color: var(--text3); background: none; border: 0.5px solid var(--border); border-radius: 20px; padding: 2px 10px; cursor: pointer; margin-left: 8px; }
+  .acc-edit-btn:hover { color: var(--accent2); border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -509,6 +521,7 @@ function render(data) {
     const sVal=(r[COL.STATUS]||'').toString().trim();
     const impacto=(r[COL.IMPACTO]||'').toString().trim();
     const uid = 'acc-'+i;
+    const impactoEscaped = impacto.replace(/'/g, "\'").replace(/"/g, '&quot;');
     return `<tr class="tr-main" onclick="toggleAccordion('${uid}', this)">
       <td class="td-date">${r[COL.DATA]||'—'}</td>
       <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${r[COL.NUM_PED]||'—'}</td>
@@ -524,8 +537,20 @@ function render(data) {
     </tr>
     <tr class="tr-accordion" id="${uid}">
       <td colspan="11">
-        <div class="accordion-label">Tratativa / Impacto</div>
-        ${impacto ? `<div class="accordion-text">${impacto}</div>` : '<div class="accordion-empty">Nenhuma tratativa registrada.</div>'}
+        <div class="accordion-label">
+          Tratativa / Impacto
+          <button class="acc-edit-btn" onclick="event.stopPropagation();startEdit('${uid}')">✎ editar</button>
+        </div>
+        <div id="${uid}-text">
+          ${impacto ? `<div class="accordion-text">${impacto}</div>` : '<div class="accordion-empty">Nenhuma tratativa registrada.</div>'}
+        </div>
+        <textarea class="acc-edit-area" id="${uid}-area" placeholder="Digite a tratativa...">${impactoEscaped}</textarea>
+        <div class="acc-actions" id="${uid}-actions">
+          <input type="password" class="acc-senha" id="${uid}-senha" placeholder="Senha" />
+          <button class="acc-btn save" onclick="salvarTratativa('${uid}', ${i})">Salvar</button>
+          <button class="acc-btn" onclick="cancelEdit('${uid}')">Cancelar</button>
+          <span class="acc-msg" id="${uid}-msg"></span>
+        </div>
       </td>
     </tr>`;
   }).join('');
@@ -582,12 +607,62 @@ function renderIndicador(rows) {
   }).join('');
 }
 
-// ── ACCORDION ─────────────────────────────────────────────────────────
+// ── ACCORDION + EDIÇÃO DE TRATATIVA ───────────────────────────────────
 function toggleAccordion(uid, row) {
   const acc = document.getElementById(uid);
   const isOpen = acc.classList.contains('open');
   acc.classList.toggle('open', !isOpen);
   row.classList.toggle('open', !isOpen);
+}
+
+function startEdit(uid) {
+  document.getElementById(uid+'-text').style.display = 'none';
+  document.getElementById(uid+'-area').style.display = 'block';
+  document.getElementById(uid+'-actions').style.display = 'flex';
+  document.getElementById(uid+'-area').focus();
+}
+
+function cancelEdit(uid) {
+  document.getElementById(uid+'-text').style.display = 'block';
+  document.getElementById(uid+'-area').style.display = 'none';
+  document.getElementById(uid+'-actions').style.display = 'none';
+  document.getElementById(uid+'-msg').textContent = '';
+}
+
+async function salvarTratativa(uid, rowIndex) {
+  const tratativa = document.getElementById(uid+'-area').value.trim();
+  const senha     = document.getElementById(uid+'-senha').value;
+  const msgEl     = document.getElementById(uid+'-msg');
+
+  if (!senha) { msgEl.style.color='#f05b5b'; msgEl.textContent = 'Digite a senha.'; return; }
+
+  msgEl.style.color = 'var(--text3)';
+  msgEl.textContent = 'Salvando...';
+
+  try {
+    const res  = await fetch(SHEETS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ senha, rowIndex, tratativa })
+    });
+    const json = await res.json();
+
+    if (json.ok) {
+      msgEl.style.color = '#4ecb8d';
+      msgEl.textContent = '✓ Salvo!';
+      // Atualiza o texto exibido
+      document.getElementById(uid+'-text').innerHTML = tratativa
+        ? `<div class="accordion-text">${tratativa}</div>`
+        : '<div class="accordion-empty">Nenhuma tratativa registrada.</div>';
+      setTimeout(() => cancelEdit(uid), 1000);
+    } else {
+      msgEl.style.color = '#f05b5b';
+      msgEl.textContent = json.erro || 'Erro ao salvar.';
+    }
+  } catch(err) {
+    msgEl.style.color = '#f05b5b';
+    msgEl.textContent = 'Erro de conexão.';
+  }
 }
 
 // ── ACESSO SECRETO (3 cliques no título) ──────────────────────────────
