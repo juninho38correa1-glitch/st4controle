@@ -21,7 +21,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
-  .shell { max-width: 1280px; margin: 0 auto; padding: 32px 24px 64px; }
+  .shell { max-width: 1600px; margin: 0 auto; padding: 32px 24px 64px; }
   .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 32px; gap: 16px; flex-wrap: wrap; }
   .header-left { display: flex; flex-direction: column; gap: 6px; }
   .header-eyebrow { font-size: 11px; font-family: var(--mono); color: var(--accent2); letter-spacing: 0.1em; text-transform: uppercase; }
@@ -121,6 +121,10 @@
   .acc-msg { font-size: 11px; font-family: var(--mono); margin-left: 4px; }
   .acc-edit-btn { font-size: 10px; font-family: var(--mono); color: var(--text3); background: none; border: 0.5px solid var(--border); border-radius: 20px; padding: 2px 10px; cursor: pointer; margin-left: 8px; }
   .acc-edit-btn:hover { color: var(--accent2); border-color: var(--accent); }
+  .acc-select { background: var(--bg3); border: 0.5px solid var(--border2); border-radius: var(--r); color: var(--text); font-family: var(--font); font-size: 12px; padding: 6px 10px; outline: none; width: 100%; }
+  .acc-select:focus { border-color: var(--accent); }
+  .acc-input-date { background: var(--bg3); border: 0.5px solid var(--border2); border-radius: var(--r); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 6px 10px; outline: none; width: 100%; }
+  .acc-input-date:focus { border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -554,14 +558,39 @@ function render(data) {
           </div>
         </div>
         <div id="${uid}-editor" style="display:none;">
-          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
-            <div style="flex:1;min-width:160px;">
-              <div class="accordion-label" style="margin-bottom:4px;">Responsável</div>
-              <input type="text" class="acc-edit-area" id="${uid}-resp" style="min-height:unset;height:36px;display:block;" placeholder="Nome do responsável" value="${r[COL.RESPONSAVEL]||''}" />
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+            <div>
+              <div class="accordion-label" style="margin-bottom:4px;">Status</div>
+              <select class="acc-select" id="${uid}-status">
+                <option value="" ${!(r[COL.STATUS]||'') ? 'selected' : ''}>— selecione —</option>
+                <option value="Em andamento" ${(r[COL.STATUS]||'')==='Em andamento'?'selected':''}>Em andamento</option>
+                <option value="Finalizado" ${(r[COL.STATUS]||'')==='Finalizado'?'selected':''}>Finalizado</option>
+                <option value="Não atendida" ${(r[COL.STATUS]||'')==='Não atendida'?'selected':''}>Não atendida</option>
+                <option value="Anulada" ${(r[COL.STATUS]||'')==='Anulada'?'selected':''}>Anulada</option>
+              </select>
             </div>
-            <div style="flex:3;min-width:200px;">
+            <div>
+              <div class="accordion-label" style="margin-bottom:4px;">Responsável</div>
+              <select class="acc-select" id="${uid}-resp">
+                <option value="" ${!(r[COL.RESPONSAVEL]||'') ? 'selected' : ''}>— selecione —</option>
+                <option value="Junior" ${(r[COL.RESPONSAVEL]||'')==='Junior'?'selected':''}>Junior</option>
+                <option value="Pablo" ${(r[COL.RESPONSAVEL]||'')==='Pablo'?'selected':''}>Pablo</option>
+                <option value="Erika" ${(r[COL.RESPONSAVEL]||'')==='Erika'?'selected':''}>Erika</option>
+                <option value="Nathyelly" ${(r[COL.RESPONSAVEL]||'')==='Nathyelly'?'selected':''}>Nathyelly</option>
+                <option value="Murilo" ${(r[COL.RESPONSAVEL]||'')==='Murilo'?'selected':''}>Murilo</option>
+                <option value="Mariane" ${(r[COL.RESPONSAVEL]||'')==='Mariane'?'selected':''}>Mariane</option>
+                <option value="Matheus" ${(r[COL.RESPONSAVEL]||'')==='Matheus'?'selected':''}>Matheus</option>
+                <option value="Valdirene" ${(r[COL.RESPONSAVEL]||'')==='Valdirene'?'selected':''}>Valdirene</option>
+                <option value="Vanderlei" ${(r[COL.RESPONSAVEL]||'')==='Vanderlei'?'selected':''}>Vanderlei</option>
+              </select>
+            </div>
+            <div>
+              <div class="accordion-label" style="margin-bottom:4px;">Data de conclusão</div>
+              <input type="date" class="acc-input-date" id="${uid}-dataconc" value="${(r[COL.DATA_CONC]||'').toString().split('/').length===3 ? r[COL.DATA_CONC].toString().split('/').reverse().join('-') : ''}" />
+            </div>
+            <div>
               <div class="accordion-label" style="margin-bottom:4px;">Tratativa / Impacto</div>
-              <textarea class="acc-edit-area" id="${uid}-area" style="display:block;" placeholder="Digite a tratativa...">${impactoEscaped}</textarea>
+              <textarea class="acc-edit-area" id="${uid}-area" style="display:block;min-height:70px;" placeholder="Digite a tratativa...">${impactoEscaped}</textarea>
             </div>
           </div>
           <div class="acc-actions" id="${uid}-actions" style="display:flex;">
@@ -650,6 +679,8 @@ function cancelEdit(uid) {
 async function salvarTratativa(uid, rowIndex) {
   const tratativa   = document.getElementById(uid+'-area').value.trim();
   const responsavel = document.getElementById(uid+'-resp').value.trim();
+  const status      = document.getElementById(uid+'-status').value.trim();
+  const dataConc    = document.getElementById(uid+'-dataconc').value;
   const senha       = document.getElementById(uid+'-senha').value;
   const msgEl       = document.getElementById(uid+'-msg');
 
@@ -658,14 +689,17 @@ async function salvarTratativa(uid, rowIndex) {
   msgEl.style.color = 'var(--text3)';
   msgEl.textContent = 'Salvando...';
 
+  // Converte data de yyyy-mm-dd para dd/MM/yyyy para gravar na planilha
+  let dataConcFmt = '';
+  if (dataConc) {
+    const [y,m,d] = dataConc.split('-');
+    dataConcFmt = d+'/'+m+'/'+y;
+  }
+
   try {
-    // Apps Script não aceita POST com CORS — enviamos via GET com parâmetros
     const params = new URLSearchParams({
-      acao: 'salvar',
-      senha,
-      rowIndex,
-      tratativa,
-      responsavel
+      acao: 'salvar', senha, rowIndex,
+      tratativa, responsavel, status, dataConc: dataConcFmt
     });
     const res  = await fetch(SHEETS_URL + '?' + params.toString());
     const json = await res.json();
@@ -673,7 +707,6 @@ async function salvarTratativa(uid, rowIndex) {
     if (json.ok) {
       msgEl.style.color = '#4ecb8d';
       msgEl.textContent = '✓ Salvo!';
-      // Atualiza os textos exibidos
       document.getElementById(uid+'-resp-text').textContent = responsavel || '—';
       document.getElementById(uid+'-trat-text').innerHTML = tratativa
         ? `<div class="accordion-text">${tratativa}</div>`
