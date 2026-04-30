@@ -153,6 +153,9 @@ function buildPizza(canvasId,rows){
 }
 
 function getCor(setor){
+  if(setor==='Costura Corpo')return '#8B3A0F';
+  if(setor==='Costura Almofada')return '#1a5f8a';
+  if(setor==='Retrabalho Costura')return '#7030A0';
   var PALETA=['#8B3A0F','#1a6b3a','#1a5f8a','#8a6010','#7030A0','#5B3A8B','#1a7a6a','#8B5A2B','#2C6B8A','#6B3A8B','#8B6A1a','#3A8B5A'];
   if(!getCor._map)getCor._map={};if(!getCor._idx)getCor._idx=0;if(!setor)return PALETA[0];
   var key=setor.trim().toLowerCase();
@@ -180,7 +183,9 @@ function buildCol(col){
   var medals=['g','s','b'];var prev=-1;var pos=0;
   sorted.forEach(function(r,i){
     if(r.dia!==prev){pos=i+1;prev=r.dia;}
-    var meta=getMetaPessoa(r.nome);var pct=meta>0?Math.round(r.dia/meta*100):0;var pctC=Math.min(pct,100);
+    var meta=getMetaPessoa(r.nome);
+    var prodParaMeta=r._diaTotal!==undefined?r._diaTotal:r.dia; // Costura Corpo usa corpo+almofada
+    var pct=meta>0?Math.round(prodParaMeta/meta*100):0;var pctC=Math.min(pct,100);
     var bc=pct>=100?'#1a6b3a':pct>=70?'#8a6010':'#8B3A0F';
     var badge=meta>0?(pct>=100?'<div class="meta-badge badge-ok">META \u2B50</div>':'<div class="meta-badge badge-no">'+pct+'%</div>'):'';
     var medal=pos<=3?medals[pos-1]:'';
@@ -199,82 +204,12 @@ function buildCol(col){
   return h;
 }
 
-// ── SUB-SEÇÃO INTERNA DO CARD COSTURA ────────────────────
-function buildSubSecao(titulo,rows,cor,mapAlmofDia){
-  var sorted=rows.slice().sort(function(a,b){return b.dia-a.dia;});
-  var medals=['g','s','b'];var prev=-1;var pos=0;
-  var tDia=rows.reduce(function(s,r){return s+r.dia;},0);
-  var tAc=rows.reduce(function(s,r){return s+r.ac;},0);
-  var h='<div style="border-top:2px solid '+cor+';padding-top:6px">';
-  h+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:'+cor+';text-transform:uppercase;padding:4px 0 6px">'+titulo+'</div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:6px">';
-  h+='<div style="background:#DCCCBE;padding:5px 8px;border-left:3px solid '+cor+'"><div class="score-label">Hoje</div><div style="font-size:32px;font-weight:700;color:'+cor+'">'+tDia+'</div></div>';
-  h+='<div style="background:#DCCCBE;padding:5px 8px;border-left:3px solid '+cor+'"><div class="score-label">Acumulado</div><div style="font-size:32px;font-weight:700;color:'+cor+'">'+tAc+'</div></div>';
-  h+='</div>';
-  sorted.forEach(function(r,i){
-    if(r.dia===0&&r.ac===0)return;
-    if(r.dia!==prev){pos=i+1;prev=r.dia;}
-    // Meta: para Corpo considera corpo+almofada juntos; para Almofada/Retrabalho sem meta individual
-    var prodParaMeta=r.dia;
-    if(mapAlmofDia&&mapAlmofDia[r.nome])prodParaMeta+=mapAlmofDia[r.nome].dia;
-    var meta=mapAlmofDia?getMetaPessoa(r.nome):0; // só Corpo usa meta
-    var pct=meta>0?Math.round(prodParaMeta/meta*100):0;
-    var pctC=Math.min(pct,100);
-    var bc=pct>=100?'#1a6b3a':pct>=70?'#8a6010':'#8B3A0F';
-    var badge=meta>0?(pct>=100?'<div class="meta-badge badge-ok">META \u2B50</div>':'<div class="meta-badge badge-no">'+pct+'%</div>'):'';
-    var medal=pos<=3?medals[pos-1]:'';
-    h+='<div class="meta-row" style="padding:4px 0">';
-    h+='<div class="mpos '+medal+'" style="font-size:14px;width:22px">'+String(pos).padStart(2,'0')+'</div>';
-    h+='<div class="mname" style="font-size:13px;width:110px">'+nomeCurto(nomeLimpo(r.nome),13);
-    h+='<div style="font-size:10px;color:#6B5A4E">ac:'+r.ac+(meta?' · m:'+meta:'')+'</div></div>';
-    h+='<div class="mbar-wrap"><div class="mbar-bg"><div class="mbar-f" style="width:'+pctC+'%;background:'+bc+'"></div></div></div>';
-    h+='<div class="mpct" style="color:'+bc+';font-size:12px">'+(meta?pct+'%':'')+'</div>';
-    h+='<div class="mqty" style="color:'+cor+';font-size:14px">'+r.dia+'</div>'+badge+'</div>';
-  });
-  h+='</div>';
-  return h;
-}
-
-// ── CARD COSTURA (largura total, 3 sub-seções internas) ──
-function buildColCostura(cs){
-  var cor='#8B3A0F';
-  var pctMes=cs.metaMes>0?Math.min(Math.round(cs.tAc/cs.metaMes*100),150):0;
-  var pctDia=cs.metaDia>0?Math.min(Math.round(cs.tDia/cs.metaDia*100),150):0;
-  var bcM=pctMes>=100?'#1a6b3a':pctMes>=70?'#8a6010':'#8B3A0F';
-  var bcD=pctDia>=100?'#1a6b3a':pctDia>=70?'#8a6010':'#8B3A0F';
-  var mapAlmofDia={};cs.almofada.forEach(function(r){mapAlmofDia[r.nome]=r;});
-
-  var h='<div class="col-card" style="grid-column:1/-1">';
-  if(cs.metaMes>0){h+='<div class="score-label">Meta Mes: '+cs.tAc+' / '+cs.metaMes+' ('+pctMes+'%)</div><div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(pctMes,100)+'%;background:'+bcM+'"></div></div>';}
-  if(cs.metaDia>0){h+='<div class="score-label" style="margin-top:4px">Meta Dia: '+cs.tDia+' / '+cs.metaDia+' ('+pctDia+'%)</div><div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(pctDia,100)+'%;background:'+bcD+'"></div></div>';}
-  h+='<div class="col-header" style="color:'+cor+'">// COSTURA</div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:10px">';
-  h+='<div style="background:#DCCCBE;padding:8px 10px;border-left:3px solid '+cor+'"><div class="score-label">Hoje (Total)</div><div style="font-size:48px;font-weight:700;color:'+cor+'">'+cs.tDia+'</div></div>';
-  h+='<div style="background:#DCCCBE;padding:8px 10px;border-left:3px solid '+cor+'"><div class="score-label">Acumulado (Total)</div><div style="font-size:48px;font-weight:700;color:'+cor+'">'+cs.tAc+'</div></div>';
-  h+='</div>';
-  h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">';
-  h+=buildSubSecao('Costura Corpo',cs.corpo,'#8B3A0F',mapAlmofDia);
-  h+=buildSubSecao('Costura Almofada',cs.almofada,'#1a5f8a',null);
-  h+=buildSubSecao('Retrabalho',cs.retrabalho,'#7030A0',null);
-  h+='</div>';
-  var rowsPizza=cs.corpo.map(function(r){var a=mapAlmofDia[r.nome]||{dia:0};return{nome:r.nome,dia:r.dia+a.dia};}).filter(function(r){return r.dia>0;});
-  h+='<div class="score-label" style="margin-top:8px">// distribuicao hoje (corpo + almofada)</div>';
-  h+='<div class="chart-wrap"><canvas id="pizza-Costura"></canvas></div>';
-  h+='</div>';
-  return h;
-}
-
 // ── RENDER ────────────────────────────────────────────────
-function renderColunas(costuraCard,colunas){
+function renderColunas(colunas){
   var container=document.getElementById('grid-container');if(!container)return;
+  var paginas=[];for(var i=0;i<colunas.length;i+=3){paginas.push(colunas.slice(i,i+3));}
   var h='<div class="prog-barra"><div class="prog-fill" id="prog-fill"></div></div>';
   h+='<div class="carrossel-container">';
-  // Página 0: card Costura (linha inteira)
-  h+='<div class="carrossel-pagina" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">';
-  h+=buildColCostura(costuraCard);
-  h+='</div>';
-  // Demais páginas: outros setores, 3 por página
-  var paginas=[];for(var i=0;i<colunas.length;i+=3){paginas.push(colunas.slice(i,i+3));}
   paginas.forEach(function(pg){
     h+='<div class="carrossel-pagina">';
     pg.forEach(function(col){h+=buildCol(col);});
@@ -282,17 +217,13 @@ function renderColunas(costuraCard,colunas){
     h+='</div>';
   });
   h+='</div>';
-  var totalPags=1+paginas.length;
-  if(totalPags>1){
+  if(paginas.length>1){
     h+='<div class="indicadores">';
-    for(var p=0;p<totalPags;p++){h+='<div class="indicador" onclick="irPag('+p+')"></div>';}
+    paginas.forEach(function(_,pi){h+='<div class="indicador" onclick="irPag('+pi+')"></div>';});
     h+='</div>';
   }
   container.innerHTML=h;
   setTimeout(function(){
-    var mapAlmofDia={};costuraCard.almofada.forEach(function(r){mapAlmofDia[r.nome]=r;});
-    var rowsPizza=costuraCard.corpo.map(function(r){var a=mapAlmofDia[r.nome]||{dia:0};return{nome:r.nome,dia:r.dia+a.dia};}).filter(function(r){return r.dia>0;});
-    buildPizza('pizza-Costura',rowsPizza);
     colunas.forEach(function(col){buildPizza('pizza-'+col.setor.replace(/[^a-zA-Z0-9]/g,'_'),col.rows);});
     iniciarCarrossel();
   },100);
@@ -356,17 +287,38 @@ function processar(txt){
   var rowsAlmof=Object.keys(mapAlmof).map(function(n){return{nome:n,dia:mapAlmof[n].dia,ac:mapAlmof[n].ac};});
   var rowsRetrab=Object.keys(mapRetrab).map(function(n){return{nome:n,dia:mapRetrab[n].dia,ac:mapRetrab[n].ac};});
 
-  // Total costura = corpo + almofada (retrabalho é separado)
-  var tDiaC=rowsCorpo.reduce(function(s,r){return s+r.dia;},0)+rowsAlmof.reduce(function(s,r){return s+r.dia;},0);
-  var tAcC=rowsCorpo.reduce(function(s,r){return s+r.ac;},0)+rowsAlmof.reduce(function(s,r){return s+r.ac;},0);
-
-  var costuraCard={
-    corpo:rowsCorpo, almofada:rowsAlmof, retrabalho:rowsRetrab,
-    tDia:tDiaC, tAc:tAcC,
-    metaDia:calcMetaDia('Costura'), metaMes:calcMetaMesSetor('Costura')
-  };
-
+  // 3 cards independentes de Costura — mesmo tamanho dos outros setores
   var colunas=[];
+
+  // Card 1: Costura Corpo (tem meta — considera corpo+almofada pra barra individual)
+  var mapAlmofDiaRef={};rowsAlmof.forEach(function(r){mapAlmofDiaRef[r.nome]=r;});
+  var rowsCorpoComMeta=rowsCorpo.map(function(r){
+    var a=mapAlmofDiaRef[r.nome]||{dia:0,ac:0};
+    // diaTotal usado só pra meta; dia real mostrado é só corpo
+    return{nome:r.nome,dia:r.dia,ac:r.ac,_diaTotal:r.dia+a.dia,_acTotal:r.ac+a.ac};
+  });
+  var tDiaCorpo=rowsCorpo.reduce(function(s,r){return s+r.dia;},0);
+  var tAcCorpo=rowsCorpo.reduce(function(s,r){return s+r.ac;},0);
+  colunas.push({setor:'Costura Corpo',rows:rowsCorpoComMeta,tDia:tDiaCorpo,tAc:tAcCorpo,
+    metaDia:calcMetaDia('Costura'),metaMes:calcMetaMesSetor('Costura'),_useTotalParaMeta:true});
+
+  // Card 2: Costura Almofada (sem meta de setor, só volume)
+  var temAlmof=rowsAlmof.some(function(r){return r.ac>0||r.dia>0;});
+  if(temAlmof){
+    var tDiaA=rowsAlmof.reduce(function(s,r){return s+r.dia;},0);
+    var tAcA=rowsAlmof.reduce(function(s,r){return s+r.ac;},0);
+    colunas.push({setor:'Costura Almofada',rows:rowsAlmof,tDia:tDiaA,tAc:tAcA,metaDia:0,metaMes:0});
+  }
+
+  // Card 3: Retrabalho Costura (sem meta, só volume)
+  var temRetrab=rowsRetrab.some(function(r){return r.ac>0||r.dia>0;});
+  if(temRetrab){
+    var tDiaR=rowsRetrab.reduce(function(s,r){return s+r.dia;},0);
+    var tAcR=rowsRetrab.reduce(function(s,r){return s+r.ac;},0);
+    colunas.push({setor:'Retrabalho Costura',rows:rowsRetrab,tDia:tDiaR,tAc:tAcR,metaDia:0,metaMes:0});
+  }
+
+  // Outros setores
   Object.keys(grupos).forEach(function(key){
     var g=grupos[key];
     var rows=Object.keys(g.map).map(function(n){return{nome:n,dia:g.map[n].dia,ac:g.map[n].ac};});
@@ -375,13 +327,17 @@ function processar(txt){
     colunas.push({setor:key,rows:rows,tDia:tDia,tAc:tAc,metaDia:calcMetaDia(key),metaMes:calcMetaMesSetor(key)});
   });
 
-  renderColunas(costuraCard,colunas);
+  renderColunas(colunas);
 
-  // Verificar metas (corpo+almofada conta pra meta individual)
-  var colsParaMeta=[{setor:'Costura',isCostura:false,rows:rowsCorpo.map(function(r){
-    var a=mapAlmof[r.nome]||{dia:0,ac:0};
-    return{nome:r.nome,dia:r.dia+a.dia,ac:r.ac+a.ac,diaAlmof:0,acAlmof:0};
-  })}].concat(colunas.map(function(c){return Object.assign({},c,{isCostura:false});}));
+  // Verificar metas: corpo usa _diaTotal (corpo+almofada)
+  var colsParaMeta=colunas.map(function(col){
+    if(col._useTotalParaMeta){
+      return{setor:col.setor,isCostura:false,rows:col.rows.map(function(r){
+        return{nome:r.nome,dia:r._diaTotal||r.dia,ac:r._acTotal||r.ac};
+      })};
+    }
+    return{setor:col.setor,isCostura:false,rows:col.rows};
+  });
   verificarMetas(colsParaMeta);
 }
 
