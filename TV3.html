@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0">
+<title>TV 3 - Studyo4</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:Arial,sans-serif;background:#F5F0EA}
+.tv{background:#F5F0EA;padding:12px;display:flex;flex-direction:column;min-height:100vh;gap:8px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:2px solid #8B3A0F}
+.logo{font-size:18px;font-weight:700;letter-spacing:3px;color:#2C2520}
+.logo span{font-weight:400;color:#6B5A4E}
+.setor-tag{font-size:16px;font-weight:700;letter-spacing:3px;padding:5px 16px;text-transform:uppercase;color:#2C2520;background:rgba(44,37,32,0.08);border:1px solid rgba(44,37,32,0.3)}
+.clk{font-size:40px;font-weight:700;color:#2C2520;letter-spacing:5px}
+.dt{font-size:15px;color:#6B5A4E;margin-top:2px;text-align:right}
+.col-card{background:#E8E0D5;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.col-header{font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding-bottom:8px;border-bottom:2px solid rgba(44,37,32,0.3);margin-bottom:2px}
+.score-label{font-size:13px;font-weight:700;letter-spacing:1px;color:#6B5A4E;text-transform:uppercase;margin-bottom:2px}
+.mini-bar{height:7px;background:rgba(44,37,32,0.1);border-radius:3px;overflow:hidden}
+.mini-fill{height:100%;border-radius:3px;transition:width .8s}
+.meta-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(44,37,32,0.08)}
+.meta-row:last-child{border:none}
+.mpos{font-size:20px;font-weight:700;width:32px;color:rgba(44,37,32,0.2);flex-shrink:0;text-align:center}
+.mpos.g{color:#FFD700}.mpos.s{color:#C0C0C0}.mpos.b{color:#CD7F32}
+.mname{font-size:16px;font-weight:700;color:#2C2520;width:130px;flex-shrink:0;line-height:1.3}
+.mbar-wrap{flex:1}.mbar-bg{height:14px;background:rgba(44,37,32,0.1);border-radius:4px;overflow:hidden}
+.mbar-f{height:100%;border-radius:4px;transition:width .8s}
+.mpct{font-size:15px;font-weight:700;width:44px;text-align:right;flex-shrink:0}
+.mqty{font-size:18px;font-weight:700;width:36px;text-align:right;flex-shrink:0}
+.meta-badge{font-size:11px;padding:3px 7px;border-radius:8px;font-weight:700;flex-shrink:0;min-width:52px;text-align:center}
+.badge-ok{background:rgba(26,107,58,0.12);color:#1a6b3a;border:1px solid rgba(26,107,58,0.3)}
+.badge-no{background:rgba(139,58,15,0.08);color:#8B3A0F;border:1px solid rgba(139,58,15,0.2)}
+.chart-wrap{position:relative;width:100%;height:220px}
+.footer{display:flex;justify-content:space-between;font-size:12px;color:#8a7060;font-weight:700;padding-top:8px;border-top:1px solid rgba(44,37,32,0.15)}
+.footer span{color:#6B5A4E}
+#loading{position:fixed;inset:0;background:#F5F0EA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:999}
+.spinner{width:48px;height:48px;border:3px solid rgba(44,37,32,0.15);border-top-color:#8B3A0F;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{color:#6B5A4E;font-size:15px;letter-spacing:2px;text-transform:uppercase}
+#erro{display:none;background:rgba(139,58,15,0.08);border:1px solid #8B3A0F;padding:14px;color:#8B3A0F;font-size:14px;margin:10px}
+.carrossel-container{flex:1;display:flex;flex-direction:column}
+.carrossel-pagina{display:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;flex:1}
+.carrossel-pagina.ativa{display:grid}
+.indicadores{display:flex;justify-content:center;gap:10px;padding:8px 0}
+.indicador{width:10px;height:10px;border-radius:50%;background:rgba(44,37,32,0.2);cursor:pointer;transition:all .3s}
+.indicador.ativo{background:#8B3A0F;width:26px;border-radius:5px}
+.prog-barra{height:3px;background:rgba(44,37,32,0.1);overflow:hidden}
+.prog-fill{height:100%;background:#8B3A0F;width:0%;transition:none}
+
+#meta-popup{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0)}
+#meta-popup.show{display:flex;animation:bgFadeIn .4s ease forwards}
+.mp-center{text-align:center;position:relative;z-index:2;padding:20px}
+.mp-emoji{font-size:72px;display:block;animation:emojiPop .5s cubic-bezier(.175,.885,.32,1.275) forwards}
+.mp-titulo{font-size:13px;font-weight:700;letter-spacing:4px;color:#FFD700;text-transform:uppercase;margin:16px 0 8px;animation:fadeUp .4s ease .2s both}
+.mp-nome{font-size:36px;font-weight:700;color:#fff;letter-spacing:3px;margin-bottom:6px;animation:fadeUp .4s ease .3s both;text-shadow:0 0 30px rgba(255,215,0,0.6)}
+.mp-setor{font-size:13px;color:rgba(255,255,255,0.6);letter-spacing:3px;text-transform:uppercase;animation:fadeUp .4s ease .4s both}
+.mp-pct{font-size:80px;font-weight:700;color:#FFD700;line-height:1;margin:12px 0;animation:fadeUp .4s ease .5s both;text-shadow:0 0 40px rgba(255,215,0,0.4)}
+.mp-tap{font-size:10px;color:rgba(255,255,255,0.25);letter-spacing:2px;margin-top:20px;animation:fadeUp .4s ease .8s both}
+@keyframes bgFadeIn{from{background:rgba(0,0,0,0)}to{background:rgba(0,0,0,0.82)}}
+@keyframes emojiPop{from{transform:scale(0) rotate(-30deg);opacity:0}to{transform:scale(1) rotate(0deg);opacity:1}}
+@keyframes fadeUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.confete-piece{position:fixed;pointer-events:none;z-index:10000;animation:confeteFall linear forwards}
+@keyframes confeteFall{0%{opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+.fogo{position:fixed;pointer-events:none;z-index:10001;border-radius:50%;animation:fogoExplode ease-out forwards}
+@keyframes fogoExplode{0%{transform:scale(0);opacity:1}70%{opacity:1}100%{transform:scale(1);opacity:0}}
+
+@media (max-width:768px){
+  .tv{padding:8px;gap:6px}
+  .logo{font-size:13px}
+  .setor-tag{font-size:11px;padding:3px 8px}
+  .clk{font-size:24px}
+  .dt{font-size:11px}
+  .col-header{font-size:12px}
+  .score-label{font-size:11px}
+  .mpos{font-size:14px;width:22px}
+  .mname{font-size:13px;width:100px}
+  .mbar-bg{height:10px}
+  .mpct{font-size:12px}
+  .mqty{font-size:14px}
+  .meta-badge{font-size:9px}
+  .chart-wrap{height:160px}
+  .footer{font-size:10px;flex-direction:column;gap:3px;text-align:center}
+  .carrossel-pagina{grid-template-columns:1fr !important}
+  .kpi-num{font-size:36px !important}
+  .kpi-box{padding:8px 10px !important}
+}
+</style>
+</head>
+<body>
+<div id="loading"><div class="spinner"></div><p>CARREGANDO PRODUCAO...</p></div>
+<div id="erro"></div>
+<div class="tv" id="app" style="display:none">
+  <div class="topbar" style="border-bottom-color:#1a6b3a">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div class="logo">STUDYO4 <span>ESTOFADOS</span></div>
+      <div style="width:1px;height:22px;background:rgba(44,37,32,0.2)"></div>
+      <div class="setor-tag">TV 3</div>
+      <a href="index.html" style="font-size:11px;font-weight:700;letter-spacing:2px;padding:4px 12px;border:1px solid rgba(44,37,32,0.3);color:#2C2520;text-decoration:none;text-transform:uppercase;background:transparent">&#x2190; VOLTAR</a>
+    </div>
+    <div style="text-align:right">
+      <div class="clk" id="clk">--:--</div>
+      <div class="dt" id="dt">--</div>
+    </div>
+  </div>
+  <div id="grid-container" style="flex:1;display:flex;flex-direction:column"></div>
+  <div class="footer">
+    <div>Atualizado as <span id="upd">--:--:--</span></div>
+    <div>Proxima atualizacao em <span id="ctd" style="color:#1a6b3a">--:--</span></div>
+    <div>Studyo 4 Estofados | © Junior Corrêa · Todos os direitos reservados</div>
+  </div>
+</div>
+<script>
+
+var LANCAMENTOS_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1405226140&single=true&output=csv';
+var COLAB_URL='https://docs.google.com/spreadsheets/d/e/2PACX-1vSu6isVwVIjZKgzu5SvgBip8Xu7kHPelQJqz96JgN9gDXcNIn09xWdhkGeipQ0RwDDDhxZkU2sEP0bp/pub?gid=1534833771&single=true&output=csv';
+var TV_NUM='TV 3';
+var INTERVALO_MIN=1;
+var INTERVALO_PAG=30;
+var COLAB_DATA={};
+var pagAtual=0;var totPag=0;var tPag=null;
+
+function pad(n){return String(n).padStart(2,'0');}
+function nomeLimpo(nome){
+  if(!nome)return '';
+  return nome.replace(/_[A-Za-z0-9]+$/,'').trim();
+}
+function nomeCurto(n,m){if(!n)return '';var p=n.trim().split(' ');var r=p[0];for(var i=1;i<p.length;i++){var t=r+' '+p[i];if(t.length<=m)r=t;else{r=r+'...';break;}}return r;}
+function tickClock(){
+  var n=new Date();
+  var clk=document.getElementById('clk');if(clk)clk.textContent=pad(n.getHours())+':'+pad(n.getMinutes());
+  var ds=['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
+  var ms=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var dt=document.getElementById('dt');if(dt)dt.textContent=ds[n.getDay()]+', '+n.getDate()+' de '+ms[n.getMonth()]+' de '+n.getFullYear();
+  var upd=document.getElementById('upd');if(upd)upd.textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+}
+var cdwn=INTERVALO_MIN*60;
+function tickCdwn(){cdwn--;if(cdwn<=0){cdwn=INTERVALO_MIN*60;carregarDados();}var c=document.getElementById('ctd');if(c)c.textContent=pad(Math.floor(cdwn/60))+':'+pad(cdwn%60);}
+tickClock();setInterval(tickClock,1000);setInterval(tickCdwn,1000);
+
+function parseCSVLine(line){var r=[],cur='',inQ=false;for(var i=0;i<line.length;i++){if(line[i]==='"'){inQ=!inQ;}else if(line[i]===','&&!inQ){r.push(cur.trim().replace(/^"|"$/g,''));cur='';}else if(line[i]!=='"'){cur+=line[i];}}r.push(cur.trim().replace(/^"|"$/g,''));return r;}
+function parseDate(str){if(!str)return null;str=str.trim();var parts,d,m,y,sl=str.indexOf('/'),da=str.indexOf('-');if(sl!==-1){parts=str.split('/');if(parts[2]&&parts[2].length===4){d=+parts[0];m=+parts[1];y=+parts[2];}else{m=+parts[0];d=+parts[1];y=+parts[2];}}else if(da!==-1){parts=str.split('-');y=+parts[0];m=+parts[1];d=+parts[2];}else return null;if(!y||!m||!d)return null;return new Date(y,m-1,d);}
+function parseColab(csv){var linhas=csv.split('\n').filter(function(l){return l.trim();});var map={};for(var i=2;i<linhas.length;i++){var c=parseCSVLine(linhas[i]);if(!c[0])continue;map[c[0].trim()]={setor:c[1]?c[1].trim():'',sub:c[2]?c[2].trim():'',meta:Number(c[3])||0,tv:c[4]?c[4].trim():''};}return map;}
+function diasUteisSemanAte(){
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var dow=hoje.getDay();
+  var seg=new Date(hoje);
+  seg.setDate(hoje.getDate()-(dow===0?6:dow-1));
+  var u=0;
+  for(var d=new Date(seg);d<=hoje;d.setDate(d.getDate()+1)){
+    var dw=d.getDay();
+    if(dw>=1&&dw<=5)u++;
+  }
+  return u;
+}
+function diasUteisMes(){var hoje=new Date();var ano=hoje.getFullYear(),mes=hoje.getMonth();var total=new Date(ano,mes+1,0).getDate();var u=0;for(var d=1;d<=total;d++){var dow=new Date(ano,mes,d).getDay();if(dow!==0&&dow!==6)u++;}return u;}
+function getMetaPessoa(nome){var d=COLAB_DATA[nome];return d?d.meta:0;}
+
+function mostrarPag(idx){document.querySelectorAll('.carrossel-pagina').forEach(function(p,i){p.classList.toggle('ativa',i===idx);});document.querySelectorAll('.indicador').forEach(function(ind,i){ind.classList.toggle('ativo',i===idx);});pagAtual=idx;}
+function proxPag(){mostrarPag((pagAtual+1)%totPag);resetProg();}
+function resetProg(){var f=document.getElementById('prog-fill');if(!f)return;clearTimeout(tPag);f.style.transition='none';f.style.width='0%';setTimeout(function(){f.style.transition='width '+INTERVALO_PAG+'s linear';f.style.width='100%';},50);tPag=setTimeout(proxPag,INTERVALO_PAG*1000);}
+function irPag(idx){mostrarPag(idx);resetProg();}
+function iniciarCarrossel(){var pags=document.querySelectorAll('.carrossel-pagina');totPag=pags.length;if(totPag<=1){if(pags[0])pags[0].classList.add('ativa');return;}mostrarPag(0);resetProg();}
+
+function calcMetaDia(setor){var t=0;Object.keys(COLAB_DATA).forEach(function(n){var cd=COLAB_DATA[n];if(cd&&cd.tv===TV_NUM&&cd.setor===setor&&cd.meta>0)t+=cd.meta;});return t;}
+function calcMetaMesSetor(setor){return calcMetaDia(setor)*diasUteisMes();}
+
+function buildPizza(canvasId,rows){
+  var canvas=document.getElementById(canvasId);if(!canvas||!rows.length)return;
+  var ctx=canvas.getContext('2d');var W=canvas.offsetWidth||300;var H=canvas.offsetHeight||200;
+  canvas.width=W;canvas.height=H;ctx.clearRect(0,0,W,H);
+  var sorted=rows.slice().sort(function(a,b){return b.dia-a.dia;});
+  var hasData=sorted.some(function(r){return r.dia>0;});
+  var total=sorted.reduce(function(s,r){return s+r.dia;},0);
+  var pal=['#8B3A0F','#1a5f8a','#1a6b3a','#8a6010','#7030A0','#5B3A8B','#1a7a6a','#8B5A2B'];
+  var legW=110;var pieAreaW=W-legW-8;var pieR=Math.min(pieAreaW/2,H/2)-8;var cx=legW+8+pieAreaW/2;var cy=H/2;
+  if(hasData){
+    var angle=-Math.PI/2;
+    sorted.forEach(function(row,i){if(row.dia===0)return;var slice=2*Math.PI*(row.dia/total);ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,pieR,angle,angle+slice);ctx.closePath();ctx.fillStyle=pal[i%pal.length];ctx.fill();ctx.strokeStyle='rgba(245,240,234,0.9)';ctx.lineWidth=2;ctx.stroke();if(slice>0.15){ctx.fillStyle='#fff';ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.fillText(row.dia,cx+Math.cos(angle+slice/2)*pieR*0.65,cy+Math.sin(angle+slice/2)*pieR*0.65+4);}angle+=slice;});
+  }else{ctx.beginPath();ctx.arc(cx,cy,pieR,0,2*Math.PI);ctx.fillStyle='rgba(44,37,32,0.08)';ctx.fill();ctx.fillStyle='#8a7060';ctx.font='11px Arial';ctx.textAlign='center';ctx.fillText('sem dados hoje',cx,cy+4);}
+  var legX=4;var legY=cy-(sorted.length*22)/2;if(legY<8)legY=8;
+  sorted.forEach(function(row,i){ctx.beginPath();ctx.arc(legX+6,legY+6,6,0,2*Math.PI);ctx.fillStyle=pal[i%pal.length];ctx.fill();ctx.fillStyle='#2C2520';ctx.font='11px Arial';ctx.textAlign='left';ctx.fillText(nomeCurto(nomeLimpo(row.nome),13)+' ('+row.dia+')',legX+16,legY+10);legY+=22;});
+}
+
+function getCor(setor){
+  var PALETA=[
+    '#8B3A0F','#1a6b3a','#1a5f8a','#8a6010','#7030A0',
+    '#5B3A8B','#1a7a6a','#8B5A2B','#2C6B8A','#6B3A8B',
+    '#8B6A1a','#3A8B5A','#8B2C6B','#1a8B6A','#6A8B1a'
+  ];
+  if(!getCor._map)getCor._map={};
+  if(!getCor._idx)getCor._idx=0;
+  if(!setor)return PALETA[0];
+  var key=setor.trim().toLowerCase();
+  if(!getCor._map[key]){
+    getCor._map[key]=PALETA[getCor._idx%PALETA.length];
+    getCor._idx++;
+  }
+  return getCor._map[key];
+}
+var isCostura_=function(s){return s==='Costura';};
+
+function buildCol(col){
+  var cor=getCor(col.setor);
+  var isDuplo=isCostura_(col.setor);
+  var pctMes=col.metaMes>0?Math.min(Math.round(col.tAc/col.metaMes*100),150):0;
+  var pctDia=col.metaDia>0?Math.min(Math.round(col.tDia/col.metaDia*100),150):0;
+  var bcM=pctMes>=100?'#1a6b3a':pctMes>=70?'#8a6010':'#8B3A0F';
+  var bcD=pctDia>=100?'#1a6b3a':pctDia>=70?'#8a6010':'#8B3A0F';
+  var pid='pizza-'+col.setor.replace(/[^a-zA-Z0-9]/g,'_');
+  var h='<div class="col-card">';
+  if(col.metaMes>0){h+='<div class="score-label">Meta Mes: '+col.tAc+' / '+col.metaMes+' ('+pctMes+'%)</div><div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(pctMes,100)+'%;background:'+bcM+'"></div></div>';}
+  if(col.metaDia>0){h+='<div class="score-label" style="margin-top:4px">Meta Dia: '+col.tDia+' / '+col.metaDia+' ('+pctDia+'%)</div><div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(pctDia,100)+'%;background:'+bcD+'"></div></div>';}
+  h+='<div class="col-header" style="color:'+cor+'">// '+col.setor+'</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px">';
+  h+='<div style="background:#DCCCBE;padding:8px 10px;border-left:3px solid '+cor+'"><div class="score-label">Hoje</div><div style="font-size:48px;font-weight:700;color:'+cor+'">'+col.tDia+'</div></div>';
+  h+='<div style="background:#DCCCBE;padding:8px 10px;border-left:3px solid '+cor+'"><div class="score-label">Acumulado</div><div style="font-size:48px;font-weight:700;color:'+cor+'">'+col.tAc+'</div></div>';
+  h+='</div>';
+  var sorted=col.rows.slice().sort(function(a,b){var pa=a.dia+(isDuplo?a.diaAlmof:0);var pb=b.dia+(isDuplo?b.diaAlmof:0);return pb-pa;});
+  var medals=['g','s','b'];var prev=-1;var pos=0;
+  sorted.forEach(function(r,i){
+    var prod=r.dia+(isDuplo?r.diaAlmof:0);
+    if(prod!==prev){pos=i+1;prev=prod;}
+    var meta=getMetaPessoa(r.nome);var pct=meta>0?Math.round(prod/meta*100):0;var pctC=Math.min(pct,100);
+    var bc=pct>=100?'#1a6b3a':pct>=70?'#8a6010':'#8B3A0F';
+    var badge=meta>0?(pct>=100?'<div class="meta-badge badge-ok">META \u2B50</div>':'<div class="meta-badge badge-no">'+pct+'%</div>'):'';
+    var medal=pos<=3?medals[pos-1]:'';
+    h+='<div class="meta-row"><div class="mpos '+medal+'">'+String(pos).padStart(2,'0')+'</div>';
+    h+='<div class="mname">'+nomeCurto(nomeLimpo(r.nome),14)+'<div style="font-size:13px;color:#6B5A4E;margin-top:2px">Acumulado: '+r.ac+(isDuplo&&r.acAlmof?' / '+r.acAlmof:'')+(meta?' · meta:'+meta:'')+'</div></div>';
+    h+='<div class="mbar-wrap"><div class="mbar-bg"><div class="mbar-f" style="width:'+pctC+'%;background:'+bc+'"></div></div></div>';
+    h+='<div class="mpct" style="color:'+bc+'">'+(meta?pct+'%':'')+'</div>';
+    h+='<div class="mqty" style="color:'+cor+'">'+prod+'</div>'+badge+'</div>';
+  });
+  var tDia=col.rows.reduce(function(s,r){return s+r.dia+(isDuplo?r.diaAlmof:0);},0);
+  var tAc=col.rows.reduce(function(s,r){return s+r.ac+(isDuplo?r.acAlmof:0);},0);
+  h+='<div class="meta-row"><div class="mpos"></div><div class="mname" style="color:#6B5A4E;font-size:11px">TOTAL</div><div class="mbar-wrap"></div><div class="mpct"></div><div class="mqty" style="color:#6B5A4E">'+tDia+'</div><div class="meta-badge" style="font-size:9px;color:#8a7060">ac:'+tAc+'</div></div>';
+  h+='<div class="score-label" style="margin-top:6px">// distribuicao hoje</div>';
+  h+='<div class="chart-wrap"><canvas id="'+pid+'"></canvas></div>';
+  h+='</div>';
+  return h;
+}
+
+function renderColunas(colunas){
+  var container=document.getElementById('grid-container');if(!container)return;
+  var paginas=[];for(var i=0;i<colunas.length;i+=3){paginas.push(colunas.slice(i,i+3));}
+  var h='<div class="prog-barra"><div class="prog-fill" id="prog-fill"></div></div>';
+  h+='<div class="carrossel-container">';
+  paginas.forEach(function(pg){
+    h+='<div class="carrossel-pagina">';
+    pg.forEach(function(col){h+=buildCol(col);});
+    for(var j=pg.length;j<3;j++){h+='<div></div>';}
+    h+='</div>';
+  });
+  h+='</div>';
+  if(paginas.length>1){
+    h+='<div class="indicadores">';
+    paginas.forEach(function(pg,pi){h+='<div class="indicador" onclick="irPag('+pi+')"></div>';});
+    h+='</div>';
+  }
+  container.innerHTML=h;
+  setTimeout(function(){
+    colunas.forEach(function(col){buildPizza('pizza-'+col.setor.replace(/[^a-zA-Z0-9]/g,'_'),col.rows);});
+    iniciarCarrossel();
+  },100);
+}
+
+function processar(txt){
+  var linhas=txt.split('\n').filter(function(l){return l.trim();});
+  var lancamentos=[];
+  for(var i=3;i<linhas.length;i++){
+    var c=parseCSVLine(linhas[i]);
+    if(!c[0]||!c[1])continue;
+    lancamentos.push({data:c[0],nome:c[1],setor:c[2],sub:c[3]||'',tv:c[4]||'',prodCorpo:c[5],prodAlmof:c[6],retrabalho:c[7]});
+  }
+  lancamentos=lancamentos.filter(function(l){return l.tv===TV_NUM;});
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var mes=hoje.getMonth(),ano=hoje.getFullYear();
+  var grupos={};
+  // Nomes que lançaram hoje (para incluir colaboradores sem meta fixa)
+  var lancouHoje={};
+  lancamentos.forEach(function(l){
+    var dt=parseDate(l.data);
+    if(dt&&dt.getTime()===hoje.getTime())lancouHoje[l.nome]=true;
+  });
+  Object.keys(COLAB_DATA).forEach(function(nome){
+    var cd=COLAB_DATA[nome];
+    if(!cd||cd.tv!==TV_NUM)return;
+    // Entra se tem meta fixa OU se lançou hoje
+    if(cd.meta<=0&&!lancouHoje[nome])return;
+    var key=cd.setor;
+    if(!grupos[key])grupos[key]={setor:key,map:{},mapAlmof:{}};
+    if(!grupos[key].map[nome])grupos[key].map[nome]={dia:0,ac:0};
+    if(!grupos[key].mapAlmof[nome])grupos[key].mapAlmof[nome]={dia:0,ac:0};
+  });
+  lancamentos.forEach(function(l){
+    var dt=parseDate(l.data);if(!dt)return;
+    if(dt.getMonth()!==mes||dt.getFullYear()!==ano)return;
+    var key=l.setor;if(!grupos[key])return;
+    var eHoje=dt.getTime()===hoje.getTime();
+    if(!grupos[key].map[l.nome])grupos[key].map[l.nome]={dia:0,ac:0};
+    if(!grupos[key].mapAlmof[l.nome])grupos[key].mapAlmof[l.nome]={dia:0,ac:0};
+    grupos[key].map[l.nome].ac+=Number(l.prodCorpo)||0;
+    grupos[key].mapAlmof[l.nome].ac+=Number(l.prodAlmof)||0;
+    if(eHoje){grupos[key].map[l.nome].dia+=Number(l.prodCorpo)||0;grupos[key].mapAlmof[l.nome].dia+=Number(l.prodAlmof)||0;}
+  });
+  var setCostura=['Costura'];
+  var colunas=Object.keys(grupos).map(function(key){
+    var g=grupos[key];var isDuplo=setCostura.indexOf(key)!==-1;
+    var rows=Object.keys(g.map).map(function(n){return{nome:n,dia:g.map[n].dia,ac:g.map[n].ac,diaAlmof:g.mapAlmof[n]?g.mapAlmof[n].dia:0,acAlmof:g.mapAlmof[n]?g.mapAlmof[n].ac:0};});
+    var tDia=rows.reduce(function(s,r){return s+r.dia+(isDuplo?r.diaAlmof:0);},0);
+    var tAc=rows.reduce(function(s,r){return s+r.ac+(isDuplo?r.acAlmof:0);},0);
+    return{setor:key,rows:rows,tDia:tDia,tAc:tAc,isCostura:isDuplo,metaDia:calcMetaDia(key),metaMes:calcMetaMesSetor(key)};
+  });
+  renderColunas(colunas);
+  verificarMetas(colunas);
+}
+
+
+
+
+
+var POPUP_QUEUE=[];var popupTimer=null;
+var POPUP_SHOWING=false;
+var CONFETE_CORES=['#FFD700','#FF6B35','#1a6b3a','#1a5f8a','#fff','#8a6010','#FF3366','#00E5FF','#ADFF2F'];
+
+function getMetaBatidaKey(){
+  var hoje=new Date();
+  return 'metabatida__'+hoje.getFullYear()+'_'+(hoje.getMonth()+1)+'_'+hoje.getDate();
+}
+function jaComemorou(nome){
+  try{
+    var key=getMetaBatidaKey();
+    var data=JSON.parse(localStorage.getItem(key)||'{}');
+    return !!data[nome];
+  }catch(e){return false;}
+}
+function marcarComemorou(nome){
+  try{
+    var key=getMetaBatidaKey();
+    var data=JSON.parse(localStorage.getItem(key)||'{}');
+    data[nome]=true;
+    localStorage.setItem(key,JSON.stringify(data));
+    // Limpar chaves de dias anteriores
+    Object.keys(localStorage).forEach(function(k){
+      if(k.startsWith('metabatida__')&&k!==key)localStorage.removeItem(k);
+    });
+  }catch(e){}
+}
+
+
+function criarConfete(){
+  var total=120;
+  for(var i=0;i<total;i++){
+    (function(idx){
+      setTimeout(function(){
+        var el=document.createElement('div');
+        el.className='confete-piece';
+        var w=6+Math.random()*10;var h=6+Math.random()*14;
+        var cores=['#FFD700','#FF6B35','#1a6b3a','#1a5f8a','#fff','#8a6010','#FF3366','#00E5FF','#ADFF2F'];
+        el.style.cssText=['left:'+Math.random()*100+'vw','top:-20px','width:'+w+'px','height:'+h+'px',
+          'background:'+cores[Math.floor(Math.random()*cores.length)],
+          'border-radius:'+(Math.random()>0.5?'50%':'2px'),
+          'animation-duration:'+(2+Math.random()*3).toFixed(2)+'s',
+          'animation-delay:'+(Math.random()*0.8).toFixed(2)+'s',
+          'transform:rotate('+Math.random()*360+'deg)'].join(';');
+        document.body.appendChild(el);
+        setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},5000);
+      },idx*15);
+    })(i);
+  }
+}
+
+function criarFogos(){
+  var pos=[[15,20],[85,15],[10,75],[90,70],[50,10],[30,50],[70,40]];
+  var cores=['#FFD700','#FF6B35','#1a6b3a','#1a5f8a','#fff','#8a6010','#FF3366'];
+  pos.forEach(function(p,idx){
+    setTimeout(function(){
+      var el=document.createElement('div');
+      el.className='fogo';
+      var size=80+Math.random()*120;
+      el.style.cssText=['left:'+p[0]+'vw','top:'+p[1]+'vh','width:'+size+'px','height:'+size+'px',
+        'margin-left:'+(size/-2)+'px','margin-top:'+(size/-2)+'px',
+        'box-shadow:0 0 '+(size/2)+'px '+(size/4)+'px '+cores[idx%cores.length],
+        'animation-duration:0.8s','animation-delay:'+(idx*0.15)+'s'].join(';');
+      document.body.appendChild(el);
+      setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},2000);
+    },idx*150);
+  });
+}
+
+function mostrarPopup(nome,setor,pct){
+  var popup=document.getElementById('meta-popup');
+  if(!popup)return;
+  document.getElementById('mp-nome').textContent=nomeLimpo(nome).toUpperCase();
+  document.getElementById('mp-setor').textContent=setor.toUpperCase();
+  document.getElementById('mp-pct').textContent=pct+'%';
+  popup.classList.add('show');
+  criarConfete();
+  criarFogos();
+  clearTimeout(popupTimer);
+  popupTimer=setTimeout(fecharPopup,7000);
+}
+
+function fecharPopup(){
+  var popup=document.getElementById('meta-popup');
+  if(popup)popup.classList.remove('show');
+  clearTimeout(popupTimer);
+  POPUP_SHOWING=false;
+  setTimeout(function(){
+    if(POPUP_QUEUE.length>0){
+      var next=POPUP_QUEUE.shift();
+      POPUP_SHOWING=true;
+      mostrarPopup(next.nome,next.setor,next.pct);
+    }
+  },500);
+}
+
+function verificarMetas(colunas){
+  colunas.forEach(function(col){
+    col.rows.forEach(function(r){
+      var meta=getMetaPessoa(r.nome);
+      if(meta<=0)return;
+      var prod=r.dia+(col.isCostura?r.diaAlmof:0);
+      var pct=Math.round(prod/meta*100);
+      if(pct>=100&&!jaComemorou(r.nome)){
+        marcarComemorou(r.nome);
+        if(!POPUP_SHOWING){POPUP_SHOWING=true;mostrarPopup(r.nome,col.setor,pct);}
+        else{POPUP_QUEUE.push({nome:r.nome,setor:col.setor,pct:pct});}
+      }
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  var popup=document.getElementById('meta-popup');
+  if(popup)popup.addEventListener('click',fecharPopup);
+});
+
+var PRIMEIRA_CARGA=true;
+
+async function carregarDados(){
+  try{
+    var r0=await fetch(COLAB_URL+'&t='+Date.now());if(r0.ok)COLAB_DATA=parseColab(await r0.text());
+    var r2=await fetch(LANCAMENTOS_URL+'&t='+Date.now());if(!r2.ok)throw new Error('HTTP '+r2.status);
+    processar(await r2.text());
+    if(PRIMEIRA_CARGA){
+      PRIMEIRA_CARGA=false;
+      document.getElementById('loading').style.display='none';
+      document.getElementById('app').style.display='flex';
+      document.getElementById('erro').style.display='none';
+    }
+  }catch(e){
+    if(PRIMEIRA_CARGA){
+      document.getElementById('loading').style.display='none';
+      document.getElementById('erro').style.display='block';
+      document.getElementById('erro').innerHTML='<strong>Erro</strong><br>'+e.message;
+    }
+    console.error(e);
+  }
+}
+carregarDados();
+
+</script>
+
+<div id="meta-popup">
+  <div class="mp-box">
+    <span class="mp-emoji">🎉</span>
+    <div class="mp-titulo">META BATIDA!</div>
+    <div class="mp-nome" id="mp-nome">—</div>
+    <div class="mp-setor" id="mp-setor">—</div>
+    <div class="mp-pct" id="mp-pct">100%</div>
+    <div class="mp-bar"><div class="mp-bar-fill" id="mp-bar-fill"></div></div>
+    <div class="mp-dismiss">Tocando em qualquer lugar para fechar</div>
+  </div>
+</div>
+
+
+<div id="meta-popup">
+  <div class="mp-center">
+    <span class="mp-emoji">🎉</span>
+    <div class="mp-titulo">META BATIDA!</div>
+    <div class="mp-nome" id="mp-nome">—</div>
+    <div class="mp-setor" id="mp-setor">—</div>
+    <div class="mp-pct" id="mp-pct">100%</div>
+    <div class="mp-tap">Toque para fechar</div>
+  </div>
+</div>
+
+</body>
+</html>
