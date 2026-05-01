@@ -120,7 +120,7 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
     </div>
   </div>
   <div id="app"><div class="loading-msg"><div class="spinner"></div>Carregando dados...</div></div>
-  <div>Studyo 4 Estofados | &copy; Junior Corr&ecirc;a &middot; Todos os direitos reservados</div>
+  <div class="footer">&copy; Junior Corr&ecirc;a &middot; Todos os direitos reservados &middot; STUDYO4 Estofados</div>
 </div>
 <script>
 
@@ -1197,6 +1197,51 @@ function selecionarColab(nlKey){
       ctx.fillText(diasEv.length<=20?d.getDate():(i%2===0?d.getDate():''),x,mt+cH+14);
     });
   }
+
+  // ── Heatmap individual ────────────────────────────────
+  var hDias=[];
+  var hDatas=getPeriodoDatas();
+  for(var hd=new Date(hDatas.ini);hd<=hDatas.fim&&hd<=hoje;hd.setDate(hd.getDate()+1)){
+    if(isDiaUtil(hd))hDias.push(new Date(hd));
+  }
+  if(hDias.length>30)hDias=hDias.slice(hDias.length-30);
+
+  if(hDias.length>0){
+    var prodHeat={};
+    lansPeriodo.forEach(function(l){
+      var dt=parseDate(l.data);if(!dt)return;
+      var k=dt.toDateString();
+      prodHeat[k]=(prodHeat[k]||0)+(Number(l.prodCorpo)||0)+(Number(l.prodAlmof)||0);
+    });
+    var maxH=Math.max.apply(null,hDias.map(function(d){return prodHeat[d.toDateString()]||0;}).concat([1]));
+    var ds3=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    var hh='<div style="background:#DCCCBE;padding:14px;margin-top:12px">';
+    hh+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#2C2520;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid rgba(44,37,32,0.3)">// Heatmap — '+getPeriodoLabel()+' ('+hDias.length+' dias)</div>';
+    hh+='<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:10px;width:100%"><thead><tr>';
+    hDias.forEach(function(d){
+      hh+='<th style="text-align:center;padding:3px 2px;font-size:9px;font-weight:700;color:#6B5A4E;white-space:nowrap;min-width:30px">'+ds3[d.getDay()]+'<br>'+d.getDate()+'</th>';
+    });
+    hh+='<th style="text-align:center;padding:3px 6px;color:#1a5f8a;font-size:9px">Total</th></tr></thead><tbody><tr>';
+    var totalHeatColab=0;
+    hDias.forEach(function(d){
+      var p=prodHeat[d.toDateString()]||0;
+      totalHeatColab+=p;
+      var intens=maxH>0?p/maxH:0;
+      var bg,tc;
+      if(p===0){bg='rgba(44,37,32,0.06)';tc='#8a7060';}
+      else if(intens>=0.7){bg='#1a6b3a';tc='#fff';}
+      else if(intens>=0.35){bg='#8a6010';tc='#fff';}
+      else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
+      var bord=metaDia>0&&p>=metaDia?'2px solid #FFD700':'none';
+      hh+='<td style="text-align:center;padding:3px 2px"><div style="display:inline-block;min-width:26px;padding:3px 4px;border-radius:3px;background:'+bg+';color:'+tc+';font-size:9px;font-weight:700;border:'+bord+'">'+(p>0?p:'—')+'</div></td>';
+    });
+    hh+='<td style="text-align:center;font-weight:700;font-size:11px;color:#1a5f8a;padding:3px 6px">'+totalHeatColab+'</td>';
+    hh+='</tr></tbody></table></div>';
+    hh+='<div style="font-size:9px;color:#8a7060;margin-top:6px;letter-spacing:1px">Verde = alta · Amarelo = média · Laranja = baixa · Cinza = sem lançamento · Borda dourada ⭐ = meta/dia atingida</div>';
+    hh+='</div>';
+    var resEl=document.getElementById('individual-result');
+    if(resEl)resEl.innerHTML+=hh;
+  }
 }
 
 // ── INDICADORES ───────────────────────────────────────────
@@ -1325,7 +1370,7 @@ function renderIndicadores(){
   setoresDisponiveis.forEach(function(s){h+='<option value="'+s+'"'+(SETOR_FILTRO_IND===s?' selected':'')+'>'+s+'</option>';});
   h+='</select>';
   h+='<label style="font-size:10px;font-weight:700;letter-spacing:1px;color:#6B5A4E;cursor:pointer;display:flex;align-items:center;gap:4px">';
-  h+='<input type="checkbox" id="chk-sem-meta" onchange="INC_SEM_META=this.checked;renderIndicadores()"'+(INC_SEM_META?' checked':'')+' style="cursor:pointer"> Sem meta';
+  h+='<input type="checkbox" id="chk-sem-meta" onchange="INC_SEM_META=this.checked;renderIndicadores()"'+(INC_SEM_META?' checked':'')+' style="cursor:pointer"> Incluir colaboradores sem meta';
   h+='</label>';
   h+='</div></div>';
 
@@ -1402,7 +1447,7 @@ function renderIndicadores(){
     h+='<div style="height:100%;width:'+Math.min(pctS,100)+'%;background:'+bcS+';border-radius:3px"></div></div></div>';
     h+='<div style="text-align:right;flex-shrink:0">';
     h+='<div style="font-size:13px;font-weight:700;color:'+bcS+'">'+pctS+'%</div>';
-    h+='<div style="font-size:10px;font-weight:700;color:'+cor+'">'+seta+' '+(diff>=0?'+':'')+diff+'% sem</div>';
+    h+='<div style="font-size:10px;font-weight:700;color:'+cor+'">'+seta+' '+(diff>=0?'+':'')+diff+'% vs sem. ant.</div>';
     h+='</div></div>';
   });
   h+='</div>';
