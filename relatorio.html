@@ -84,6 +84,7 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
   <div class="nav-abas no-print">
     <button class="abtn active" id="abtn-relatorio" onclick="setAba('relatorio')">Relatório</button>
     <button class="abtn" id="abtn-graficos" onclick="setAba('graficos')">Gráficos</button>
+    <button class="abtn" id="abtn-individual" onclick="setAba('individual')">Análise Individual</button>
   </div>
   <div class="controls-row">
     <div>
@@ -152,12 +153,14 @@ function setAba(a){
   ABA=a;
   document.querySelectorAll('.abtn').forEach(function(b){b.classList.remove('active');});
   document.getElementById('abtn-'+a).classList.add('active');
-  document.getElementById('periodo-row').style.display='flex';
+  var pr=document.getElementById('periodo-row');
+  if(pr)pr.style.display=(a==='individual')?'none':'flex';
   render();
 }
 function setPeriodo(p){
   PERIODO=p;
   MES_SEL=null;
+  _abcClasseFiltro=null;
   document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('active');});
   event.target.classList.add('active');
   var cont=document.getElementById('sel-container');
@@ -207,7 +210,7 @@ function render(){
     else if(PERIODO==='mesEspec'&&MES_SEL!==null){info.textContent=du+' dias úteis em '+meses[MES_SEL]+' '+ANO_SEL;}
     else{var hoje=new Date();info.textContent=du+' dias úteis em '+meses[hoje.getMonth()]+' '+hoje.getFullYear();}
   }
-  if(ABA==='relatorio')renderRelatorio();else renderGraficos();
+  if(ABA==='relatorio')renderRelatorio();else if(ABA==='graficos')renderGraficos();else renderIndividual();
 }
 
 function getPeriodoDatas(){
@@ -403,6 +406,7 @@ function renderGraficos(){
     dados.sort(function(a,b){return b.pct-a.pct;});
     if(dados.length>0)blocos.push({setor:setor,cor:getCor(setor),colabs:dados});
   });
+  _abcBlocosCache=blocos; // salvar globalmente para o toggleClasseFiltro
 
   var hoje=new Date();
   var diasMes=[];
@@ -426,11 +430,12 @@ function renderGraficos(){
   var nC=allColabs.filter(function(c){return c.classe==='C';}).length;
 
   var html='<div class="summary-grid">';
-  html+='<div class="sum-card" style="border-color:#1a6b3a"><div class="sum-label">Classe A (&ge;80%)</div><div class="sum-val" style="color:#1a6b3a">'+nA+'</div><div class="sum-sub">colaboradores</div></div>';
-  html+='<div class="sum-card" style="border-color:#8a6010"><div class="sum-label">Classe B (50-79%)</div><div class="sum-val" style="color:#8a6010">'+nB+'</div><div class="sum-sub">colaboradores</div></div>';
-  html+='<div class="sum-card" style="border-color:#8B3A0F"><div class="sum-label">Classe C (&lt;50%)</div><div class="sum-val" style="color:#8B3A0F">'+nC+'</div><div class="sum-sub">colaboradores</div></div>';
+  html+='<div class="sum-card" id="sum-card-A" style="border-color:#1a6b3a;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'A\')"><div class="sum-label">Classe A (&ge;80%)</div><div class="sum-val" style="color:#1a6b3a">'+nA+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
+  html+='<div class="sum-card" id="sum-card-B" style="border-color:#8a6010;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'B\')"><div class="sum-label">Classe B (50-79%)</div><div class="sum-val" style="color:#8a6010">'+nB+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
+  html+='<div class="sum-card" id="sum-card-C" style="border-color:#8B3A0F;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'C\')"><div class="sum-label">Classe C (&lt;50%)</div><div class="sum-val" style="color:#8B3A0F">'+nC+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
   html+='<div class="sum-card" style="border-color:#1a5f8a"><div class="sum-label">Media Diaria Mes</div><div class="sum-val" style="color:#1a5f8a">'+mediaDia+'</div><div class="sum-sub">pecas/dia util</div></div>';
   html+='</div>';
+  html+='<div id="abc-detalhe-painel" style="display:none;background:#DCCCBE;padding:16px;margin-bottom:16px;border-left:4px solid #2C2520"></div>';
 
   blocos.forEach(function(b,bi){
     if(b.colabs.length===0)return;
@@ -542,6 +547,267 @@ function drawSetores(blocos,lans){
   ctx.fillStyle='rgba(44,37,32,0.15)';ctx.fillRect(lx,mt,12,8);
   ctx.fillStyle='#6B5A4E';ctx.font='8px Arial';ctx.textAlign='left';ctx.fillText('Meta',lx+15,mt+8);
   ctx.fillStyle='#8B3A0F';ctx.fillRect(lx,mt+14,12,8);ctx.fillText('Realizado',lx+15,mt+22);
+}
+
+// ── GRÁFICOS: cards de classe clicáveis ───────────────────
+var _abcClasseFiltro=null;
+var _abcBlocosCache=[];  // variável GLOBAL para os blocos
+
+function toggleClasseFiltro(classe){
+  _abcClasseFiltro=(_abcClasseFiltro===classe)?null:classe;
+  ['A','B','C'].forEach(function(cl){
+    var card=document.getElementById('sum-card-'+cl);
+    if(!card)return;
+    var ativo=_abcClasseFiltro===cl;
+    card.style.opacity=(!_abcClasseFiltro||ativo)?'1':'0.45';
+    card.style.transform=ativo?'translateY(-2px)':'';
+    card.style.boxShadow=ativo?'0 4px 16px rgba(44,37,32,0.2)':'';
+    card.style.borderWidth=ativo?'6px':'4px';
+  });
+  var painel=document.getElementById('abc-detalhe-painel');
+  if(!painel)return;
+  if(!_abcClasseFiltro){painel.style.display='none';return;}
+
+  var lans=getLansPeriodo();
+  var todos=[];
+  _abcBlocosCache.forEach(function(b){
+    b.colabs.forEach(function(c){
+      if(c.classe===_abcClasseFiltro)
+        todos.push({nome:c.nome,setor:b.setor,prod:c.prod,meta:c.meta,pct:c.pct});
+    });
+  });
+  todos.sort(function(a,b){return b.pct-a.pct;});
+
+  var corClasse=getClasseCor(_abcClasseFiltro);
+  var labelClasse=_abcClasseFiltro==='A'?'Classe A — ≥ 80% da meta':
+                  _abcClasseFiltro==='B'?'Classe B — 50 a 79% da meta':
+                  'Classe C — abaixo de 50% da meta';
+  var h='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">';
+  h+='<div style="font-size:11px;font-weight:700;letter-spacing:2px;color:'+corClasse+';text-transform:uppercase">'+labelClasse+' — '+todos.length+' colaboradores</div>';
+  h+='<button onclick="toggleClasseFiltro(null)" style="font-size:10px;font-weight:700;letter-spacing:1px;padding:4px 14px;border:1px solid rgba(44,37,32,0.3);background:transparent;color:#2C2520;cursor:pointer">✕ FECHAR</button>';
+  h+='</div>';
+  h+='<table class="table"><thead><tr>';
+  h+='<th style="width:36px;text-align:center">Pos.</th>';
+  h+='<th>Colaborador</th><th>Setor</th>';
+  h+='<th style="text-align:center">Produção</th><th style="text-align:center">Meta</th>';
+  h+='<th style="text-align:center">%</th><th>Progresso</th>';
+  h+='</tr></thead><tbody>';
+  todos.forEach(function(r,i){
+    var bc=r.pct>=100?'#1a6b3a':r.pct>=70?'#8a6010':'#8B3A0F';
+    var pctCap=Math.min(r.pct,100);
+    h+='<tr>';
+    h+='<td style="text-align:center;font-weight:700;color:'+corClasse+'">'+(i+1)+'</td>';
+    h+='<td style="font-weight:700">'+nomeLimpo(r.nome)+'</td>';
+    h+='<td style="color:#6B5A4E;font-size:11px">'+r.setor+'</td>';
+    h+='<td style="text-align:center;font-weight:700;color:'+corClasse+'">'+r.prod+'</td>';
+    h+='<td style="text-align:center;color:#6B5A4E">'+r.meta+'</td>';
+    h+='<td style="text-align:center;font-weight:700;color:'+bc+'">'+r.pct+'%</td>';
+    h+='<td style="min-width:120px"><div class="bar-wrap"><div class="bar-fill" style="width:'+pctCap+'%;background:'+bc+'"></div></div></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  painel.innerHTML=h;
+  painel.style.display='block';
+  painel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// ── ANÁLISE INDIVIDUAL ────────────────────────────────────
+function normNome(n){return nomeLimpo(n).toLowerCase().trim();}
+
+function buildColabsAgrupados(){
+  // Agrupa todas as entradas do COLAB_DATA pelo nome limpo
+  var mapa={};
+  Object.keys(COLAB_DATA).forEach(function(chave){
+    var cd=COLAB_DATA[chave];
+    var nl=normNome(chave);
+    if(!mapa[nl])mapa[nl]={nomeExibir:nomeLimpo(chave),chaves:[],setores:[]};
+    mapa[nl].chaves.push(chave);
+    if(cd.setor&&mapa[nl].setores.indexOf(cd.setor)===-1)mapa[nl].setores.push(cd.setor);
+  });
+  return mapa;
+}
+
+function renderIndividual(){
+  document.getElementById('report-title').textContent='ANÁLISE INDIVIDUAL';
+  document.getElementById('report-sub').textContent='Selecione um colaborador para ver o desempenho completo';
+  var info=document.getElementById('dias-uteis-info');if(info)info.textContent='';
+
+  var agrupados=buildColabsAgrupados();
+  var nomes=Object.keys(agrupados).sort();
+
+  var html='<div style="margin-bottom:20px">';
+  html+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:8px">Buscar Colaborador</div>';
+  html+='<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
+  html+='<input id="busca-colab" type="text" placeholder="Digite o nome..." oninput="filtrarColabSelect()" ';
+  html+='style="font-size:13px;font-weight:700;letter-spacing:1px;padding:9px 16px;border:1px solid rgba(44,37,32,0.3);background:#F5F0EA;color:#2C2520;outline:none;min-width:240px;flex:1;max-width:400px">';
+  html+='<select id="select-colab" onchange="selecionarColab(this.value)" ';
+  html+='style="font-size:13px;font-weight:700;letter-spacing:1px;padding:9px 16px;border:1px solid rgba(44,37,32,0.3);background:#F5F0EA;color:#2C2520;outline:none;min-width:240px;flex:1;max-width:400px">';
+  html+='<option value="">— Escolha um colaborador —</option>';
+  nomes.forEach(function(nl){
+    var g=agrupados[nl];
+    var setLabel=g.setores.length>0?' ('+g.setores.join(' · ')+')':'';
+    html+='<option value="'+nl+'">'+g.nomeExibir+setLabel+'</option>';
+  });
+  html+='</select>';
+  html+='</div></div>';
+  html+='<div id="individual-result"></div>';
+  document.getElementById('app').innerHTML=html;
+}
+
+function filtrarColabSelect(){
+  var q=(document.getElementById('busca-colab').value||'').toLowerCase().trim();
+  var sel=document.getElementById('select-colab');if(!sel)return;
+  var visiveis=[];
+  Array.from(sel.options).forEach(function(opt){
+    if(!opt.value){opt.style.display='';return;}
+    var match=opt.text.toLowerCase().indexOf(q)!==-1;
+    opt.style.display=match?'':'none';
+    if(match)visiveis.push(opt);
+  });
+  if(visiveis.length===1){sel.value=visiveis[0].value;selecionarColab(visiveis[0].value);}
+  else if(q===''){sel.value='';document.getElementById('individual-result').innerHTML='';}
+}
+
+function selecionarColab(nlKey){
+  var result=document.getElementById('individual-result');
+  if(!nlKey||!result){if(result)result.innerHTML='';return;}
+
+  var agrupados=buildColabsAgrupados();
+  var grupo=agrupados[nlKey];
+  if(!grupo){result.innerHTML='';return;}
+
+  var lans=getLansPeriodo();
+  var hoje=new Date();hoje.setHours(0,0,0,0);
+  var mesIni=new Date(hoje.getFullYear(),hoje.getMonth(),1);
+  var mesFim=new Date(hoje.getFullYear(),hoje.getMonth()+1,0);mesFim.setHours(23,59,59);
+
+  // Coletar TODOS os lançamentos desse colaborador (por todas as chaves)
+  var chaveSet={};grupo.chaves.forEach(function(c){chaveSet[c]=true;});
+
+  var todosLans=ALL_LANCAMENTOS.filter(function(l){return chaveSet[l.nome];});
+  var lansPeriodo=lans.filter(function(l){return chaveSet[l.nome];});
+  var lansHoje=todosLans.filter(function(l){var dt=parseDate(l.data);return dt&&dt.getTime()===hoje.getTime();});
+  var lansMes=todosLans.filter(function(l){var dt=parseDate(l.data);return dt&&dt>=mesIni&&dt<=mesFim;});
+
+  // Totais Hoje
+  var hojeProd=lansHoje.reduce(function(s,l){return s+(Number(l.prodCorpo)||0)+(Number(l.prodAlmof)||0);},0);
+  // Totais mês atual
+  var mesProd=lansMes.reduce(function(s,l){return s+(Number(l.prodCorpo)||0)+(Number(l.prodAlmof)||0);},0);
+
+  // Meta: somar a meta de todas as chaves do colaborador
+  var metaDia=grupo.chaves.reduce(function(s,c){var cd=COLAB_DATA[c];return s+(cd&&cd.meta?cd.meta:0);},0);
+  var du=diasUteisMes();
+  var metaMes=metaDia*du;
+  var pctHoje=metaDia>0?Math.round(hojeProd/metaDia*100):null;
+  var pctMes=metaMes>0?Math.round(mesProd/metaMes*100):null;
+
+  // Cor principal: setor principal (primeira chave)
+  var cdPrincipal=COLAB_DATA[grupo.chaves[0]]||{};
+  var corPrincipal=getCor(cdPrincipal.setor||'');
+
+  // ── Cabeçalho do colaborador ─────────────────────────────
+  var h='<div style="background:#E8E0D5;border-left:4px solid '+corPrincipal+';padding:16px 20px;margin-bottom:12px">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">';
+  h+='<div>';
+  h+='<div style="font-size:20px;font-weight:700;letter-spacing:2px;color:'+corPrincipal+'">'+grupo.nomeExibir.toUpperCase()+'</div>';
+  h+='<div style="font-size:11px;color:#6B5A4E;margin-top:4px;letter-spacing:1px">Setores: '+grupo.setores.join(' · ')+'</div>';
+  h+='</div>';
+
+  // KPIs
+  h+='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+  [{label:'Hoje',val:hojeProd,sub:pctHoje!==null?pctHoje+'% da meta':'-',cor:pctHoje===null?corPrincipal:pctHoje>=100?'#1a6b3a':pctHoje>=70?'#8a6010':'#8B3A0F'},
+   {label:'Mês Atual',val:mesProd,sub:pctMes!==null?pctMes+'% ('+du+'du)':'-',cor:pctMes===null?corPrincipal:pctMes>=80?'#1a6b3a':pctMes>=50?'#8a6010':'#8B3A0F'},
+   {label:'Meta/Dia',val:metaDia||'—',sub:'peças por dia',cor:corPrincipal},
+   {label:'Meta Mês',val:metaMes||'—',sub:du+' dias úteis',cor:corPrincipal}
+  ].forEach(function(k){
+    h+='<div style="background:#DCCCBE;padding:10px 14px;min-width:105px;text-align:center">';
+    h+='<div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:4px">'+k.label+'</div>';
+    h+='<div style="font-size:24px;font-weight:700;color:'+k.cor+';line-height:1">'+k.val+'</div>';
+    h+='<div style="font-size:10px;color:#8a7060;margin-top:3px">'+k.sub+'</div></div>';
+  });
+  h+='</div></div>';
+
+  if(pctMes!==null){
+    var bcM=pctMes>=80?'#1a6b3a':pctMes>=50?'#8a6010':'#8B3A0F';
+    h+='<div style="margin-top:12px">';
+    h+='<div style="font-size:9px;font-weight:700;letter-spacing:2px;color:#6B5A4E;margin-bottom:4px">PROGRESSO MÊS — '+mesProd+' / '+metaMes+' pcs ('+pctMes+'%)</div>';
+    h+='<div class="bar-wrap" style="height:10px"><div class="bar-fill" style="width:'+Math.min(pctMes,100)+'%;background:'+bcM+'"></div></div>';
+    h+='</div>';
+  }
+  h+='</div>';
+
+  // ── Tabela por setor no período selecionado ───────────────
+  var porSetor={};
+  lansPeriodo.forEach(function(l){
+    var s=l.setor||'(sem setor)';
+    if(!porSetor[s])porSetor[s]={corpus:0,almof:0,retrab:0,diasSet:{}};
+    porSetor[s].corpus+=Number(l.prodCorpo)||0;
+    porSetor[s].almof+=Number(l.prodAlmof)||0;
+    porSetor[s].retrab+=Number(l.retrabalho)||0;
+    var dt=parseDate(l.data);if(dt)porSetor[s].diasSet[dt.toDateString()]=1;
+  });
+
+  var setores=Object.keys(porSetor).sort();
+  var periodoLabel=getPeriodoLabel();
+
+  if(setores.length===0){
+    h+='<div style="background:#DCCCBE;padding:20px;text-align:center;color:#8a7060;font-size:12px;letter-spacing:1px">Nenhum lançamento no período selecionado.</div>';
+  } else {
+    h+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:8px">Produção por Setor — '+periodoLabel+'</div>';
+    h+='<table class="table"><thead><tr>';
+    h+='<th>Setor</th>';
+    h+='<th style="text-align:center">Corpo</th>';
+    h+='<th style="text-align:center">Almofada</th>';
+    h+='<th style="text-align:center">Retrabalho</th>';
+    h+='<th style="text-align:center">Total</th>';
+    h+='<th style="text-align:center">Dias</th>';
+    h+='<th style="text-align:center">Meta Período</th>';
+    h+='<th style="text-align:center">%</th>';
+    h+='<th>Progresso</th>';
+    h+='</tr></thead><tbody>';
+    var tCorpo=0,tAlmof=0,tRetrab=0,tDias=0,tMeta=0;
+    setores.forEach(function(s){
+      var sd=porSetor[s];
+      var total=sd.corpus+sd.almof;
+      var dias=Object.keys(sd.diasSet).length;
+      // Meta do setor para esse colaborador nesse período
+      var metaChave=grupo.chaves.filter(function(c){return (COLAB_DATA[c]&&COLAB_DATA[c].setor===s);});
+      var metaS=metaChave.reduce(function(sum,c){var cd=COLAB_DATA[c];return sum+(cd?getMetaPeriodo(cd.meta):0);},0);
+      var pctS=metaS>0?Math.round(total/metaS*100):null;
+      var bc=pctS===null?'#6B5A4E':pctS>=100?'#1a6b3a':pctS>=70?'#8a6010':'#8B3A0F';
+      var corS=getCor(s);
+      tCorpo+=sd.corpus;tAlmof+=sd.almof;tRetrab+=sd.retrab;tDias+=dias;tMeta+=metaS;
+      h+='<tr>';
+      h+='<td style="font-weight:700;color:'+corS+'">'+s+'</td>';
+      h+='<td style="text-align:center;font-weight:700">'+(sd.corpus>0?sd.corpus:'-')+'</td>';
+      h+='<td style="text-align:center;font-weight:700;color:#1a5f8a">'+(sd.almof>0?sd.almof:'-')+'</td>';
+      h+='<td style="text-align:center;font-weight:700;color:#7030A0">'+(sd.retrab>0?sd.retrab:'-')+'</td>';
+      h+='<td style="text-align:center;font-weight:700;color:'+corS+'">'+total+'</td>';
+      h+='<td style="text-align:center;color:#6B5A4E">'+dias+'d</td>';
+      h+='<td style="text-align:center;color:#6B5A4E">'+(metaS>0?metaS:'-')+'</td>';
+      h+='<td style="text-align:center;font-weight:700;color:'+bc+'">'+(pctS!==null?pctS+'%':'-')+'</td>';
+      h+='<td>'+(pctS!==null?'<div class="bar-wrap"><div class="bar-fill" style="width:'+Math.min(pctS,100)+'%;background:'+bc+'"></div></div>':'-')+'</td>';
+      h+='</tr>';
+    });
+    // Totais
+    var tTotal=tCorpo+tAlmof;
+    var pctT=tMeta>0?Math.round(tTotal/tMeta*100):null;
+    var bcT=pctT===null?'#DCCCBE':pctT>=100?'#1a6b3a':pctT>=50?'#8a6010':'#8B3A0F';
+    h+='<tr>';
+    h+='<td style="background:#2C2520;color:#DCCCBE;font-weight:700;letter-spacing:1px">TOTAL</td>';
+    h+='<td style="background:#2C2520;color:#DCCCBE;text-align:center;font-weight:700">'+tCorpo+'</td>';
+    h+='<td style="background:#2C2520;color:#DCCCBE;text-align:center;font-weight:700">'+tAlmof+'</td>';
+    h+='<td style="background:#2C2520;color:#DCCCBE;text-align:center;font-weight:700">'+tRetrab+'</td>';
+    h+='<td style="background:#1a5f8a;color:#fff;text-align:center;font-weight:700">'+tTotal+'</td>';
+    h+='<td style="background:#2C2520;color:#DCCCBE;text-align:center">'+tDias+'d</td>';
+    h+='<td style="background:#2C2520;color:#DCCCBE;text-align:center">'+(tMeta>0?tMeta:'-')+'</td>';
+    h+='<td style="background:#2C2520;text-align:center;font-weight:700;color:'+bcT+'">'+(pctT!==null?pctT+'%':'-')+'</td>';
+    h+='<td style="background:#2C2520">'+(pctT!==null?'<div class="bar-wrap" style="background:rgba(220,204,190,0.15)"><div class="bar-fill" style="width:'+Math.min(pctT,100)+'%;background:'+bcT+'"></div></div>':'-')+'</td>';
+    h+='</tr>';
+    h+='</tbody></table>';
+  }
+
+  result.innerHTML=h;
 }
 
 async function carregarDados(){
