@@ -1154,10 +1154,13 @@ function selecionarColab(nlKey){
 
   result.innerHTML=h;
 
-  // Desenhar gráfico após DOM pronto
-  var canvIndEv=document.getElementById('ind-ev-colab');
-  if(canvIndEv&&diasEv.length>1){
-    var W=canvIndEv.parentElement.offsetWidth;var H=180;canvIndEv.width=W;canvIndEv.height=H;
+  // Desenhar gráfico após DOM renderizar (setTimeout garante offsetWidth correto)
+  setTimeout(function(){
+    var canvIndEv=document.getElementById('ind-ev-colab');
+    if(!canvIndEv||diasEv.length<=1)return;
+    var W=canvIndEv.parentElement?canvIndEv.parentElement.offsetWidth:canvIndEv.offsetWidth;
+    if(!W||W<10)W=600; // fallback
+    var H=180;canvIndEv.width=W;canvIndEv.height=H;
     var ctx=canvIndEv.getContext('2d');ctx.clearRect(0,0,W,H);
     var ml=40,mr=20,mt=16,mb=24,cW=W-ml-mr,cH=H-mt-mb;
     var vals=diasEv.map(function(d){return prodDiaColab[d.toDateString()]||0;});
@@ -1178,25 +1181,32 @@ function selecionarColab(nlKey){
       ctx.beginPath();ctx.moveTo(ml,metaY);ctx.lineTo(ml+cW,metaY);ctx.stroke();ctx.setLineDash([]);
       ctx.fillStyle='#8B3A0F';ctx.font='bold 8px Arial';ctx.textAlign='left';ctx.fillText('meta/dia:'+metaDia,ml+2,metaY-3);
     }
-    // Área
+    // Área preenchida
     ctx.beginPath();ctx.moveTo(ml,mt+cH);
     diasEv.forEach(function(d,i){ctx.lineTo(ml+i*step,mt+cH-Math.round((vals[i]/maxV)*cH));});
     ctx.lineTo(ml+(diasEv.length-1)*step,mt+cH);ctx.closePath();
     ctx.fillStyle='rgba(26,95,138,0.12)';ctx.fill();
-    // Linha + pontos
+    // Linha principal
     ctx.strokeStyle='#1a5f8a';ctx.lineWidth=2;ctx.beginPath();
-    diasEv.forEach(function(d,i){var x=ml+i*step;var y=mt+cH-Math.round((vals[i]/maxV)*cH);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+    diasEv.forEach(function(d,i){
+      var x=ml+i*step;var y=mt+cH-Math.round((vals[i]/maxV)*cH);
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    });
     ctx.stroke();
-    var ds=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+    // Pontos + labels
+    var dsSemana=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
     diasEv.forEach(function(d,i){
       var x=ml+i*step;var y=mt+cH-Math.round((vals[i]/maxV)*cH);
       var cor=vals[i]>=metaDia&&metaDia>0?'#1a6b3a':'#1a5f8a';
       ctx.beginPath();ctx.arc(x,y,3,0,2*Math.PI);ctx.fillStyle=cor;ctx.fill();
-      if(vals[i]>0){ctx.fillStyle='#2C2520';ctx.font='bold 8px Arial';ctx.textAlign='center';ctx.fillText(vals[i],x,y-5);}
+      if(vals[i]>0){
+        ctx.fillStyle='#2C2520';ctx.font='bold 8px Arial';ctx.textAlign='center';
+        ctx.fillText(vals[i],x,y-5);
+      }
       ctx.fillStyle='#6B5A4E';ctx.font='8px Arial';ctx.textAlign='center';
       ctx.fillText(diasEv.length<=20?d.getDate():(i%2===0?d.getDate():''),x,mt+cH+14);
     });
-  }
+  },80);
 
   // ── Heatmap individual ────────────────────────────────
   var hDias=[];
