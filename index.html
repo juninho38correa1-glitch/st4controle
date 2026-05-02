@@ -1239,6 +1239,7 @@ function selecionarColab(nlKey){
     var hh='<div style="background:#DCCCBE;padding:14px;margin-top:12px">';
     hh+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#2C2520;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid rgba(44,37,32,0.3)">// Heatmap — '+getPeriodoLabel()+' ('+hDiasTrab+' dias trabalhados'+(hFer?' · '+hFer+' feriados':'')+(hBlq?' · '+hBlq+' bloqueios':'')+')</div>';
     hh+='<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:10px;width:100%"><thead><tr>';
+    hh+='<th style="min-width:120px;position:sticky;left:0;background:#2C2520;z-index:1;padding:4px 8px;text-align:left;color:#DCCCBE;font-size:9px;font-weight:700;letter-spacing:1px">COLABORADOR</th>';
     hDias.forEach(function(d){
       var carimbo=hCarimbo[d.toDateString()]||'';
       var thBg=carimbo==='FER'?'rgba(139,58,15,0.12)':carimbo==='BLQ'?'rgba(26,95,138,0.12)':'';
@@ -1248,7 +1249,15 @@ function selecionarColab(nlKey){
       if(carimbo)hh+='<br><span style="font-size:7px;font-weight:700">'+carimbo+'</span>';
       hh+='</th>';
     });
-    hh+='<th style="text-align:center;padding:3px 6px;color:#1a5f8a;font-size:9px">Total</th></tr></thead><tbody><tr>';
+    hh+='<th style="text-align:center;background:#1a5f8a;min-width:40px;color:#fff;font-size:9px;padding:4px 6px">TOTAL</th></tr></thead><tbody>';
+
+    // Linha do colaborador — igual ao Indicadores
+    var corNome=getCor(cdPrincipal.setor||'');
+    hh+='<tr>';
+    hh+='<td style="position:sticky;left:0;background:#E8E0D5;z-index:1;padding:4px 8px">';
+    hh+='<div style="font-weight:700;color:#2C2520;font-size:10px;white-space:nowrap">'+grupo.nomeExibir.toUpperCase()+'</div>';
+    hh+='<div style="font-size:9px;color:'+corNome+'">'+grupo.setores.join(' · ')+'</div>';
+    hh+='</td>';
     var totalHeatColab=0;
     hDias.forEach(function(d){
       var k=d.toDateString();
