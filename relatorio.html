@@ -1340,7 +1340,7 @@ function renderIndicadores(){
   lansSem.forEach(function(l){var cd=COLAB_DATA[l.nome];var s=cd?cd.setor:'Outros';if(!semSetores[s])semSetores[s]=0;semSetores[s]+=prodLan(l);});
   lansAnt.forEach(function(l){var cd=COLAB_DATA[l.nome];var s=cd?cd.setor:'Outros';if(!antSetores[s])antSetores[s]=0;antSetores[s]+=prodLan(l);});
 
-  // ── produção por dia do período (respeitando calendário: feriados + bloqueios) ──
+  // ── produção por dia do período (só dias úteis — para cálculo de metas) ──
   var diasMes=[];
   for(var dd=new Date(periodoIni);dd<=periodoFim&&dd<=hoje;dd.setDate(dd.getDate()+1)){
     if(isDiaUtil(dd))diasMes.push(new Date(dd));
@@ -1349,10 +1349,23 @@ function renderIndicadores(){
   lansPeriodo.forEach(function(l){var dt=parseDate(l.data);if(!dt)return;var k=dt.toDateString();if(prodDia[k]!==undefined)prodDia[k]+=prodLan(l);});
   var mediaDia=diasMes.length>0?Math.round(totalLans(lansPeriodo)/diasMes.length):0;
 
-  // ── heatmap: reutiliza diasMes ────────────────────────────
+  // ── heatmap: todos os dias úteis + feriados + bloqueios (com carimbo visual) ──
   var heatLans=lansPeriodo;
-  var heatDias=diasMes.slice();
+  var heatDias=[];
+  for(var hdx=new Date(periodoIni);hdx<=periodoFim&&hdx<=hoje;hdx.setDate(hdx.getDate()+1)){
+    var dwx=hdx.getDay();
+    if(dwx>0&&dwx<6)heatDias.push(new Date(hdx)); // todos os dias úteis da semana, incluindo feriados/bloqueios
+  }
   if(heatDias.length>30)heatDias=heatDias.slice(heatDias.length-30);
+
+  // Pré-calcular carimbos para cada dia do heatmap
+  var heatCarimbo={};
+  heatDias.forEach(function(d){
+    var iso=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');
+    var a=d.getFullYear(),m=d.getMonth(),dia=d.getDate();
+    if(feriadosBR(a).indexOf(iso)!==-1){heatCarimbo[d.toDateString()]='FER';}
+    else if(CALENDARIO_CUSTOM[a]&&CALENDARIO_CUSTOM[a][m]&&CALENDARIO_CUSTOM[a][m].indexOf(dia)!==-1){heatCarimbo[d.toDateString()]='BLQ';}
+  });
 
   // ── ranking ───────────────────────────────────────────────
   var ranking=Object.keys(colabMes).map(function(n){return Object.assign({nome:n},colabMes[n]);});
@@ -1573,17 +1586,10 @@ function renderIndicadores(){
     });
     h+='<div style="overflow-x:auto"><table class="table" style="min-width:400px;font-size:10px">';
     h+='<thead><tr><th style="min-width:120px;position:sticky;left:0;background:#2C2520;z-index:1">Colaborador</th>';
-    // Pré-calcular feriados e bloqueios para carimbos
-    var feriadosSet={};
+    // Usar carimbos já calculados
     heatDias.forEach(function(d){
-      var iso=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');
-      if(feriadosBR(d.getFullYear()).indexOf(iso)!==-1)feriadosSet[d.toDateString()]='FER';
-      var a=d.getFullYear(),m=d.getMonth(),dia=d.getDate();
-      if(CALENDARIO_CUSTOM[a]&&CALENDARIO_CUSTOM[a][m]&&CALENDARIO_CUSTOM[a][m].indexOf(dia)!==-1)feriadosSet[d.toDateString()]='BLQ';
-    });
-    heatDias.forEach(function(d){
-      var carimbo=feriadosSet[d.toDateString()]||'';
-      var thBg=carimbo==='FER'?'rgba(139,58,15,0.15)':carimbo==='BLQ'?'rgba(26,95,138,0.15)':'';
+      var carimbo=heatCarimbo[d.toDateString()]||'';
+      var thBg=carimbo==='FER'?'rgba(139,58,15,0.12)':carimbo==='BLQ'?'rgba(26,95,138,0.12)':'';
       var thColor=carimbo==='FER'?'#8B3A0F':carimbo==='BLQ'?'#1a5f8a':'#6B5A4E';
       h+='<th style="text-align:center;white-space:nowrap;min-width:32px;padding:4px 2px;background:'+thBg+'">';
       h+=ds2[d.getDay()]+'<br>'+d.getDate();
@@ -1601,13 +1607,18 @@ function renderIndicadores(){
       heatDias.forEach(function(d){
         var k=d.toDateString();
         var p=(prodPorColab[r.nome]&&prodPorColab[r.nome][k])||0;
+        var carimbo=heatCarimbo[k]||'';
         var intens=maxPorDia[k]>0?p/maxPorDia[k]:0;
         var bg,tc;
-        if(p===0){bg='rgba(44,37,32,0.06)';tc='#8a7060';}
+        // Dias FER/BLQ sem produção ficam com fundo especial
+        if(carimbo&&p===0){
+          bg=carimbo==='FER'?'rgba(139,58,15,0.08)':'rgba(26,95,138,0.08)';
+          tc=carimbo==='FER'?'rgba(139,58,15,0.4)':'rgba(26,95,138,0.4)';
+        } else if(p===0){bg='rgba(44,37,32,0.06)';tc='#8a7060';}
         else if(intens>=0.7){bg='#1a6b3a';tc='#fff';}
         else if(intens>=0.35){bg='#8a6010';tc='#fff';}
         else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
-        h+='<td style="text-align:center;padding:3px 2px"><div style="display:inline-block;min-width:26px;padding:2px 3px;border-radius:3px;background:'+bg+';color:'+tc+';font-size:9px;font-weight:700">'+(p>0?p:'—')+'</div></td>';
+        h+='<td style="text-align:center;padding:3px 2px"><div style="display:inline-block;min-width:26px;padding:2px 3px;border-radius:3px;background:'+bg+';color:'+tc+';font-size:9px;font-weight:700">'+(p>0?p:(carimbo?carimbo:'—'))+'</div></td>';
       });
       h+='<td style="text-align:center;font-weight:700;font-size:11px;color:#1a5f8a">'+totalHeat+'</td>';
       h+='</tr>';
