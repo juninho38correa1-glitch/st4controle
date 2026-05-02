@@ -1564,7 +1564,8 @@ function renderIndicadores(){
   // === BLOCO 6: Heatmap — período filtrado ===
   var periodoHeatLabel=getPeriodoLabel();
   h+='<div style="background:#DCCCBE;padding:14px;margin-bottom:16px">';
-  h+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#2C2520;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid rgba(44,37,32,0.3)">// Heatmap — '+periodoHeatLabel+' ('+heatDias.length+' dias trabalhados)</div>';
+  var diasTrabalhadosHeat=heatDias.filter(function(d){return !heatCarimbo[d.toDateString()];}).length;
+  h+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#2C2520;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid rgba(44,37,32,0.3)">// Heatmap — '+periodoHeatLabel+' ('+diasTrabalhadosHeat+' dias trabalhados · '+heatDias.filter(function(d){return heatCarimbo[d.toDateString()]==='FER';}).length+' feriados · '+heatDias.filter(function(d){return heatCarimbo[d.toDateString()]==='BLQ';}).length+' bloqueios)</div>';
   if(heatDias.length===0){
     h+='<div style="color:#8a7060;font-size:12px;text-align:center;padding:20px">Nenhum dia trabalhado no período.</div>';
   } else {
