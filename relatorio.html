@@ -1236,18 +1236,25 @@ function selecionarColab(nlKey){
     hDias.forEach(function(d){
       var p=prodHeat[d.toDateString()]||0;
       totalHeatColab+=p;
-      var intens=maxH>0?p/maxH:0;
       var bg,tc;
+      // Cores baseadas na meta diária (igual ao heatmap de Indicadores)
       if(p===0){bg='rgba(44,37,32,0.06)';tc='#8a7060';}
-      else if(intens>=0.7){bg='#1a6b3a';tc='#fff';}
-      else if(intens>=0.35){bg='#8a6010';tc='#fff';}
-      else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
-      var bord=metaDia>0&&p>=metaDia?'2px solid #FFD700':'none';
-      hh+='<td style="text-align:center;padding:3px 2px"><div style="display:inline-block;min-width:26px;padding:3px 4px;border-radius:3px;background:'+bg+';color:'+tc+';font-size:9px;font-weight:700;border:'+bord+'">'+(p>0?p:'—')+'</div></td>';
+      else if(metaDia>0){
+        var pctDia=p/metaDia;
+        if(pctDia>=1){bg='#1a6b3a';tc='#fff';}        // Verde = bateu meta
+        else if(pctDia>=0.7){bg='#8a6010';tc='#fff';} // Amarelo = 70-99%
+        else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}  // Laranja = abaixo de 70%
+      } else {
+        var intens=maxH>0?p/maxH:0;
+        if(intens>=0.7){bg='#1a6b3a';tc='#fff';}
+        else if(intens>=0.35){bg='#8a6010';tc='#fff';}
+        else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
+      }
+      hh+='<td style="text-align:center;padding:3px 2px"><div style="display:inline-block;min-width:26px;padding:3px 4px;border-radius:3px;background:'+bg+';color:'+tc+';font-size:9px;font-weight:700">'+(p>0?p:'—')+'</div></td>';
     });
     hh+='<td style="text-align:center;font-weight:700;font-size:11px;color:#1a5f8a;padding:3px 6px">'+totalHeatColab+'</td>';
     hh+='</tr></tbody></table></div>';
-    hh+='<div style="font-size:9px;color:#8a7060;margin-top:6px;letter-spacing:1px">Verde = alta · Amarelo = média · Laranja = baixa · Cinza = sem lançamento · Borda dourada ⭐ = meta/dia atingida</div>';
+    hh+='<div style="font-size:9px;color:#8a7060;margin-top:6px;letter-spacing:1px">Verde = bateu meta/dia · Amarelo = 70-99% da meta · Laranja = abaixo de 70% · Cinza = sem lançamento</div>';
     hh+='</div>';
     var resEl=document.getElementById('individual-result');
     if(resEl)resEl.innerHTML+=hh;
