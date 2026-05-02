@@ -120,7 +120,7 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
     </div>
   </div>
   <div id="app"><div class="loading-msg"><div class="spinner"></div>Carregando dados...</div></div>
-  <div class="footer">&copy; Studyo 4 Estofados &middot; Junior Corr&ecirc;a &middot; Todos os direitos reservados</div>
+  <div class="footer">&copy; Junior Corr&ecirc;a &middot; Todos os direitos reservados &middot; STUDYO4 Estofados</div>
 </div>
 <script>
 
@@ -691,7 +691,7 @@ function renderGraficos(){
   var hoje=new Date();
   var diasMes=[];
   for(var d=new Date(hoje.getFullYear(),hoje.getMonth(),1);d<=hoje;d.setDate(d.getDate()+1)){
-    if(d.getDay()>0&&d.getDay()<6)diasMes.push(new Date(d));
+    if(isDiaUtil(d))diasMes.push(new Date(d));
   }
   var prodPorDia={};
   diasMes.forEach(function(d){prodPorDia[d.toDateString()]=0;});
@@ -1340,10 +1340,10 @@ function renderIndicadores(){
   lansSem.forEach(function(l){var cd=COLAB_DATA[l.nome];var s=cd?cd.setor:'Outros';if(!semSetores[s])semSetores[s]=0;semSetores[s]+=prodLan(l);});
   lansAnt.forEach(function(l){var cd=COLAB_DATA[l.nome];var s=cd?cd.setor:'Outros';if(!antSetores[s])antSetores[s]=0;antSetores[s]+=prodLan(l);});
 
-  // ── produção por dia do período ───────────────────────────
+  // ── produção por dia do período (respeitando calendário: feriados + bloqueios) ──
   var diasMes=[];
   for(var dd=new Date(periodoIni);dd<=periodoFim&&dd<=hoje;dd.setDate(dd.getDate()+1)){
-    if(dd.getDay()>0&&dd.getDay()<6)diasMes.push(new Date(dd));
+    if(isDiaUtil(dd))diasMes.push(new Date(dd));
   }
   var prodDia={};diasMes.forEach(function(d){prodDia[d.toDateString()]=0;});
   lansPeriodo.forEach(function(l){var dt=parseDate(l.data);if(!dt)return;var k=dt.toDateString();if(prodDia[k]!==undefined)prodDia[k]+=prodLan(l);});
@@ -1510,8 +1510,8 @@ function renderIndicadores(){
       var isC=r.classe==='C';
       var bcr=isC?'#8B3A0F':'#8a6010';
       var bgr=isC?'rgba(139,58,15,0.08)':'rgba(138,96,16,0.06)';
-      var semLan=r.nDias<(diasMes.length*0.5);
-      var motivo=semLan?r.nDias+'/'+diasMes.length+' dias lançados':r.pct+'% da meta';
+      var semLan=r.nDias<(du*0.5);
+      var motivo=semLan?r.nDias+'/'+du+' dias lançados':r.pct+'% da meta';
       h+='<div style="border-left:3px solid '+bcr+';padding:7px 10px;background:'+bgr+';border-radius:0 4px 4px 0">';
       h+='<div style="display:flex;justify-content:space-between;align-items:baseline">';
       h+='<div style="font-size:11px;font-weight:700;color:#2C2520;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px">'+nomeLimpo(r.nome)+'</div>';
@@ -1541,7 +1541,7 @@ function renderIndicadores(){
     h+='<div style="font-size:9px;color:#6B5A4E;margin-bottom:4px">'+r.setor+'</div>';
     h+='<div style="display:flex;justify-content:space-between;align-items:center">';
     h+='<div style="font-size:22px;font-weight:700;color:'+scoreCor+'">'+r.score+'</div>';
-    h+='<div style="font-size:9px;color:#8a7060;text-align:right">'+r.nDias+'/'+diasMes.length+' dias</div>';
+    h+='<div style="font-size:9px;color:#8a7060;text-align:right">'+r.nDias+'/'+du+' dias trab.</div>';
     h+='</div>';
     h+='<div style="height:3px;background:rgba(44,37,32,0.1);border-radius:2px;overflow:hidden;margin-top:3px"><div style="height:100%;width:'+r.score+'%;background:'+scoreCor+'"></div></div>';
     h+='</div>';
@@ -1573,7 +1573,23 @@ function renderIndicadores(){
     });
     h+='<div style="overflow-x:auto"><table class="table" style="min-width:400px;font-size:10px">';
     h+='<thead><tr><th style="min-width:120px;position:sticky;left:0;background:#2C2520;z-index:1">Colaborador</th>';
-    heatDias.forEach(function(d){h+='<th style="text-align:center;white-space:nowrap;min-width:32px;padding:4px 2px">'+ds2[d.getDay()]+'<br>'+d.getDate()+'</th>';});
+    // Pré-calcular feriados e bloqueios para carimbos
+    var feriadosSet={};
+    heatDias.forEach(function(d){
+      var iso=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');
+      if(feriadosBR(d.getFullYear()).indexOf(iso)!==-1)feriadosSet[d.toDateString()]='FER';
+      var a=d.getFullYear(),m=d.getMonth(),dia=d.getDate();
+      if(CALENDARIO_CUSTOM[a]&&CALENDARIO_CUSTOM[a][m]&&CALENDARIO_CUSTOM[a][m].indexOf(dia)!==-1)feriadosSet[d.toDateString()]='BLQ';
+    });
+    heatDias.forEach(function(d){
+      var carimbo=feriadosSet[d.toDateString()]||'';
+      var thBg=carimbo==='FER'?'rgba(139,58,15,0.15)':carimbo==='BLQ'?'rgba(26,95,138,0.15)':'';
+      var thColor=carimbo==='FER'?'#8B3A0F':carimbo==='BLQ'?'#1a5f8a':'#6B5A4E';
+      h+='<th style="text-align:center;white-space:nowrap;min-width:32px;padding:4px 2px;background:'+thBg+'">';
+      h+=ds2[d.getDay()]+'<br>'+d.getDate();
+      if(carimbo)h+='<br><span style="font-size:7px;font-weight:700;color:'+thColor+'">'+carimbo+'</span>';
+      h+='</th>';
+    });
     h+='<th style="text-align:center;background:#1a5f8a;min-width:40px">Total</th></tr></thead><tbody>';
     ranking.forEach(function(r){
       var corSet=getCor(r.setor);
