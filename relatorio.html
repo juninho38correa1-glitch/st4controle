@@ -1264,20 +1264,28 @@ function selecionarColab(nlKey){
       var p=hProd[k]||0;
       totalHeatColab+=p;
       var carimbo=hCarimbo[k]||'';
-      var intens=hMaxVal>0?p/hMaxVal:0;
+      // Opção B: cores baseadas na meta diária
       var bg,tc;
       if(carimbo&&p===0){
         bg=carimbo==='FER'?'rgba(139,58,15,0.08)':'rgba(26,95,138,0.08)';
         tc=carimbo==='FER'?'rgba(139,58,15,0.4)':'rgba(26,95,138,0.4)';
       } else if(p===0){bg='rgba(44,37,32,0.06)';tc='#8a7060';}
-      else if(intens>=0.7){bg='#1a6b3a';tc='#fff';}
-      else if(intens>=0.35){bg='#8a6010';tc='#fff';}
-      else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
+      else if(metaDia>0){
+        var pctDiaI=p/metaDia;
+        if(pctDiaI>=1){bg='#1a6b3a';tc='#fff';}
+        else if(pctDiaI>=0.7){bg='#8a6010';tc='#fff';}
+        else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
+      } else {
+        var intens=hMaxVal>0?p/hMaxVal:0;
+        if(intens>=0.7){bg='#1a6b3a';tc='#fff';}
+        else if(intens>=0.35){bg='#8a6010';tc='#fff';}
+        else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
+      }
       hh+='<td style="text-align:center;padding:3px 2px"><div style="display:inline-block;min-width:26px;padding:3px 4px;border-radius:3px;background:'+bg+';color:'+tc+';font-size:9px;font-weight:700">'+(p>0?p:(carimbo?carimbo:'—'))+'</div></td>';
     });
     hh+='<td style="text-align:center;font-weight:700;font-size:11px;color:#1a5f8a;padding:3px 6px">'+totalHeatColab+'</td>';
     hh+='</tr></tbody></table></div>';
-    hh+='<div style="font-size:10px;color:#8a7060;margin-top:6px;letter-spacing:1px">Verde = alta · Amarelo = média · Laranja = baixa · Cinza = sem lançamento · FER = feriado · BLQ = bloqueio</div>';
+    hh+='<div style="font-size:10px;color:#8a7060;margin-top:6px;letter-spacing:1px">Verde = ≥100% meta/dia · Amarelo = 70-99% · Laranja = <70% · Cinza = sem lançamento · FER = feriado · BLQ = bloqueio</div>';
     hh+='</div>';
     var resEl=document.getElementById('individual-result');
     if(resEl)resEl.innerHTML+=hh;
@@ -1639,16 +1647,26 @@ function renderIndicadores(){
         var k=d.toDateString();
         var p=(prodPorColab[r.nome]&&prodPorColab[r.nome][k])||0;
         var carimbo=heatCarimbo[k]||'';
-        var intens=maxPorDia[k]>0?p/maxPorDia[k]:0;
+        // Opção B: cores baseadas na meta diária do colaborador
+        var cdHeat=COLAB_DATA[r.nome];
+        var metaDiaHeat=cdHeat&&cdHeat.meta>0?cdHeat.meta:0;
         var bg,tc;
-        // Dias FER/BLQ sem produção ficam com fundo especial
         if(carimbo&&p===0){
           bg=carimbo==='FER'?'rgba(139,58,15,0.08)':'rgba(26,95,138,0.08)';
           tc=carimbo==='FER'?'rgba(139,58,15,0.4)':'rgba(26,95,138,0.4)';
         } else if(p===0){bg='rgba(44,37,32,0.06)';tc='#8a7060';}
-        else if(intens>=0.7){bg='#1a6b3a';tc='#fff';}
-        else if(intens>=0.35){bg='#8a6010';tc='#fff';}
-        else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
+        else if(metaDiaHeat>0){
+          var pctDiaHeat=p/metaDiaHeat;
+          if(pctDiaHeat>=1){bg='#1a6b3a';tc='#fff';}
+          else if(pctDiaHeat>=0.7){bg='#8a6010';tc='#fff';}
+          else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
+        } else {
+          // Sem meta definida: usa intensidade relativa
+          var intens=maxPorDia[k]>0?p/maxPorDia[k]:0;
+          if(intens>=0.7){bg='#1a6b3a';tc='#fff';}
+          else if(intens>=0.35){bg='#8a6010';tc='#fff';}
+          else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
+        }
         h+='<td style="text-align:center;padding:3px 2px"><div style="display:inline-block;min-width:26px;padding:2px 3px;border-radius:3px;background:'+bg+';color:'+tc+';font-size:9px;font-weight:700">'+(p>0?p:(carimbo?carimbo:'—'))+'</div></td>';
       });
       h+='<td style="text-align:center;font-weight:700;font-size:11px;color:#1a5f8a">'+totalHeat+'</td>';
