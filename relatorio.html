@@ -120,7 +120,7 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
     </div>
   </div>
   <div id="app"><div class="loading-msg"><div class="spinner"></div>Carregando dados...</div></div>
-  <div class="footer">Studyo 4 Estofados &middot; &copy; Junior Corr&ecirc;a &middot; Todos os direitos reservados</div>
+  <div class="footer">&copy; Junior Corr&ecirc;a &middot; Todos os direitos reservados &middot; STUDYO4 Estofados</div>
 </div>
 <script>
 
@@ -1208,53 +1208,76 @@ function selecionarColab(nlKey){
     });
   },80);
 
-  // ── Heatmap individual ────────────────────────────────
+  // ── Heatmap individual — espelho do heatmap de Indicadores ──
   var hDias=[];
   var hDatas=getPeriodoDatas();
   for(var hd=new Date(hDatas.ini);hd<=hDatas.fim&&hd<=hoje;hd.setDate(hd.getDate()+1)){
-    if(isDiaUtil(hd))hDias.push(new Date(hd));
+    var hdow=hd.getDay();
+    if(hdow>0&&hdow<6)hDias.push(new Date(hd));
   }
   if(hDias.length>30)hDias=hDias.slice(hDias.length-30);
 
   if(hDias.length>0){
-    var prodHeat={};
+    var hCarimbo={};
+    hDias.forEach(function(d){
+      var iso=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');
+      var ha=d.getFullYear(),hm=d.getMonth(),hdia=d.getDate();
+      if(feriadosBR(ha).indexOf(iso)!==-1){hCarimbo[d.toDateString()]='FER';}
+      else if(CALENDARIO_CUSTOM[ha]&&CALENDARIO_CUSTOM[ha][hm]&&CALENDARIO_CUSTOM[ha][hm].indexOf(hdia)!==-1){hCarimbo[d.toDateString()]='BLQ';}
+    });
+    var hProd={};
     lansPeriodo.forEach(function(l){
       var dt=parseDate(l.data);if(!dt)return;
       var k=dt.toDateString();
-      prodHeat[k]=(prodHeat[k]||0)+(Number(l.prodCorpo)||0)+(Number(l.prodAlmof)||0);
+      hProd[k]=(hProd[k]||0)+(Number(l.prodCorpo)||0)+(Number(l.prodAlmof)||0);
     });
-    var maxH=Math.max.apply(null,hDias.map(function(d){return prodHeat[d.toDateString()]||0;}).concat([1]));
+    var hMaxVal=Math.max.apply(null,hDias.map(function(d){return hProd[d.toDateString()]||0;}).concat([1]));
+    var hDiasTrab=hDias.filter(function(d){return !hCarimbo[d.toDateString()];}).length;
+    var hFer=hDias.filter(function(d){return hCarimbo[d.toDateString()]==='FER';}).length;
+    var hBlq=hDias.filter(function(d){return hCarimbo[d.toDateString()]==='BLQ';}).length;
     var ds3=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
     var hh='<div style="background:#DCCCBE;padding:14px;margin-top:12px">';
-    hh+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#2C2520;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid rgba(44,37,32,0.3)">// Heatmap — '+getPeriodoLabel()+' ('+hDias.length+' dias)</div>';
+    hh+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#2C2520;text-transform:uppercase;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid rgba(44,37,32,0.3)">// Heatmap — '+getPeriodoLabel()+' ('+hDiasTrab+' dias trabalhados'+(hFer?' · '+hFer+' feriados':'')+(hBlq?' · '+hBlq+' bloqueios':'')+')</div>';
     hh+='<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:10px;width:100%"><thead><tr>';
+    hh+='<th style="min-width:120px;position:sticky;left:0;background:#2C2520;z-index:1;padding:4px 8px;text-align:left;color:#DCCCBE;font-size:9px;font-weight:700;letter-spacing:1px">COLABORADOR</th>';
     hDias.forEach(function(d){
-      hh+='<th style="text-align:center;padding:3px 2px;font-size:9px;font-weight:700;color:#6B5A4E;white-space:nowrap;min-width:30px">'+ds3[d.getDay()]+'<br>'+d.getDate()+'</th>';
+      var carimbo=hCarimbo[d.toDateString()]||'';
+      var thBg=carimbo==='FER'?'rgba(139,58,15,0.12)':carimbo==='BLQ'?'rgba(26,95,138,0.12)':'';
+      var thColor=carimbo==='FER'?'#8B3A0F':carimbo==='BLQ'?'#1a5f8a':'#6B5A4E';
+      hh+='<th style="text-align:center;white-space:nowrap;min-width:30px;padding:3px 2px;font-size:9px;font-weight:700;color:'+thColor+';background:'+thBg+'">';
+      hh+=ds3[d.getDay()]+'<br>'+d.getDate();
+      if(carimbo)hh+='<br><span style="font-size:7px;font-weight:700">'+carimbo+'</span>';
+      hh+='</th>';
     });
-    hh+='<th style="text-align:center;padding:3px 6px;color:#1a5f8a;font-size:9px">Total</th></tr></thead><tbody><tr>';
+    hh+='<th style="text-align:center;background:#1a5f8a;min-width:40px;color:#fff;font-size:9px;padding:4px 6px">TOTAL</th></tr></thead><tbody>';
+
+    // Linha do colaborador — igual ao Indicadores
+    var corNome=getCor(cdPrincipal.setor||'');
+    hh+='<tr>';
+    hh+='<td style="position:sticky;left:0;background:#E8E0D5;z-index:1;padding:4px 8px">';
+    hh+='<div style="font-weight:700;color:#2C2520;font-size:10px;white-space:nowrap">'+grupo.nomeExibir.toUpperCase()+'</div>';
+    hh+='<div style="font-size:9px;color:'+corNome+'">'+grupo.setores.join(' · ')+'</div>';
+    hh+='</td>';
     var totalHeatColab=0;
     hDias.forEach(function(d){
-      var p=prodHeat[d.toDateString()]||0;
+      var k=d.toDateString();
+      var p=hProd[k]||0;
       totalHeatColab+=p;
+      var carimbo=hCarimbo[k]||'';
+      var intens=hMaxVal>0?p/hMaxVal:0;
       var bg,tc;
-      // Cores baseadas na meta diária (igual ao heatmap de Indicadores)
-      if(p===0){bg='rgba(44,37,32,0.06)';tc='#8a7060';}
-      else if(metaDia>0){
-        var pctDia=p/metaDia;
-        if(pctDia>=1){bg='#1a6b3a';tc='#fff';}        // Verde = bateu meta
-        else if(pctDia>=0.7){bg='#8a6010';tc='#fff';} // Amarelo = 70-99%
-        else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}  // Laranja = abaixo de 70%
-      } else {
-        var intens=maxH>0?p/maxH:0;
-        if(intens>=0.7){bg='#1a6b3a';tc='#fff';}
-        else if(intens>=0.35){bg='#8a6010';tc='#fff';}
-        else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
-      }
-      hh+='<td style="text-align:center;padding:3px 2px"><div style="display:inline-block;min-width:26px;padding:3px 4px;border-radius:3px;background:'+bg+';color:'+tc+';font-size:9px;font-weight:700">'+(p>0?p:'—')+'</div></td>';
+      if(carimbo&&p===0){
+        bg=carimbo==='FER'?'rgba(139,58,15,0.08)':'rgba(26,95,138,0.08)';
+        tc=carimbo==='FER'?'rgba(139,58,15,0.4)':'rgba(26,95,138,0.4)';
+      } else if(p===0){bg='rgba(44,37,32,0.06)';tc='#8a7060';}
+      else if(intens>=0.7){bg='#1a6b3a';tc='#fff';}
+      else if(intens>=0.35){bg='#8a6010';tc='#fff';}
+      else{bg='rgba(139,58,15,0.3)';tc='#8B3A0F';}
+      hh+='<td style="text-align:center;padding:3px 2px"><div style="display:inline-block;min-width:26px;padding:3px 4px;border-radius:3px;background:'+bg+';color:'+tc+';font-size:9px;font-weight:700">'+(p>0?p:(carimbo?carimbo:'—'))+'</div></td>';
     });
     hh+='<td style="text-align:center;font-weight:700;font-size:11px;color:#1a5f8a;padding:3px 6px">'+totalHeatColab+'</td>';
     hh+='</tr></tbody></table></div>';
-    hh+='<div style="font-size:9px;color:#8a7060;margin-top:6px;letter-spacing:1px">Verde = bateu meta/dia · Amarelo = 70-99% da meta · Laranja = abaixo de 70% · Cinza = sem lançamento</div>';
+    hh+='<div style="font-size:10px;color:#8a7060;margin-top:6px;letter-spacing:1px">Verde = alta · Amarelo = média · Laranja = baixa · Cinza = sem lançamento · FER = feriado · BLQ = bloqueio</div>';
     hh+='</div>';
     var resEl=document.getElementById('individual-result');
     if(resEl)resEl.innerHTML+=hh;
