@@ -157,37 +157,38 @@ function getMetaPessoa(nome){var d=COLAB_DATA[nome];return d?d.meta:0;}
 
 function mostrarPag(idx){
   var pags=document.querySelectorAll('.carrossel-pagina');
-  if(idx<0||idx>=pags.length)idx=0;
+  totPag=pags.length;
+  if(idx<0||idx>=totPag)idx=0;
   pags.forEach(function(p,i){p.classList.toggle('ativa',i===idx);});
   document.querySelectorAll('.indicador').forEach(function(ind,i){ind.classList.toggle('ativo',i===idx);});
   pagAtual=idx;
 }
 function proxPag(){
   var pags=document.querySelectorAll('.carrossel-pagina');
-  totPag=pags.length; // sempre re-lê o total real
+  totPag=pags.length;
   if(totPag<=1)return;
-  mostrarPag((pagAtual+1)%totPag);
-  resetProg();
+  var next=(pagAtual+1)%totPag;
+  mostrarPag(next);
+  agendarProxPag();
 }
-function resetProg(){
-  var f=document.getElementById('prog-fill');if(!f)return;
+function agendarProxPag(){
   clearTimeout(tPag);
-  f.style.transition='none';f.style.width='0%';
-  setTimeout(function(){
-    f.style.transition='width '+INTERVALO_PAG+'s linear';
-    f.style.width='100%';
-  },50);
+  var f=document.getElementById('prog-fill');
+  if(f){f.style.transition='none';f.style.width='0%';
+    setTimeout(function(){f.style.transition='width '+INTERVALO_PAG+'s linear';f.style.width='100%';},50);}
   tPag=setTimeout(proxPag,INTERVALO_PAG*1000);
 }
-function irPag(idx){mostrarPag(idx);resetProg();}
+function resetProg(){agendarProxPag();}
+function irPag(idx){clearTimeout(tPag);mostrarPag(idx);agendarProxPag();}
 function iniciarCarrossel(){
-  clearTimeout(tPag); // cancela timer anterior antes de reiniciar
-  pagAtual=0;
+  clearTimeout(tPag);
+  tPag=null;
   var pags=document.querySelectorAll('.carrossel-pagina');
   totPag=pags.length;
+  pagAtual=0;
   if(totPag<=1){if(pags[0])pags[0].classList.add('ativa');return;}
   mostrarPag(0);
-  resetProg();
+  agendarProxPag();
 }
 
 function calcMetaDia(setor){var t=0;Object.keys(COLAB_DATA).forEach(function(n){var cd=COLAB_DATA[n];if(cd&&cd.tv===TV_NUM&&cd.setor===setor&&cd.meta>0)t+=cd.meta;});return t;}
@@ -286,10 +287,11 @@ function renderColunas(colunas){
     h+='</div>';
   }
   container.innerHTML=h;
+  clearTimeout(tPag); // cancela timer pendente antes de reiniciar
   setTimeout(function(){
     colunas.forEach(function(col){buildPizza('pizza-'+col.setor.replace(/[^a-zA-Z0-9]/g,'_'),col.rows);});
     iniciarCarrossel();
-  },100);
+  },200); // delay maior garante DOM pronto antes de iniciar
 }
 
 function processar(txt){
