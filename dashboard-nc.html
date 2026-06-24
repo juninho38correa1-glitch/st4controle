@@ -278,11 +278,18 @@
         <span>Indicador de não conformidades · 2026</span>
         <span style="color:var(--accent2);font-family:var(--mono);font-size:11px;">NC's / 100 peças produzidas</span>
       </div>
+      <!-- TIPO DE COMPARATIVO -->
+      <div class="filters" style="margin-bottom:18px;">
+        <span class="filter-label">Comparativo:</span>
+        <button class="filter-btn active" onclick="setIndMode('semanal')" id="im-semanal">Semanal</button>
+        <button class="filter-btn"        onclick="setIndMode('mensal')"  id="im-mensal">Mensal</button>
+        <button class="filter-btn"        onclick="setIndMode('anual')"   id="im-anual">Anual</button>
+      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
         <div><div style="position:relative;height:220px;"><canvas id="chartIndicador"></canvas></div></div>
         <div class="table-wrap">
           <table>
-            <thead><tr><th>Mês</th><th>Semana</th><th>NC's</th><th>Peças</th><th>% Ocorr.</th><th>Mult./100</th></tr></thead>
+            <thead><tr><th id="indColPeriodo">Mês</th><th id="indColSub">Semana</th><th>NC's</th><th>Peças</th><th>% Ocorr.</th><th>Mult./100</th></tr></thead>
             <tbody id="indicadorBody"></tbody>
           </table>
         </div>
@@ -304,6 +311,7 @@ let indData      = [];
 let activeSetor  = 'all';
 let activePeriod = 'total';
 let searchTerm   = '';
+let indMode      = 'semanal';
 let charts       = {};
 
 const COL = {
@@ -647,28 +655,83 @@ function renderTable() {
   }).join('');
 }
 
+function setIndMode(m) {
+  indMode = m;
+  document.querySelectorAll('#im-semanal,#im-mensal,#im-anual').forEach(b=>b.classList.remove('active'));
+  document.getElementById('im-'+m)?.classList.add('active');
+  // Ajusta cabeçalho da coluna secundária conforme o modo
+  const sub = document.getElementById('indColSub');
+  if (sub) sub.textContent = m==='semanal' ? 'Semana' : (m==='mensal' ? 'Período' : 'Ano');
+  renderIndicador(indData);
+}
+
+const MES_NUM = {janeiro:1,fevereiro:2,'março':3,marco:3,abril:4,maio:5,junho:6,julho:7,agosto:8,setembro:9,outubro:10,novembro:11,dezembro:12};
+const num = v => parseFloat((v||'0').toString().replace(',','.'))||0;
+
+// Agrega as linhas semanais (===IND===) conforme o modo selecionado.
+// Cada item retornado: { periodo, sub, label, nc, pecas }
+function aggregateInd(rows, mode) {
+  if (mode === 'semanal') {
+    return rows.map(r => {
+      const mes = (r[0]||'').toString().trim();
+      const sem = (r[1]||'').toString().trim();
+      return { periodo: mes, sub: sem, label: mes.slice(0,3)+' S'+sem, nc: num(r[2]), pecas: num(r[3]) };
+    });
+  }
+  if (mode === 'mensal') {
+    const ordem = [], mapa = {};
+    rows.forEach(r => {
+      const mes = (r[0]||'').toString().trim();
+      if (!mes) return;
+      if (!mapa[mes]) { mapa[mes] = { nc:0, pecas:0 }; ordem.push(mes); }
+      mapa[mes].nc    += num(r[2]);
+      mapa[mes].pecas += num(r[3]);
+    });
+    ordem.sort((a,b)=>(MES_NUM[a.toLowerCase()]||99)-(MES_NUM[b.toLowerCase()]||99));
+    return ordem.map(mes => ({ periodo: mes, sub: 'Mês', label: mes.slice(0,3), nc: mapa[mes].nc, pecas: mapa[mes].pecas }));
+  }
+  // anual — soma tudo num único ponto
+  let nc=0, pecas=0;
+  rows.forEach(r => { nc += num(r[2]); pecas += num(r[3]); });
+  return [{ periodo:'2026', sub:'Ano', label:'2026', nc, pecas }];
+}
+
 function renderIndicador(rows) {
   if(!rows||rows.length===0){ document.getElementById('cardIndicador').style.display='none'; return; }
   document.getElementById('cardIndicador').style.display='block';
-  const labels = rows.map(r=>(r[0]||'').toString().trim().slice(0,3)+' S'+(r[1]||'').toString().trim());
-  const mult   = rows.map(r=>parseFloat((r[5]||'0').toString().replace(',','.'))||0);
+
+  const agg  = aggregateInd(rows, indMode);
+  const META = 3.0;
+  // Multiplicador recalculado a partir dos totais agregados (NC's / Peças * 100)
+  const mult   = agg.map(a => a.pecas > 0 ? parseFloat((a.nc/a.pecas*100).toFixed(2)) : 0);
+  const labels = agg.map(a => a.label);
+
+  // Linha de tendência (regressão linear) — só faz sentido com 2+ pontos
+  let trend;
   const n = mult.length;
-  const sumX = mult.reduce((_,__,i)=>_+i, 0);
-  const sumY = mult.reduce((a,b)=>a+b, 0);
-  const sumXY = mult.reduce((a,v,i)=>a+i*v, 0);
-  const sumX2 = mult.reduce((a,_,i)=>a+i*i, 0);
-  const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
-  const intercept = (sumY - slope*sumX) / n;
-  const trend = mult.map((_,i) => parseFloat((intercept + slope*i).toFixed(2)));
+  if (n >= 2) {
+    const sumX = mult.reduce((_,__,i)=>_+i, 0);
+    const sumY = mult.reduce((a,b)=>a+b, 0);
+    const sumXY = mult.reduce((a,v,i)=>a+i*v, 0);
+    const sumX2 = mult.reduce((a,_,i)=>a+i*i, 0);
+    const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
+    const intercept = (sumY - slope*sumX) / n;
+    trend = mult.map((_,i) => parseFloat((intercept + slope*i).toFixed(2)));
+  } else {
+    trend = mult.slice();
+  }
   const pointColors = mult.map((v,i) => v > trend[i] ? '#f05b5b' : '#4ecb8d');
+
   if(charts['chartIndicador']) charts['chartIndicador'].destroy();
   charts['chartIndicador'] = new Chart(document.getElementById('chartIndicador'), {
-    type:'line',
-    data:{ labels, datasets:[
-      { label:'Multiplicador /100', data:mult, borderColor:'#7c6af7', backgroundColor:'rgba(124,106,247,0.07)',
-        borderWidth:2, pointRadius:5, pointBackgroundColor:pointColors, pointBorderColor:pointColors, fill:true, tension:0.3 },
-      { label:'Tendência', data:trend, borderColor:'#f0a63a', borderWidth:1.5, borderDash:[6,4], pointRadius:0, fill:false, tension:0 }
-    ]},
+    type: indMode==='anual' ? 'bar' : 'line',
+    data:{ labels, datasets: indMode==='anual'
+      ? [{ label:'Multiplicador /100', data:mult, backgroundColor:mult.map(v=>v>META?'#f05b5b':'#4ecb8d'), borderRadius:6, borderWidth:0, barThickness:80 }]
+      : [
+        { label:'Multiplicador /100', data:mult, borderColor:'#7c6af7', backgroundColor:'rgba(124,106,247,0.07)',
+          borderWidth:2, pointRadius:5, pointBackgroundColor:pointColors, pointBorderColor:pointColors, fill:true, tension:0.3 },
+        { label:'Tendência', data:trend, borderColor:'#f0a63a', borderWidth:1.5, borderDash:[6,4], pointRadius:0, fill:false, tension:0 }
+      ]},
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{labels:{color:'#9090a0',font:{family:'DM Mono',size:10},boxWidth:10}},
         tooltip:{callbacks:{label:ctx=>' '+ctx.dataset.label+': '+ctx.parsed.y.toFixed(2)}} },
@@ -677,15 +740,15 @@ function renderIndicador(rows) {
         y:{ticks:{color:'#5a5a6a',font:{family:'DM Mono',size:10}},grid:{color:'rgba(255,255,255,0.04)'},min:0}
       }}
   });
-  document.getElementById('indicadorBody').innerHTML = rows.map(r => {
-    const multVal = parseFloat((r[5]||'0').toString().replace(',','.'))||0;
-    const pct     = parseFloat((r[4]||'0').toString().replace(',','.'));
-    const META    = 3.0;
+
+  document.getElementById('indicadorBody').innerHTML = agg.map((a,i) => {
+    const multVal = mult[i];
+    const pct     = a.pecas > 0 ? a.nc/a.pecas : NaN;
     return `<tr>
-      <td style="text-transform:capitalize">${r[0]||'—'}</td>
-      <td style="font-family:var(--mono);text-align:center">${r[1]||'—'}</td>
-      <td style="font-family:var(--mono);text-align:center;color:var(--text)">${r[2]||'—'}</td>
-      <td style="font-family:var(--mono);text-align:center;color:var(--text3)">${r[3]||'—'}</td>
+      <td style="text-transform:capitalize">${a.periodo||'—'}</td>
+      <td style="font-family:var(--mono);text-align:center">${a.sub||'—'}</td>
+      <td style="font-family:var(--mono);text-align:center;color:var(--text)">${a.nc||'—'}</td>
+      <td style="font-family:var(--mono);text-align:center;color:var(--text3)">${a.pecas||'—'}</td>
       <td style="font-family:var(--mono);text-align:center">${isNaN(pct)||pct===0?'—':(pct*100).toFixed(2)+'%'}</td>
       <td style="text-align:center"><span class="pill ${multVal>META?'p-urgente':'p-finalizado'}">${multVal.toFixed(1)}</span></td>
     </tr>`;
