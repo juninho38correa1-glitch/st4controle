@@ -117,6 +117,8 @@
   .acc-senha { background: var(--bg3); border: 0.5px solid var(--border2); border-radius: var(--r); padding: 5px 10px; font-size: 12px; font-family: var(--mono); color: var(--text); outline: none; width: 130px; }
   .acc-senha:focus { border-color: var(--accent); }
   .acc-msg { font-size: 11px; font-family: var(--mono); margin-left: 4px; }
+  .toast { position: fixed; right: 20px; bottom: 20px; z-index: 999; background: var(--bg3); color: var(--green); border: 0.5px solid rgba(78,203,141,0.35); border-radius: var(--r); padding: 10px 16px; font-size: 13px; font-family: var(--mono); opacity: 0; transform: translateY(8px); transition: opacity 0.2s, transform 0.2s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: none; }
   .acc-edit-btn { font-size: 10px; font-family: var(--mono); color: var(--text3); background: none; border: 0.5px solid var(--border); border-radius: 20px; padding: 2px 10px; cursor: pointer; margin-left: 8px; }
   .acc-edit-btn:hover { color: var(--accent2); border-color: var(--accent); }
   .acc-select { background: var(--bg3); border: 0.5px solid var(--border2); border-radius: var(--r); color: var(--text); font-family: var(--font); font-size: 12px; padding: 6px 10px; outline: none; width: 100%; }
@@ -303,6 +305,8 @@
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
 // Dados vêm do Supabase: as NCs da tabela nc_registros e as peças embaladas da
 // fatia 'historico', que o motor do Seven já grava para as TVs.
@@ -311,6 +315,10 @@ const SB_URL  = 'https://luocdqquuvgxcpyklmwu.supabase.co';
 const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1b2NkcXF1dXZneGNweWtsbXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4ODA5NjYsImV4cCI6MjEwNDQ1Njk2Nn0.snOTfxctxig8sKlOUfan19DuMSa2Q56vA5gWdwo4H3A';
 const SB_HEAD = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY };
 let allIds = [];   // id no Supabase de cada linha de allData, na mesma posição
+let allNcs = [];   // NCs como vieram do Supabase: tudo que a tela mostra sai daqui
+let lancHistorico = '';         // lançamentos do motor, para as peças embaladas
+let assinaturaNcs = '';         // quantas NCs + última alteração; muda quando alguém mexe
+let redesenhoPendente = false;  // chegou dado novo enquanto alguém editava uma NC
 
 const MESES_NOME = ['janeiro','fevereiro','março','abril','maio','junho','julho',
                     'agosto','setembro','outubro','novembro','dezembro'];
@@ -398,7 +406,7 @@ function montarIndicador(ncs, lancCsv) {
   (lancCsv || '').split('\n').slice(3).forEach(l => {
     if (!l.trim()) return;
     const c = linhaCSV(l);
-    if (c[2] !== 'Embalagem') return;
+    if (c[2].trim().toLowerCase() !== 'embalagem') return;
     const m = (c[0] || '').match(/(\d{2})\/(\d{2})\/(\d{4})/);
     if (!m) return;
     const s = semana(new Date(+m[3], +m[2] - 1, +m[1]));
@@ -430,19 +438,15 @@ async function loadData() {
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('error').style.display = 'none';
   try {
-    const [ncs, fatia] = await Promise.all([
-      buscarSupabase('/rest/v1/nc_registros?select=*&order=carimbo.asc'),
-      buscarSupabase('/rest/v1/st4_dados?fatia=eq.historico&select=lancamentos_csv')
-    ]);
-    allData = ncs.map(ncParaLinha);
-    allIds  = ncs.map(n => n.id);
-    indData = montarIndicador(ncs, fatia.length ? fatia[0].lancamentos_csv : '');
+    // a assinatura vem antes dos dados: o que mudar durante a carga aparece na conferência seguinte
+    assinaturaNcs = await lerAssinatura();
+    [allNcs, lancHistorico] = await Promise.all([buscarNcs(), buscarHistorico()]);
+    ultimaConferenciaPecas = Date.now();
     document.getElementById('loading').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    document.getElementById('lastUpdate').textContent = 'Atualizado ' + new Date().toLocaleTimeString('pt-BR');
-    buildSetorBtns();
-    render(getFiltered());
-    renderIndicador(indData);
+    marcarAtualizado();
+    redesenhar();
+    ligarAtualizacaoAutomatica();
   } catch(e) {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('error').style.display = 'block';
@@ -450,6 +454,100 @@ async function loadData() {
       '<strong>Erro ao carregar dados.</strong><br>Verifique a conexão com a internet e tente de novo.<br>' +
       '<small style="opacity:0.7;font-family:var(--mono);">'+e.message+'</small>';
   }
+}
+
+const buscarNcs = () => buscarSupabase('/rest/v1/nc_registros?select=*&order=carimbo.asc,id.asc');
+const buscarHistorico = () => buscarSupabase('/rest/v1/st4_dados?fatia=eq.historico&select=lancamentos_csv')
+  .then(f => f.length ? f[0].lancamentos_csv : '');
+
+// Assinatura barata das NCs: quantas são e quando foi a última alteração (o Forms
+// e o salvar mexem em atualizado_em). Só quando ela muda a tela busca tudo de
+// novo — assim dá para conferir a cada poucos segundos sem gastar a cota.
+async function lerAssinatura() {
+  const res = await fetch(SB_URL + '/rest/v1/nc_registros?select=atualizado_em&order=atualizado_em.desc&limit=1',
+    { headers: Object.assign({ Prefer: 'count=exact' }, SB_HEAD), cache: 'no-store' });
+  if (!res.ok) throw new Error('Supabase HTTP ' + res.status);
+  const [ult] = await res.json();
+  return (res.headers.get('content-range') || '') + '|' + (ult ? ult.atualizado_em : '');
+}
+
+// O que a tela mostra de cada NC — para saber se algo mudou de verdade.
+const retrato = ncs => JSON.stringify(ncs.map(n => [n.id].concat(ncParaLinha(n))));
+
+function marcarAtualizado() {
+  document.getElementById('lastUpdate').textContent = 'Atualizado ' + new Date().toLocaleTimeString('pt-BR');
+}
+
+function editando() {
+  return [...document.querySelectorAll('.acc-editor')].some(el => el.style.display === 'block');
+}
+
+// Recalcula e redesenha tudo a partir de allNcs, mantendo abertas as NCs que
+// estavam abertas. Se alguém está editando, espera terminar para não apagar o
+// que está sendo digitado.
+function redesenhar() {
+  if (editando()) { redesenhoPendente = true; return; }
+  redesenhoPendente = false;
+  const abertas = [...document.querySelectorAll('.tr-accordion.open')].map(el => el.id);
+  allData = allNcs.map(ncParaLinha);
+  allIds  = allNcs.map(n => n.id);
+  indData = montarIndicador(allNcs, lancHistorico);
+  buildSetorBtns();
+  render(getFiltered());
+  renderIndicador(indData);
+  abertas.forEach(uid => {
+    const acc = document.getElementById(uid);
+    if (acc) { acc.classList.add('open'); acc.previousElementSibling.classList.add('open'); }
+  });
+}
+
+// Tela sempre em dia, sem F5: confere as NCs a cada 10 s e as peças embaladas a
+// cada 10 min (o motor do Seven grava a cada minuto). Com a aba escondida não
+// confere; quando ela volta a aparecer, confere na hora.
+const CONFERIR_NCS_MS   = 10 * 1000;
+const CONFERIR_PECAS_MS = 10 * 60 * 1000;
+let ultimaConferenciaPecas = 0, conferindo = false, automaticoLigado = false;
+
+async function conferirMudancas() {
+  if (conferindo || document.hidden) return;
+  conferindo = true;
+  try {
+    let mudou = false;
+    const assin = await lerAssinatura();
+    if (assin !== assinaturaNcs) {
+      const novas = await buscarNcs();
+      if (retrato(novas) !== retrato(allNcs)) mudou = true;
+      allNcs = novas;
+      assinaturaNcs = assin;
+    }
+    if (Date.now() - ultimaConferenciaPecas >= CONFERIR_PECAS_MS) {
+      const lanc = await buscarHistorico();
+      ultimaConferenciaPecas = Date.now();
+      if (JSON.stringify(montarIndicador(allNcs, lanc)) !== JSON.stringify(indData)) mudou = true;
+      lancHistorico = lanc;
+    }
+    if (mudou) redesenhar();
+    marcarAtualizado();
+  } catch (e) {
+    console.warn('Atualização automática: ' + e.message);   // tenta de novo na próxima
+  } finally {
+    conferindo = false;
+  }
+}
+
+function ligarAtualizacaoAutomatica() {
+  if (automaticoLigado) return;
+  automaticoLigado = true;
+  setInterval(conferirMudancas, CONFERIR_NCS_MS);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) conferirMudancas(); });
+}
+
+function avisar(texto) {
+  const t = document.getElementById('toast');
+  t.textContent = texto;
+  t.classList.add('show');
+  clearTimeout(avisar.timer);
+  avisar.timer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 function parseDate(str) {
@@ -664,7 +762,12 @@ function renderTable() {
     document.getElementById('searchCount').textContent = '';
   }
 
-  const recentWithIdx = [...tableData].map(r => ({ r, realIdx: allData.indexOf(r) })).reverse().slice(0,50);
+  // Ordem: primeiro as sem status (ainda não respondidas); dentro de cada grupo,
+  // a mais recente em cima.
+  const semStatus = r => (r[COL.STATUS]||'').toString().trim() ? 0 : 1;
+  const recentWithIdx = [...tableData].map(r => ({ r, realIdx: allData.indexOf(r) })).reverse()
+    .sort((a, b) => semStatus(b.r) - semStatus(a.r))
+    .slice(0,50);
   document.getElementById('tableCount').textContent = tableData.length + ' registros';
 
   const prioClass = {'urgente':'p-urgente','alta':'p-alta','média':'p-media','media':'p-media','baixa':'p-baixa'};
@@ -676,7 +779,8 @@ function renderTable() {
     const tKey=(r[COL.TIPO]||'').toString().trim().toLowerCase();
     const sVal=(r[COL.STATUS]||'').toString().trim();
     const impacto=(r[COL.IMPACTO]||'').toString().trim();
-    const uid = 'acc-'+i;
+    const ncId = allIds[realIdx];
+    const uid = 'acc-'+ncId;   // pelo id da NC: continua aberta quando a lista se redesenha
     const impactoEscaped = impacto.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     const dataConcVal = (r[COL.DATA_CONC]||'').toString().split('/').length===3 ? r[COL.DATA_CONC].toString().split('/').reverse().join('-') : '';
     return `<tr class="tr-main" onclick="toggleAccordion('${uid}', this)">
@@ -689,7 +793,7 @@ function renderTable() {
       <td class="td-desc" title="${(r[COL.ALTERACAO]||'').toString().replace(/"/g,'&quot;')}">${r[COL.ALTERACAO]||'—'}</td>
       <td><span class="pill ${prioClass[pKey]||'p-aberto'}">${r[COL.PRIORIDADE]||'—'}</span></td>
       <td><span class="pill ${tipoClass[tKey]||'p-aberto'}">${r[COL.TIPO]||'—'}</span></td>
-      <td><span class="pill ${statClass(sVal)}">${sVal||'—'}</span></td>
+      <td><span class="pill ${statClass(sVal)}">${sVal||'Sem status'}</span></td>
       <td style="color:var(--text3)">${r[COL.RESPONSAVEL]||'—'}</td>
     </tr>
     <tr class="tr-accordion" id="${uid}">
@@ -710,7 +814,7 @@ function renderTable() {
             </div>
           </div>
         </div>
-        <div id="${uid}-editor" style="display:none;">
+        <div class="acc-editor" id="${uid}-editor" style="display:none;">
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:12px;margin-bottom:10px;">
             <div>
               <div class="accordion-label" style="margin-bottom:4px;">Status</div>
@@ -748,7 +852,7 @@ function renderTable() {
           </div>
           <div class="acc-actions" id="${uid}-actions" style="display:flex;">
             <input type="password" class="acc-senha" id="${uid}-senha" placeholder="Senha" />
-            <button class="acc-btn save" onclick="salvarTratativa('${uid}', ${realIdx})">Salvar</button>
+            <button class="acc-btn save" onclick="salvarTratativa('${uid}', ${ncId})">Salvar</button>
             <button class="acc-btn" onclick="cancelEdit('${uid}')">Cancelar</button>
             <span class="acc-msg" id="${uid}-msg"></span>
           </div>
@@ -875,9 +979,10 @@ function cancelEdit(uid) {
   document.getElementById(uid+'-text').style.display = 'block';
   document.getElementById(uid+'-editor').style.display = 'none';
   document.getElementById(uid+'-msg').textContent = '';
+  if (redesenhoPendente) redesenhar();   // o que chegou durante a edição aparece agora
 }
 
-async function salvarTratativa(uid, rowIndex) {
+async function salvarTratativa(uid, ncId) {
   const tratativa   = document.getElementById(uid+'-area').value.trim();
   const responsavel = document.getElementById(uid+'-resp').value.trim();
   const status      = document.getElementById(uid+'-status').value.trim();
@@ -887,36 +992,29 @@ async function salvarTratativa(uid, rowIndex) {
   if (!senha) { msgEl.style.color='#f05b5b'; msgEl.textContent = 'Digite a senha.'; return; }
   msgEl.style.color = 'var(--text3)';
   msgEl.textContent = 'Salvando...';
-  let dataConcFmt = '';
-  if (dataConc) {
-    const [y,m,d] = dataConc.split('-');
-    dataConcFmt = d+'/'+m+'/'+y;
-  }
   try {
     const res = await fetch(SB_URL + '/rest/v1/rpc/nc_salvar', {
       method: 'POST',
       headers: Object.assign({ 'Content-Type': 'application/json' }, SB_HEAD),
       body: JSON.stringify({
-        p_senha: senha, p_id: allIds[rowIndex], p_tratativa: tratativa,
+        p_senha: senha, p_id: ncId, p_tratativa: tratativa,
         p_responsavel: responsavel, p_status: status,
         p_data_conclusao: dataConc || null        // o campo de data já vem aaaa-mm-dd
       })
     });
     const json = await res.json();
     if (json.ok) {
-      // mantém a lista em memória igual ao banco, para filtros e reaberturas
-      const linha = allData[rowIndex];
-      if (linha) {
-        linha[COL.IMPACTO] = tratativa; linha[COL.RESPONSAVEL] = responsavel;
-        linha[COL.STATUS]  = status;    linha[COL.DATA_CONC]   = dataConcFmt;
-      }
-      msgEl.style.color = '#4ecb8d';
-      msgEl.textContent = '✓ Salvo!';
-      document.getElementById(uid+'-resp-text').textContent = responsavel || '—';
-      document.getElementById(uid+'-trat-text').innerHTML = tratativa
-        ? `<div class="accordion-text">${tratativa}</div>`
-        : '<div class="accordion-empty">Nenhuma tratativa registrada.</div>';
-      setTimeout(() => cancelEdit(uid), 1000);
+      // A tela muda na hora — status, contadores, gráficos, indicador e ordem
+      // da lista —, com a mesma regra que o banco usa ao gravar.
+      const nc = allNcs.find(n => n.id === ncId);
+      if (nc) Object.assign(nc, {
+        tratativa: tratativa || null, responsavel: responsavel || null,
+        status: status || null, data_conclusao: dataConc || null
+      });
+      document.getElementById(uid+'-text').style.display = 'block';
+      document.getElementById(uid+'-editor').style.display = 'none';
+      redesenhar();
+      avisar('✓ NC salva' + (status ? ' — ' + status : ''));
     } else {
       msgEl.style.color = '#f05b5b';
       msgEl.textContent = json.erro || 'Erro ao salvar.';
