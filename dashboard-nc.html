@@ -304,7 +304,111 @@
 </div>
 
 <script>
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzB_rXJGFEfDWEwbgKTLLwzyJzz5Skt6t7w4-Xsa2aJPN1u_hZXxy40NtH6Gjo3qI9U/exec';
+// Dados vêm do Supabase: as NCs da tabela nc_registros e as peças embaladas da
+// fatia 'historico', que o motor do Seven já grava para as TVs.
+// A chave é pública e só lê; gravar passa pela função nc_salvar, que confere a senha.
+const SB_URL  = 'https://luocdqquuvgxcpyklmwu.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1b2NkcXF1dXZneGNweWtsbXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4ODA5NjYsImV4cCI6MjEwNDQ1Njk2Nn0.snOTfxctxig8sKlOUfan19DuMSa2Q56vA5gWdwo4H3A';
+const SB_HEAD = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY };
+let allIds = [];   // id no Supabase de cada linha de allData, na mesma posição
+
+const MESES_NOME = ['janeiro','fevereiro','março','abril','maio','junho','julho',
+                    'agosto','setembro','outubro','novembro','dezembro'];
+
+// Semana de segunda a domingo, mas cada mês fecha as suas: a semana que vira o
+// mês se parte — os dias do mês que acabou ficam na última semana dele, e os do
+// mês novo começam a semana 1.
+function semanaDoMes(d) {
+  const w0 = (new Date(d.getFullYear(), d.getMonth(), 1).getDay() + 6) % 7;  // seg=0
+  return Math.ceil((d.getDate() + w0) / 7);
+}
+
+function dd2(n) { return String(n).padStart(2, '0'); }
+function fmtData(d) { return dd2(d.getDate()) + '/' + dd2(d.getMonth() + 1) + '/' + d.getFullYear(); }
+function fmtDataHora(d) {
+  return fmtData(d) + ' ' + dd2(d.getHours()) + ':' + dd2(d.getMinutes()) + ':' + dd2(d.getSeconds());
+}
+
+async function buscarSupabase(caminho) {
+  const res = await fetch(SB_URL + caminho, { headers: SB_HEAD, cache: 'no-store' });
+  if (!res.ok) throw new Error('Supabase HTTP ' + res.status);
+  return res.json();
+}
+
+// Monta a NC no mesmo formato de colunas que a planilha entregava (ver COL).
+// Ano, mês, semana e lead time saem da data — na planilha eles eram digitados
+// por fórmula e tinham linhas corrompidas ("18/07/1905", "01/01/1900").
+function ncParaLinha(n) {
+  const d    = new Date(n.carimbo);
+  const conc = n.data_conclusao ? new Date(n.data_conclusao + 'T00:00:00') : null;
+  const dia0 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const r = new Array(18).fill('');
+  r[COL.DATA]        = fmtDataHora(d);
+  r[COL.ANO]         = String(d.getFullYear());
+  r[COL.MES]         = MESES_NOME[d.getMonth()];
+  r[COL.SEMANA]      = String(semanaDoMes(d));
+  r[COL.NUM_PED]     = n.num_pedido || '';
+  r[COL.PRODUTO]     = n.produto || '';
+  r[COL.MODULO]      = n.modulo || '';
+  r[COL.SETOR_REG]   = n.setor_registrou || '';
+  r[COL.SETOR_ORIG]  = n.setor_origem || '';
+  r[COL.SOLICITANTE] = n.solicitante || '';
+  r[COL.ALTERACAO]   = n.descricao || '';
+  r[COL.PRIORIDADE]  = n.prioridade || '';
+  r[COL.TIPO]        = n.tipo || '';
+  r[COL.STATUS]      = n.status || '';
+  r[COL.RESPONSAVEL] = n.responsavel || '';
+  r[COL.DATA_CONC]   = conc ? fmtData(conc) : '';
+  r[COL.LEAD]        = conc ? String(Math.round((conc - dia0) / 86400000)) : '';
+  r[COL.IMPACTO]     = n.tratativa || '';
+  return r;
+}
+
+function linhaCSV(l) {
+  const r = []; let cur = '', q = false;
+  for (let i = 0; i < l.length; i++) {
+    const ch = l[i];
+    if (q) {
+      if (ch === '"') { if (l[i + 1] === '"') { cur += '"'; i++; } else q = false; }
+      else cur += ch;
+    } else if (ch === '"') q = true;
+    else if (ch === ',') { r.push(cur); cur = ''; }
+    else cur += ch;
+  }
+  r.push(cur);
+  return r;
+}
+
+// Indicador semanal do ano corrente: NCs (sem anuladas) e peças embaladas,
+// sempre na MESMA semana, pela mesma regra — por isso o % compara igual com igual.
+// Devolve [mês, semana, NCs, peças], o formato que a planilha entregava.
+function montarIndicador(ncs, lancCsv) {
+  const ano = new Date().getFullYear();
+  const mapa = {};
+  const semana = d => {
+    if (d.getFullYear() !== ano) return null;
+    const s = semanaDoMes(d), k = d.getMonth() * 10 + s;   // ordena mês e semana
+    return mapa[k] || (mapa[k] = { mes: d.getMonth(), sem: s, nc: 0, pecas: 0 });
+  };
+  ncs.forEach(n => {
+    if ((n.status || '').trim().toLowerCase() === 'anulada') return;
+    const s = semana(new Date(n.carimbo));
+    if (s) s.nc++;
+  });
+  (lancCsv || '').split('\n').slice(3).forEach(l => {
+    if (!l.trim()) return;
+    const c = linhaCSV(l);
+    if (c[2] !== 'Embalagem') return;
+    const m = (c[0] || '').match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (!m) return;
+    const s = semana(new Date(+m[3], +m[2] - 1, +m[1]));
+    if (s) s.pecas += (+c[5] || 0) + (+c[6] || 0) + (+c[7] || 0);
+  });
+  return Object.keys(mapa).map(Number).sort((a, b) => a - b).map(k => {
+    const s = mapa[k];
+    return [MESES_NOME[s.mes], String(s.sem), String(s.nc), String(s.pecas)];
+  });
+}
 
 let allData      = [];
 let indData      = [];
@@ -326,14 +430,13 @@ async function loadData() {
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('error').style.display = 'none';
   try {
-    const res = await fetch(SHEETS_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    const [ncPart, indPart] = text.split('===IND===');
-    const ncLines  = ncPart.replace('===NC===','').trim().split('\n').filter(l=>l.trim());
-    const indLines = (indPart||'').trim().split('\n').filter(l=>l.trim());
-    allData = ncLines.slice(1).map(l=>l.split('\t'));
-    indData = indLines.slice(1).map(l=>l.split('\t'));
+    const [ncs, fatia] = await Promise.all([
+      buscarSupabase('/rest/v1/nc_registros?select=*&order=carimbo.asc'),
+      buscarSupabase('/rest/v1/st4_dados?fatia=eq.historico&select=lancamentos_csv')
+    ]);
+    allData = ncs.map(ncParaLinha);
+    allIds  = ncs.map(n => n.id);
+    indData = montarIndicador(ncs, fatia.length ? fatia[0].lancamentos_csv : '');
     document.getElementById('loading').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     document.getElementById('lastUpdate').textContent = 'Atualizado ' + new Date().toLocaleTimeString('pt-BR');
@@ -344,7 +447,7 @@ async function loadData() {
     document.getElementById('loading').style.display = 'none';
     document.getElementById('error').style.display = 'block';
     document.getElementById('error').innerHTML =
-      '<strong>Erro ao carregar dados.</strong><br>Verifique se o Web App foi publicado com acesso "Qualquer pessoa".<br>' +
+      '<strong>Erro ao carregar dados.</strong><br>Verifique a conexão com a internet e tente de novo.<br>' +
       '<small style="opacity:0.7;font-family:var(--mono);">'+e.message+'</small>';
   }
 }
@@ -790,10 +893,23 @@ async function salvarTratativa(uid, rowIndex) {
     dataConcFmt = d+'/'+m+'/'+y;
   }
   try {
-    const params = new URLSearchParams({ acao:'salvar', senha, rowIndex, tratativa, responsavel, status, dataConc:dataConcFmt });
-    const res  = await fetch(SHEETS_URL + '?' + params.toString());
+    const res = await fetch(SB_URL + '/rest/v1/rpc/nc_salvar', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, SB_HEAD),
+      body: JSON.stringify({
+        p_senha: senha, p_id: allIds[rowIndex], p_tratativa: tratativa,
+        p_responsavel: responsavel, p_status: status,
+        p_data_conclusao: dataConc || null        // o campo de data já vem aaaa-mm-dd
+      })
+    });
     const json = await res.json();
     if (json.ok) {
+      // mantém a lista em memória igual ao banco, para filtros e reaberturas
+      const linha = allData[rowIndex];
+      if (linha) {
+        linha[COL.IMPACTO] = tratativa; linha[COL.RESPONSAVEL] = responsavel;
+        linha[COL.STATUS]  = status;    linha[COL.DATA_CONC]   = dataConcFmt;
+      }
       msgEl.style.color = '#4ecb8d';
       msgEl.textContent = '✓ Salvo!';
       document.getElementById(uid+'-resp-text').textContent = responsavel || '—';
