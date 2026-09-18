@@ -56,6 +56,18 @@
   .metric.m-green  .metric-value { color: var(--green); }
   .metric.m-blue   .metric-value { color: var(--blue); }
   .metric-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+  .metric.m-gray::before { background: var(--text3); }
+  .metric.m-gray .metric-value { color: var(--text2); }
+  .metric.m-purple { --cor: var(--accent); } .metric.m-red   { --cor: var(--red); }
+  .metric.m-amber  { --cor: var(--amber); }  .metric.m-green { --cor: var(--green); }
+  .metric.m-blue   { --cor: var(--blue); }   .metric.m-gray  { --cor: var(--text3); }
+  .metric.clicavel { cursor: pointer; user-select: none; }
+  .metric.clicavel:hover { background: var(--bg3); }
+  .metric.ativo { border-color: var(--cor); background: var(--bg3); }
+  .metric.ativo::before { height: 3px; }
+  .metrics-titulo { font-size: 11px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .filtro-chip { background: var(--accent-glow); border: 0.5px solid var(--accent); border-radius: 20px; padding: 2px 10px; margin-left: 8px; font-size: 11px; font-family: var(--mono); color: var(--accent2); cursor: pointer; }
+  .filtro-chip:hover { color: var(--text); }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
   .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
   @media (max-width: 900px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
@@ -183,23 +195,24 @@
     </div>
 
     <!-- MÉTRICAS -->
+    <!-- Clicar num card filtra gráficos e tabela; clicar de novo (ou no Total) limpa. -->
     <div class="metrics">
-      <div class="metric m-purple">
+      <div class="metric m-purple clicavel ativo" data-filtro="todos" onclick="setCard('todos')">
         <div class="metric-label">Total de registros</div>
         <div class="metric-value" id="m-total">—</div>
         <div class="metric-sub" id="m-periodo">—</div>
       </div>
-      <div class="metric m-red">
+      <div class="metric m-red clicavel" data-filtro="urgentes" onclick="setCard('urgentes')">
         <div class="metric-label">Urgentes em aberto</div>
         <div class="metric-value" id="m-urgentes">—</div>
         <div class="metric-sub">Requerem atenção imediata</div>
       </div>
-      <div class="metric m-amber">
-        <div class="metric-label">Em andamento</div>
+      <div class="metric m-amber clicavel" data-filtro="abertos" onclick="setCard('abertos')">
+        <div class="metric-label">Em aberto</div>
         <div class="metric-value" id="m-abertos">—</div>
-        <div class="metric-sub">Ainda não resolvidos</div>
+        <div class="metric-sub">Sem status + em andamento</div>
       </div>
-      <div class="metric m-green">
+      <div class="metric m-green clicavel" data-filtro="resolvidos" onclick="setCard('resolvidos')">
         <div class="metric-label">Resolvidos</div>
         <div class="metric-value" id="m-finalizados">—</div>
         <div class="metric-sub" id="m-taxa">— taxa de resolução</div>
@@ -208,6 +221,36 @@
         <div class="metric-label">Setores envolvidos</div>
         <div class="metric-value" id="m-setores">—</div>
         <div class="metric-sub">Setores distintos</div>
+      </div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="metrics-titulo">Status</div>
+    <div class="metrics">
+      <div class="metric m-red clicavel" data-filtro="sem" onclick="setCard('sem')">
+        <div class="metric-label">Sem status</div>
+        <div class="metric-value" id="st-sem">—</div>
+        <div class="metric-sub">Aguardando resposta</div>
+      </div>
+      <div class="metric m-amber clicavel" data-filtro="andamento" onclick="setCard('andamento')">
+        <div class="metric-label">Em andamento</div>
+        <div class="metric-value" id="st-andamento">—</div>
+        <div class="metric-sub">Sendo tratadas</div>
+      </div>
+      <div class="metric m-green clicavel" data-filtro="finalizado" onclick="setCard('finalizado')">
+        <div class="metric-label">Finalizado</div>
+        <div class="metric-value" id="st-finalizado">—</div>
+        <div class="metric-sub">Concluídas</div>
+      </div>
+      <div class="metric m-blue clicavel" data-filtro="naoatendida" onclick="setCard('naoatendida')">
+        <div class="metric-label">Não atendida</div>
+        <div class="metric-value" id="st-naoatendida">—</div>
+        <div class="metric-sub">Encerradas sem atender</div>
+      </div>
+      <div class="metric m-gray clicavel" data-filtro="anulada" onclick="setCard('anulada')">
+        <div class="metric-label">Anulada</div>
+        <div class="metric-value" id="st-anulada">—</div>
+        <div class="metric-sub">Fora das contagens</div>
       </div>
     </div>
 
@@ -575,8 +618,35 @@ function getPeriodRange() {
   }
 }
 
-function getFiltered() {
-  let data = allData.filter(r => (r[COL.STATUS]||'').toString().trim().toLowerCase() !== 'anulada');
+// ── FILTRO DOS CARDS ── um card por vez, somado ao período e ao setor.
+const stNorm    = r => (r[COL.STATUS]||'').toString().trim().toLowerCase();
+const anulada   = r => stNorm(r) === 'anulada';
+const resolvida = r => ['finalizado','não atendida','nao atendida'].includes(stNorm(r));
+const FILTRO_CARD = {
+  todos:       r => true,
+  urgentes:    r => (r[COL.PRIORIDADE]||'').toString().trim().toLowerCase() === 'urgente' && !resolvida(r) && !anulada(r),
+  abertos:     r => !resolvida(r) && !anulada(r),
+  resolvidos:  r => resolvida(r),
+  sem:         r => !stNorm(r),
+  andamento:   r => stNorm(r) === 'em andamento',
+  finalizado:  r => stNorm(r) === 'finalizado',
+  naoatendida: r => stNorm(r) === 'não atendida' || stNorm(r) === 'nao atendida',
+  anulada:     r => anulada(r),
+};
+const NOME_CARD = {
+  urgentes:'Urgentes em aberto', abertos:'Em aberto', resolvidos:'Resolvidos', sem:'Sem status',
+  andamento:'Em andamento', finalizado:'Finalizado', naoatendida:'Não atendida', anulada:'Anulada'
+};
+let activeCard = 'todos';
+
+function setCard(k) {
+  activeCard = (activeCard === k) ? 'todos' : k;   // clicar de novo no mesmo card limpa
+  render(getFiltered());
+}
+
+// Período + setor, com as anuladas junto.
+function getBase() {
+  let data = allData;
   const range = getPeriodRange();
   if (range) {
     const [ini, fim] = range;
@@ -585,6 +655,31 @@ function getFiltered() {
   if (activeSetor !== 'all')
     data = data.filter(r => (r[COL.SETOR_ORIG]||'').toString().trim() === activeSetor);
   return data;
+}
+
+// O que os gráficos mostram: sem as anuladas (a não ser que o card delas esteja escolhido).
+function getFiltered() {
+  return getBase().filter(r => (activeCard === 'anulada' || !anulada(r)) && FILTRO_CARD[activeCard](r));
+}
+
+// Os números dos cards seguem só período e setor — escolher um card não muda os outros.
+function renderCards() {
+  const base    = getBase();
+  const validas = base.filter(r => !anulada(r));
+  const n       = k => base.filter(FILTRO_CARD[k]).length;
+  const set     = (id, v) => { document.getElementById(id).textContent = v; };
+  const total = validas.length, resolvidos = n('resolvidos');
+  const datas = validas.map(r=>(r[COL.DATA]||'').toString().split(' ')[0]).filter(Boolean);
+  set('m-total', total);
+  set('m-urgentes', n('urgentes'));
+  set('m-abertos', n('abertos'));
+  set('m-finalizados', resolvidos);
+  set('m-taxa', total ? Math.round(resolvidos/total*100)+'% taxa de resolução' : '—');
+  set('m-setores', new Set(validas.map(r=>r[COL.SETOR_ORIG]).filter(Boolean)).size);
+  set('m-periodo', (datas[0]||'—')+' → '+(datas[datas.length-1]||'—'));
+  ['sem','andamento','finalizado','naoatendida','anulada'].forEach(k => set('st-'+k, n(k)));
+  document.querySelectorAll('.metric[data-filtro]').forEach(el =>
+    el.classList.toggle('ativo', el.dataset.filtro === activeCard));
 }
 
 function setPeriod(p) {
@@ -667,27 +762,7 @@ function makeBars(id, dataObj, color) {
 }
 
 function render(data) {
-  const total = data.length;
-  const urgAbertos = data.filter(r => {
-    const p=(r[COL.PRIORIDADE]||'').toString().trim().toLowerCase();
-    const s=(r[COL.STATUS]||'').toString().trim().toLowerCase();
-    return p==='urgente' && s!=='finalizado' && s!=='não atendida' && s!=='nao atendida';
-  }).length;
-  const resolvidos = data.filter(r => {
-    const s=(r[COL.STATUS]||'').toString().trim().toLowerCase();
-    return s==='finalizado'||s==='não atendida'||s==='nao atendida';
-  }).length;
-  const abertos = total - resolvidos;
-  const setores = new Set(data.map(r=>r[COL.SETOR_ORIG]).filter(Boolean)).size;
-  const datas   = data.map(r=>(r[COL.DATA]||'').toString().split(' ')[0]).filter(Boolean);
-
-  document.getElementById('m-total').textContent      = total;
-  document.getElementById('m-urgentes').textContent   = urgAbertos;
-  document.getElementById('m-abertos').textContent    = abertos;
-  document.getElementById('m-finalizados').textContent= resolvidos;
-  document.getElementById('m-taxa').textContent       = total ? Math.round(resolvidos/total*100)+'% taxa de resolução' : '—';
-  document.getElementById('m-setores').textContent    = setores;
-  document.getElementById('m-periodo').textContent    = (datas[0]||'—')+' → '+(datas[datas.length-1]||'—');
+  renderCards();
 
   const tipos = count(data, COL.TIPO);
   const tipoCores = {'Não conformidade':'#f05b5b','não conformidade':'#f05b5b','Alteração':'#f0a63a','alteração':'#f0a63a','Melhoria':'#4ea8e8','melhoria':'#4ea8e8','Assistência':'#a89cf7','assistência':'#a89cf7','assistencia':'#a89cf7'};
@@ -697,8 +772,11 @@ function render(data) {
   const prioColors = {'Urgente':'#f05b5b','Alta':'#f07a3a','Média':'#f0a63a','Baixa':'#4ecb8d'};
   makeDonut('chartPrio', Object.keys(prios), Object.values(prios), Object.keys(prios).map(k=>prioColors[k]||'#9090a0'));
 
+  // mesmo nome e mesma cor dos cards de status, seja qual for o filtro
   const statuses = count(data, COL.STATUS);
-  makeDonut('chartStatus', Object.keys(statuses), Object.values(statuses), ['#4ecb8d','#7c6af7','#f0a63a','#9090a0','#4ea8e8']);
+  if (statuses['—']) { statuses['Sem status'] = statuses['—']; delete statuses['—']; }
+  const statusCores = {'Sem status':'#f05b5b','Em andamento':'#f0a63a','Finalizado':'#4ecb8d','Não atendida':'#4ea8e8','Anulada':'#5a5a6a'};
+  makeDonut('chartStatus', Object.keys(statuses), Object.values(statuses), Object.keys(statuses).map(k=>statusCores[k]||'#9090a0'));
 
   const byDate = countByDate(data);
   if(charts['chartDia']) charts['chartDia'].destroy();
@@ -741,14 +819,8 @@ function render(data) {
 }
 
 function renderTable() {
-  let tableData = allData;
-  const tableRange = getPeriodRange();
-  if (tableRange) {
-    const [ini, fim] = tableRange;
-    tableData = tableData.filter(r => { const d=parseDate(r[COL.DATA]); return d && d>=ini && d<=fim; });
-  }
-  if (activeSetor !== 'all')
-    tableData = tableData.filter(r => (r[COL.SETOR_ORIG]||'').toString().trim() === activeSetor);
+  // sem card escolhido a tabela mostra também as anuladas, riscadas
+  let tableData = getBase().filter(FILTRO_CARD[activeCard]);
 
   // Aplicar busca
   if (searchTerm) {
@@ -768,7 +840,11 @@ function renderTable() {
   const recentWithIdx = [...tableData].map(r => ({ r, realIdx: allData.indexOf(r) })).reverse()
     .sort((a, b) => semStatus(b.r) - semStatus(a.r))
     .slice(0,50);
-  document.getElementById('tableCount').textContent = tableData.length + ' registros';
+  document.getElementById('tableCount').innerHTML =
+    (tableData.length > 50 ? 'mostrando 50 de ' : '') + tableData.length + ' registros' +
+    (activeCard !== 'todos'
+      ? `<button class="filtro-chip" onclick="setCard('todos')" title="Limpar filtro">${NOME_CARD[activeCard]} ✕</button>`
+      : '');
 
   const prioClass = {'urgente':'p-urgente','alta':'p-alta','média':'p-media','media':'p-media','baixa':'p-baixa'};
   const tipoClass = {'não conformidade':'p-nc','melhoria':'p-melhoria','alteração':'p-alteracao','assistência':'p-assistencia','assistencia':'p-assistencia'};
