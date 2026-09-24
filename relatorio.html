@@ -1478,8 +1478,18 @@ function renderIndicadores(){
   h+='<div class="sum-card" id="sum-card-B" style="border-color:#8a6010;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'B\')"><div class="sum-label">Classe B (50-79%)</div><div class="sum-val" style="color:#8a6010">'+nB+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
   h+='<div class="sum-card" id="sum-card-C" style="border-color:#8B3A0F;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'C\')"><div class="sum-label">Classe C (&lt;50%)</div><div class="sum-val" style="color:#8B3A0F">'+nC+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
   // 4° card: KPI Desempenho geral
-  var totProdMes=totalLans(lansPeriodo);
-  var totMetaMes=Object.keys(COLAB_DATA).reduce(function(s,n){var cd=COLAB_DATA[n];return s+(cd&&cd.meta>0?cd.meta*du:0);},0);
+  // Com um setor escolhido no filtro, os KPIs falam daquele setor — antes eles
+  // mostravam a fabrica inteira, enquanto as classes A/B/C ja eram do setor.
+  var lansKpi=SETOR_FILTRO_IND?lansPeriodo.filter(function(l){
+    var cd=COLAB_DATA[chaveDe(l)];return (cd?cd.setor:l.setor)===SETOR_FILTRO_IND;
+  }):lansPeriodo;
+  var totProdMes=totalLans(lansKpi);
+  var totMetaMes=Object.keys(COLAB_DATA).reduce(function(s,n){
+    var cd=COLAB_DATA[n];
+    if(!cd||cd.meta<=0)return s;
+    if(SETOR_FILTRO_IND&&cd.setor!==SETOR_FILTRO_IND)return s;
+    return s+cd.meta*du;
+  },0);
   var pctGeral=totMetaMes>0?Math.round(totProdMes/totMetaMes*100):0;
   var gcG=pctGeral>=80?'#1a6b3a':pctGeral>=50?'#8a6010':'#8B3A0F';
   h+='<div class="sum-card" style="border-color:'+gcG+'"><div class="sum-label">Desempenho Geral</div><div class="sum-val" style="color:'+gcG+'">'+pctGeral+'%</div><div class="sum-sub">da meta do mês</div></div>';
@@ -1504,8 +1514,8 @@ function renderIndicadores(){
 
   // === BLOCO 2: KPIs resumo + Gráfico evolução diária ===
   h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">';
-  var mediaDia=diasMes.length>0?Math.round(totalLans(lansPeriodo)/diasMes.length):0;
-  [[totProdMes,'Total Mês','peças produzidas','#8B3A0F'],
+  var mediaDia=diasMes.length>0?Math.round(totProdMes/diasMes.length):0;
+  [[totProdMes,SETOR_FILTRO_IND?'Total · '+SETOR_FILTRO_IND:'Total Mês','peças produzidas','#8B3A0F'],
    [nA,'Classe A','colaboradores ≥80%','#1a6b3a'],
    [mediaDia,'Média/Dia','peças por dia trabalhado','#1a5f8a']
   ].forEach(function(k){
