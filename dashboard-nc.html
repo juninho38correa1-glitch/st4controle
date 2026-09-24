@@ -375,6 +375,7 @@ function semanaDoMes(d) {
 }
 
 function dd2(n) { return String(n).padStart(2, '0'); }
+function hojeISO() { const d = new Date(); return d.getFullYear()+'-'+dd2(d.getMonth()+1)+'-'+dd2(d.getDate()); }
 function fmtData(d) { return dd2(d.getDate()) + '/' + dd2(d.getMonth() + 1) + '/' + d.getFullYear(); }
 function fmtDataHora(d) {
   return fmtData(d) + ' ' + dd2(d.getHours()) + ':' + dd2(d.getMinutes()) + ':' + dd2(d.getSeconds());
@@ -521,9 +522,11 @@ function marcarAtualizado() {
   document.getElementById('lastUpdate').textContent = 'Atualizado ' + new Date().toLocaleTimeString('pt-BR');
 }
 
-function editando() {
-  return [...document.querySelectorAll('.acc-editor')].some(el => el.style.display === 'block');
-}
+// Como clicar na NC já abre os campos, "editando" é só quando alguém mexeu em
+// algum deles — senão uma NC aberta e esquecida travaria a atualização da tela.
+let edicaoAtiva = null;   // uid da NC com alteração ainda não salva
+function marcarEdicao(uid) { edicaoAtiva = uid; }
+function editando() { return edicaoAtiva !== null; }
 
 // Recalcula e redesenha tudo a partir de allNcs, mantendo abertas as NCs que
 // estavam abertas. Se alguém está editando, espera terminar para não apagar o
@@ -540,7 +543,7 @@ function redesenhar() {
   renderIndicador(indData);
   abertas.forEach(uid => {
     const acc = document.getElementById(uid);
-    if (acc) { acc.classList.add('open'); acc.previousElementSibling.classList.add('open'); }
+    if (acc) { acc.classList.add('open'); acc.previousElementSibling.classList.add('open'); startEdit(uid, true); }
   });
 }
 
@@ -858,7 +861,9 @@ function renderTable() {
     const ncId = allIds[realIdx];
     const uid = 'acc-'+ncId;   // pelo id da NC: continua aberta quando a lista se redesenha
     const impactoEscaped = impacto.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    const dataConcVal = (r[COL.DATA_CONC]||'').toString().split('/').length===3 ? r[COL.DATA_CONC].toString().split('/').reverse().join('-') : '';
+    // sem data gravada, o campo já vem com a de hoje — o caso de longe mais comum
+    const dataConcVal = (r[COL.DATA_CONC]||'').toString().split('/').length===3
+      ? r[COL.DATA_CONC].toString().split('/').reverse().join('-') : hojeISO();
     return `<tr class="tr-main" onclick="toggleAccordion('${uid}', this)">
       <td class="td-date">${r[COL.DATA]||'—'}</td>
       <td style="font-family:var(--mono);font-size:11px;color:var(--text3)">${r[COL.NUM_PED]||'—'}</td>
@@ -890,7 +895,8 @@ function renderTable() {
             </div>
           </div>
         </div>
-        <div class="acc-editor" id="${uid}-editor" style="display:none;">
+        <div class="acc-editor" id="${uid}-editor" style="display:none;"
+             oninput="marcarEdicao('${uid}')" onchange="marcarEdicao('${uid}')">
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 2fr;gap:12px;margin-bottom:10px;">
             <div>
               <div class="accordion-label" style="margin-bottom:4px;">Status</div>
@@ -1038,23 +1044,27 @@ function renderIndicador(rows) {
   }).join('');
 }
 
+// Clicar na NC já abre com os campos prontos para preencher.
 function toggleAccordion(uid, row) {
   const acc = document.getElementById(uid);
-  const isOpen = acc.classList.contains('open');
-  acc.classList.toggle('open', !isOpen);
-  row.classList.toggle('open', !isOpen);
+  const abrir = !acc.classList.contains('open');
+  acc.classList.toggle('open', abrir);
+  row.classList.toggle('open', abrir);
+  if (abrir) startEdit(uid);
+  else if (edicaoAtiva === uid) edicaoAtiva = null;   // fechou sem salvar
 }
 
-function startEdit(uid) {
+function startEdit(uid, semFoco) {
   document.getElementById(uid+'-text').style.display = 'none';
   document.getElementById(uid+'-editor').style.display = 'block';
-  document.getElementById(uid+'-area').focus();
+  if (!semFoco) document.getElementById(uid+'-area').focus({ preventScroll: true });
 }
 
 function cancelEdit(uid) {
   document.getElementById(uid+'-text').style.display = 'block';
   document.getElementById(uid+'-editor').style.display = 'none';
   document.getElementById(uid+'-msg').textContent = '';
+  if (edicaoAtiva === uid) edicaoAtiva = null;
   if (redesenhoPendente) redesenhar();   // o que chegou durante a edição aparece agora
 }
 
@@ -1087,8 +1097,11 @@ async function salvarTratativa(uid, ncId) {
         tratativa: tratativa || null, responsavel: responsavel || null,
         status: status || null, data_conclusao: dataConc || null
       });
-      document.getElementById(uid+'-text').style.display = 'block';
-      document.getElementById(uid+'-editor').style.display = 'none';
+      // salvou: fecha a NC e mostra o resultado já na lista
+      const acc = document.getElementById(uid);
+      acc.classList.remove('open');
+      acc.previousElementSibling.classList.remove('open');
+      if (edicaoAtiva === uid) edicaoAtiva = null;
       redesenhar();
       avisar('✓ NC salva' + (status ? ' — ' + status : ''));
     } else {
