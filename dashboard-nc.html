@@ -491,7 +491,7 @@ async function loadData() {
   try {
     // a assinatura vem antes dos dados: o que mudar durante a carga aparece na conferência seguinte
     assinaturaNcs = await lerAssinatura();
-    [allNcs, lancHistorico] = await Promise.all([buscarNcs(), buscarHistorico()]);
+    [allNcs, lancHistorico] = await Promise.all([buscarNcs(), buscarHistorico(), carregarConfig()]);
     ultimaConferenciaPecas = Date.now();
     document.getElementById('loading').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
@@ -504,6 +504,21 @@ async function loadData() {
     document.getElementById('error').innerHTML =
       '<strong>Erro ao carregar dados.</strong><br>Verifique a conexão com a internet e tente de novo.<br>' +
       '<small style="opacity:0.7;font-family:var(--mono);">'+e.message+'</small>';
+  }
+}
+
+// Meta do indicador: NCs por 100 peças. Vem da engrenagem do index (app_config);
+// o valor abaixo só vale se o banco não responder.
+let META_NC = 3.0;
+
+async function carregarConfig() {
+  try {
+    const linhas = await buscarSupabase('/rest/v1/app_config?select=chave,valor');
+    const alvo = linhas.find(r => r.chave === 'meta_nc_por_100');
+    const v = alvo ? Number(String(alvo.valor).replace(',', '.')) : 0;
+    if (v > 0) META_NC = v;
+  } catch (e) {
+    console.warn('Meta do indicador: usando o padrão —', e.message);
   }
 }
 
@@ -1102,7 +1117,7 @@ function renderIndicador(rows) {
   document.getElementById('cardIndicador').style.display='block';
 
   const agg  = aggregateInd(rows, indMode);
-  const META = 3.0;
+  const META = META_NC;   // configurada na engrenagem do index
   // Multiplicador recalculado a partir dos totais agregados (NC's / Peças * 100)
   const mult   = agg.map(a => a.pecas > 0 ? parseFloat((a.nc/a.pecas*100).toFixed(2)) : 0);
   const labels = agg.map(a => a.label);

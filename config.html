@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Configuracoes — Studyo4</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
+.page{max-width:1000px;margin:0 auto;padding:20px}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:2px solid #2C2520;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.logo{font-size:14px;font-weight:700;letter-spacing:3px}
+.logo span{font-weight:400;letter-spacing:2px;color:#6B5A4E}
+.pbtn{font-size:11px;font-weight:700;letter-spacing:1px;padding:8px 18px;border:1px solid rgba(44,37,32,0.3);background:transparent;color:#2C2520;cursor:pointer}
+.pbtn:hover{background:#2C2520;color:#F5F0EA}
+h1{font-size:20px;letter-spacing:1px}
+.sub{font-size:11px;color:#6B5A4E;margin-top:3px;letter-spacing:1px}
+.bloco{background:#DCCCBE;padding:18px 20px;margin-bottom:16px}
+.bloco-tit{font-size:10px;font-weight:700;letter-spacing:2px;color:#2C2520;text-transform:uppercase;padding-bottom:6px;border-bottom:2px solid rgba(44,37,32,0.3);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.aviso{background:#E8E0D5;border-left:4px solid #1a5f8a;padding:12px 16px;font-size:12px;line-height:1.6;color:#2C2520;margin-bottom:16px}
+.globais{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px}
+.campo{background:#E8E0D5;padding:12px 14px;border-left:4px solid #1a5f8a}
+.campo-lab{font-size:10px;font-weight:700;letter-spacing:1px;color:#6B5A4E;text-transform:uppercase;margin-bottom:6px}
+.campo-sub{font-size:10px;color:#8a7060;margin-top:5px;line-height:1.5}
+input[type=number],input[type=text],input[type=password],select{font-family:Arial,sans-serif;font-size:13px;font-weight:700;padding:7px 10px;border:1px solid rgba(44,37,32,0.3);background:#F5F0EA;color:#2C2520;outline:none;width:100%}
+input:focus,select:focus{border-color:#1a5f8a}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#2C2520;color:#DCCCBE;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px;text-align:left}
+td{padding:6px 8px;border-bottom:1px solid rgba(44,37,32,0.1)}
+tr:hover td{background:rgba(44,37,32,0.04)}
+td.meta{width:110px}
+td.meta input{width:90px;text-align:center}
+.pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;letter-spacing:1px}
+.p-sem{background:rgba(139,58,15,0.12);color:#8B3A0F}
+.p-ok{background:rgba(26,107,58,0.12);color:#1a6b3a}
+.p-mudou{background:rgba(26,95,138,0.15);color:#1a5f8a}
+.linha-ctrl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.salvar{font-size:12px;font-weight:700;letter-spacing:1px;padding:9px 22px;border:1px solid #1a6b3a;background:#1a6b3a;color:#F5F0EA;cursor:pointer}
+.salvar:hover{background:#155a30}
+.salvar:disabled{opacity:0.45;cursor:default}
+.msg{font-size:11px;font-weight:700;letter-spacing:1px}
+.rodape{font-size:10px;color:#8a7060;letter-spacing:1px;text-align:center;padding:16px 0}
+@media(max-width:700px){.page{padding:12px}td.meta{width:86px}td.meta input{width:72px}}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <div>
+      <div class="logo">STUDYO4 <span>ESTOFADOS</span></div>
+      <div class="sub">CONFIGURACOES DO SISTEMA</div>
+    </div>
+    <button class="pbtn" onclick="window.location.href='index.html'">&#8592; VOLTAR</button>
+  </div>
+
+  <h1>Metas</h1>
+  <div class="sub" id="sub">Carregando...</div>
+
+  <div class="aviso">
+    O que você salvar aqui vale para <strong>todo o sistema</strong>: relatório, TVs e dashboard.
+    As metas por pessoa entram nas telas no próximo ciclo do motor, em até 1 minuto.
+    Gravar pede a senha uma vez por aba.
+  </div>
+
+  <div class="bloco">
+    <div class="bloco-tit"><span>Metas gerais da fábrica</span><span class="msg" id="msg-glob"></span></div>
+    <div class="globais" id="globais"></div>
+    <div style="margin-top:14px"><button class="salvar" id="btn-glob" onclick="salvarGlobais()">Salvar metas gerais</button></div>
+  </div>
+
+  <div class="bloco">
+    <div class="bloco-tit"><span>Meta diária por pessoa</span><span class="msg" id="msg-metas"></span></div>
+    <div class="linha-ctrl">
+      <input type="text" id="busca" placeholder="Buscar pessoa ou setor..." oninput="render()" style="max-width:260px">
+      <select id="filtro-setor" onchange="render()" style="max-width:220px"></select>
+      <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:#6B5A4E;display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="so-sem" onchange="render()" style="width:auto"> Só quem está sem meta
+      </label>
+      <button class="salvar" id="btn-metas" onclick="salvarMetas()" disabled>Salvar metas</button>
+    </div>
+    <table><thead><tr><th>Setor</th><th>Pessoa</th><th>TV</th><th style="text-align:center">Meta/dia</th><th>Situação</th></tr></thead>
+    <tbody id="corpo"></tbody></table>
+  </div>
+
+  <div class="rodape">Studyo 4 Estofados | © Junior Corrêa · Todos os direitos reservados</div>
+</div>
+
+<script>
+// Le do Supabase com a chave publica (so leitura). Gravar passa pelas funcoes
+// config_salvar e meta_salvar, que conferem a senha do dashboard.
+var SB_URL='https://luocdqquuvgxcpyklmwu.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1b2NkcXF1dXZneGNweWtsbXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4ODA5NjYsImV4cCI6MjEwNDQ1Njk2Nn0.snOTfxctxig8sKlOUfan19DuMSa2Q56vA5gWdwo4H3A';
+function cab(){return{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};}
+
+var GLOBAIS=[
+  {chave:'meta_finalizadas_dia',rotulo:'Peças finalizadas por dia',sub:'Peças que saem da Embalagem por dia trabalhado. É a meta do card de destaque do relatório.',passo:'1'},
+  {chave:'meta_nc_por_100',rotulo:'NCs por 100 peças',sub:'Corte do indicador de não conformidades. Acima disso o número fica vermelho.',passo:'0.1'},
+  {chave:'corte_classe_a',rotulo:'Classe A a partir de (%)',sub:'Percentual da meta para a pessoa ser classe A no relatório.',passo:'1'},
+  {chave:'corte_classe_b',rotulo:'Classe B a partir de (%)',sub:'Abaixo disso a pessoa é classe C.',passo:'1'}
+];
+
+var CONFIG={}, PESSOAS=[], METAS={}, ORIGINAL={};
+
+function senha(){
+  var s='';
+  try{s=sessionStorage.getItem('st4_senha')||'';}catch(e){}
+  if(!s){
+    s=prompt('Senha para salvar as configurações:')||'';
+    if(s){try{sessionStorage.setItem('st4_senha',s);}catch(e){}}
+  }
+  return s;
+}
+function esquecerSenha(){try{sessionStorage.removeItem('st4_senha');}catch(e){}}
+
+async function ler(caminho){
+  var res=await fetch(SB_URL+caminho,{headers:cab(),cache:'no-store'});
+  if(!res.ok)throw new Error('Supabase HTTP '+res.status);
+  return res.json();
+}
+
+async function rpc(nome,corpo){
+  var res=await fetch(SB_URL+'/rest/v1/rpc/'+nome,{method:'POST',headers:cab(),body:JSON.stringify(corpo)});
+  var json=null;
+  try{json=await res.json();}catch(e){}
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  if(!json||!json.ok){
+    if(json&&json.erro&&json.erro.indexOf('Senha')===0)esquecerSenha();
+    throw new Error(json&&json.erro?json.erro:'resposta inesperada');
+  }
+  return json;
+}
+
+function linhaCSV(l){
+  var r=[],cur='',q=false;
+  for(var i=0;i<l.length;i++){
+    var ch=l[i];
+    if(q){if(ch==='"'){if(l[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=ch;}
+    else if(ch==='"')q=true;
+    else if(ch===','){r.push(cur);cur='';}
+    else cur+=ch;
+  }
+  r.push(cur);
+  return r;
+}
+
+// A lista de pessoas vem do CSV que o motor publica: quem aponta no Seven
+// aparece aqui sozinho, sem cadastro.
+function pessoasDoCSV(csv){
+  var vistos={},saida=[];
+  (csv||'').split('\n').slice(3).forEach(function(l){
+    if(!l.trim())return;
+    var c=linhaCSV(l);
+    var nome=(c[0]||'').trim(), setor=(c[1]||'').trim();
+    if(!nome||!setor)return;
+    var k=setor+'|'+nome;
+    if(vistos[k])return;
+    vistos[k]=1;
+    saida.push({setor:setor,nome:nome,tv:(c[4]||'').trim()});
+  });
+  return saida;
+}
+
+async function carregar(){
+  var [cfg,metas,fatia]=await Promise.all([
+    ler('/rest/v1/app_config?select=chave,valor'),
+    ler('/rest/v1/metas_colaborador?select=setor,nome,meta'),
+    ler('/rest/v1/st4_dados?fatia=eq.historico&select=colaboradores_csv,gerado_em')
+  ]);
+  CONFIG={};cfg.forEach(function(r){CONFIG[r.chave]=r.valor;});
+  METAS={};metas.forEach(function(r){METAS[r.setor+'|'+r.nome]=Number(r.meta)||0;});
+  PESSOAS=pessoasDoCSV(fatia.length?fatia[0].colaboradores_csv:'');
+  // quem tem meta mas não apareceu no CSV ainda também entra na lista
+  metas.forEach(function(r){
+    if(!PESSOAS.some(function(p){return p.setor===r.setor&&p.nome===r.nome;}))
+      PESSOAS.push({setor:r.setor,nome:r.nome,tv:''});
+  });
+  ORIGINAL=JSON.parse(JSON.stringify(METAS));
+  document.getElementById('sub').textContent=
+    PESSOAS.length+' pessoas · '+Object.keys(METAS).length+' com meta · dados do motor de '+(fatia.length?fatia[0].gerado_em:'-');
+  montarGlobais();
+  montarFiltroSetor();
+  render();
+}
+
+function montarGlobais(){
+  document.getElementById('globais').innerHTML=GLOBAIS.map(function(g){
+    var v=CONFIG[g.chave]!==undefined?CONFIG[g.chave]:'';
+    return '<div class="campo"><div class="campo-lab">'+g.rotulo+'</div>'+
+           '<input type="number" step="'+g.passo+'" min="0" id="g-'+g.chave+'" value="'+v+'">'+
+           '<div class="campo-sub">'+g.sub+'</div></div>';
+  }).join('');
+}
+
+function montarFiltroSetor(){
+  var setores=[];
+  PESSOAS.forEach(function(p){if(setores.indexOf(p.setor)===-1)setores.push(p.setor);});
+  setores.sort();
+  document.getElementById('filtro-setor').innerHTML=
+    '<option value="">Todos os setores</option>'+setores.map(function(s){return '<option>'+s+'</option>';}).join('');
+}
+
+function render(){
+  var q=(document.getElementById('busca').value||'').toLowerCase().trim();
+  var setor=document.getElementById('filtro-setor').value;
+  var soSem=document.getElementById('so-sem').checked;
+  var lista=PESSOAS.filter(function(p){
+    var k=p.setor+'|'+p.nome;
+    if(setor&&p.setor!==setor)return false;
+    if(soSem&&METAS[k]>0)return false;
+    if(q&&(p.nome+' '+p.setor).toLowerCase().indexOf(q)===-1)return false;
+    return true;
+  }).sort(function(a,b){return a.setor.localeCompare(b.setor)||a.nome.localeCompare(b.nome);});
+
+  document.getElementById('corpo').innerHTML=lista.map(function(p){
+    var k=p.setor+'|'+p.nome;
+    var atual=METAS[k]||0, antes=ORIGINAL[k]||0;
+    var pill=atual!==antes?'<span class="pill p-mudou">a salvar</span>'
+            :atual>0?'<span class="pill p-ok">'+atual+'/dia</span>'
+                    :'<span class="pill p-sem">sem meta</span>';
+    return '<tr><td>'+p.setor+'</td><td style="font-weight:700">'+p.nome+'</td>'+
+      '<td style="color:#8a7060">'+(p.tv||'-')+'</td>'+
+      '<td class="meta"><input type="number" min="0" step="1" value="'+(atual||'')+'" placeholder="-" '+
+      'oninput="mudar(this,\''+k.replace(/'/g,"\\'")+'\')"></td>'+
+      '<td>'+pill+'</td></tr>';
+  }).join('')||'<tr><td colspan="5" style="color:#8a7060;padding:14px">Nada encontrado com esse filtro.</td></tr>';
+
+  var mudou=Object.keys(METAS).concat(Object.keys(ORIGINAL)).some(function(k){return (METAS[k]||0)!==(ORIGINAL[k]||0);});
+  document.getElementById('btn-metas').disabled=!mudou;
+}
+
+function mudar(input,chave){
+  var v=Math.max(0,Math.round(Number(input.value)||0));
+  if(v>0)METAS[chave]=v; else delete METAS[chave];
+  var mudou=Object.keys(METAS).concat(Object.keys(ORIGINAL)).some(function(k){return (METAS[k]||0)!==(ORIGINAL[k]||0);});
+  document.getElementById('btn-metas').disabled=!mudou;
+  var td=input.parentElement.nextElementSibling;
+  if(td)td.innerHTML=(METAS[chave]||0)!==(ORIGINAL[chave]||0)?'<span class="pill p-mudou">a salvar</span>'
+      :METAS[chave]>0?'<span class="pill p-ok">'+METAS[chave]+'/dia</span>':'<span class="pill p-sem">sem meta</span>';
+}
+
+async function salvarGlobais(){
+  var msg=document.getElementById('msg-glob');
+  var s=senha();
+  if(!s){msg.style.color='#8B3A0F';msg.textContent='Sem senha, nada salvo.';return;}
+  var mudar=GLOBAIS.filter(function(g){
+    var el=document.getElementById('g-'+g.chave);
+    return el&&String(el.value).trim()!==String(CONFIG[g.chave]||'').trim();
+  });
+  if(!mudar.length){msg.style.color='#6B5A4E';msg.textContent='Nada mudou.';return;}
+  msg.style.color='#6B5A4E';msg.textContent='Salvando...';
+  try{
+    for(var i=0;i<mudar.length;i++){
+      var g=mudar[i], el=document.getElementById('g-'+g.chave);
+      await rpc('config_salvar',{p_senha:s,p_chave:g.chave,p_valor:String(el.value).trim()});
+      CONFIG[g.chave]=String(el.value).trim();
+    }
+    msg.style.color='#1a6b3a';msg.textContent='✓ '+mudar.length+' salvo(s)';
+  }catch(e){
+    msg.style.color='#8B3A0F';msg.textContent=e.message;
+  }
+}
+
+async function salvarMetas(){
+  var msg=document.getElementById('msg-metas');
+  var s=senha();
+  if(!s){msg.style.color='#8B3A0F';msg.textContent='Sem senha, nada salvo.';return;}
+  var chaves={};
+  Object.keys(METAS).concat(Object.keys(ORIGINAL)).forEach(function(k){
+    if((METAS[k]||0)!==(ORIGINAL[k]||0))chaves[k]=1;
+  });
+  var lista=Object.keys(chaves);
+  msg.style.color='#6B5A4E';msg.textContent='Salvando '+lista.length+'...';
+  var erros=0;
+  for(var i=0;i<lista.length;i++){
+    var p=lista[i].split('|');
+    try{
+      await rpc('meta_salvar',{p_senha:s,p_setor:p[0],p_nome:p.slice(1).join('|'),p_meta:METAS[lista[i]]||0});
+      ORIGINAL[lista[i]]=METAS[lista[i]]||0;
+    }catch(e){erros++;msg.style.color='#8B3A0F';msg.textContent=e.message;}
+  }
+  if(!erros){
+    msg.style.color='#1a6b3a';
+    msg.textContent='✓ '+lista.length+' meta(s) salva(s) — as telas atualizam em até 1 minuto';
+  }
+  render();
+}
+
+carregar().catch(function(e){
+  document.getElementById('sub').textContent='Erro ao carregar: '+e.message;
+});
+</script>
+</body>
+</html>

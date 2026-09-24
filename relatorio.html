@@ -148,9 +148,26 @@ var SETOR_FILTRO_IND=null; // filtro de setor nos Indicadores
 // nao tem meta cadastrada e sumia das telas. O checkbox continua para esconder.
 var INC_SEM_META=true;
 
-// Meta de pecas FINALIZADAS (embaladas) por dia trabalhado. Para mudar a meta
-// da fabrica, troque so este numero.
-var META_FINALIZADAS_DIA=30;
+// Metas gerais: sao configuradas na engrenagem do index (tabela app_config no
+// Supabase). Os valores abaixo so valem se o banco nao responder.
+var META_FINALIZADAS_DIA=30;   // pecas embaladas por dia trabalhado
+var CORTE_A=80;                // % da meta para ser classe A
+var CORTE_B=50;                // abaixo disso e classe C
+
+async function carregarConfig(){
+  try{
+    var res=await fetch(SB_DADOS_URL+'/rest/v1/app_config?select=chave,valor',
+      {headers:{apikey:SB_DADOS_KEY,Authorization:'Bearer '+SB_DADOS_KEY},cache:'no-store'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    var mapa={};
+    (await res.json()).forEach(function(r){mapa[r.chave]=Number(String(r.valor).replace(',','.'));});
+    if(mapa.meta_finalizadas_dia>0)META_FINALIZADAS_DIA=mapa.meta_finalizadas_dia;
+    if(mapa.corte_classe_a>0)CORTE_A=mapa.corte_classe_a;
+    if(mapa.corte_classe_b>0)CORTE_B=mapa.corte_classe_b;
+  }catch(e){
+    console.warn('Metas gerais: usando os valores padrao —',e.message||e);
+  }
+}
 
 
 function parseCSVLine(line){var r=[],cur='',inQ=false;for(var i=0;i<line.length;i++){if(line[i]==='"'){inQ=!inQ;}else if(line[i]===','&&!inQ){r.push(cur.trim().replace(/^"|"$/g,''));cur='';}else if(line[i]!=='"'){cur+=line[i];}}r.push(cur.trim().replace(/^"|"$/g,''));return r;}
@@ -530,7 +547,7 @@ function getLansPeriodo(){
   var d=getPeriodoDatas();
   return ALL_LANCAMENTOS.filter(function(l){var dt=parseDate(l.data);return dt&&dt>=d.ini&&dt<=d.fim;});
 }
-function getClasse(pct){return pct>=80?'A':pct>=50?'B':'C';}
+function getClasse(pct){return pct>=CORTE_A?'A':pct>=CORTE_B?'B':'C';}
 function getClasseCor(cl){return cl==='A'?'#1a6b3a':cl==='B'?'#8a6010':'#8B3A0F';}
 function getCor(setor){
   // Cores fixas por setor — consistentes entre recargas
@@ -722,7 +739,7 @@ function renderRelatorio(){
   sum+='<div class="summary-grid">';
   sum+='<div class="sum-card" style="border-color:#8B3A0F"><div class="sum-label">Total Produzido</div><div class="sum-val" style="color:#8B3A0F">'+totalProd+'</div><div class="sum-sub">soma das etapas</div></div>';
   sum+='<div class="sum-card" style="border-color:'+gc+'"><div class="sum-label">Desempenho Geral</div><div class="sum-val" style="color:'+gc+'">'+pctG+'%</div><div class="sum-sub">da meta atingida</div></div>';
-  sum+='<div class="sum-card" style="border-color:#1a6b3a"><div class="sum-label">Classe A (&ge;80%)</div><div class="sum-val" style="color:#1a6b3a">'+totalA+'</div><div class="sum-sub">colaboradores</div></div>';
+  sum+='<div class="sum-card" style="border-color:#1a6b3a"><div class="sum-label">Classe A (&ge;'+CORTE_A+'%)</div><div class="sum-val" style="color:#1a6b3a">'+totalA+'</div><div class="sum-sub">colaboradores</div></div>';
   sum+='<div class="sum-card" style="border-color:#8a6010"><div class="sum-label">Classe B / C</div><div class="sum-val" style="color:#8a6010">'+(totalB+totalC)+'</div><div class="sum-sub">precisam de atencao</div></div>';
   sum+='</div>';
   document.getElementById('app').innerHTML=sum+html;
@@ -781,8 +798,8 @@ function renderGraficos(){
   var nC=allColabs.filter(function(c){return c.classe==='C';}).length;
 
   var html='<div class="summary-grid">';
-  html+='<div class="sum-card" id="sum-card-A" style="border-color:#1a6b3a;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'A\')"><div class="sum-label">Classe A (&ge;80%)</div><div class="sum-val" style="color:#1a6b3a">'+nA+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
-  html+='<div class="sum-card" id="sum-card-B" style="border-color:#8a6010;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'B\')"><div class="sum-label">Classe B (50-79%)</div><div class="sum-val" style="color:#8a6010">'+nB+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
+  html+='<div class="sum-card" id="sum-card-A" style="border-color:#1a6b3a;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'A\')"><div class="sum-label">Classe A (&ge;'+CORTE_A+'%)</div><div class="sum-val" style="color:#1a6b3a">'+nA+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
+  html+='<div class="sum-card" id="sum-card-B" style="border-color:#8a6010;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'B\')"><div class="sum-label">Classe B ('+CORTE_B+'-'+(CORTE_A-1)+'%)</div><div class="sum-val" style="color:#8a6010">'+nB+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
   html+='<div class="sum-card" id="sum-card-C" style="border-color:#8B3A0F;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'C\')"><div class="sum-label">Classe C (&lt;50%)</div><div class="sum-val" style="color:#8B3A0F">'+nC+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
   html+='<div class="sum-card" style="border-color:#1a5f8a"><div class="sum-label">Media Diaria Mes</div><div class="sum-val" style="color:#1a5f8a">'+mediaDia+'</div><div class="sum-sub">pecas/dia util</div></div>';
   html+='</div>';
@@ -1459,7 +1476,7 @@ function renderIndicadores(){
     var diasAtivos=lansPeriodo.filter(function(l){return casaChave(l,nome);}).reduce(function(set,l){var dt=parseDate(l.data);if(dt)set[dt.toDateString()]=1;return set;},{});
     var nDias=Object.keys(diasAtivos).length;
     var score=du>0?Math.round((nDias/du)*100):0;
-    var classe=meta>0?(pct>=80?'A':pct>=50?'B':'C'):'—';
+    var classe=meta>0?getClasse(pct):'—';
     if(meta<=0&&!INC_SEM_META)return; // skip sem meta if not toggled
     colabMes[nome]={prod:prod,meta:meta,pct:pct,classe:classe,nDias:nDias,score:score,setor:cd.setor,sub:cd.sub||''};
   });
@@ -1546,8 +1563,8 @@ function renderIndicadores(){
 
   // === BLOCO 1A: Cards ABC clicáveis (do período selecionado) ===
   h+='<div class="summary-grid" style="margin-bottom:8px">';
-  h+='<div class="sum-card" id="sum-card-A" style="border-color:#1a6b3a;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'A\')"><div class="sum-label">Classe A (&ge;80%)</div><div class="sum-val" style="color:#1a6b3a">'+nA+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
-  h+='<div class="sum-card" id="sum-card-B" style="border-color:#8a6010;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'B\')"><div class="sum-label">Classe B (50-79%)</div><div class="sum-val" style="color:#8a6010">'+nB+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
+  h+='<div class="sum-card" id="sum-card-A" style="border-color:#1a6b3a;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'A\')"><div class="sum-label">Classe A (&ge;'+CORTE_A+'%)</div><div class="sum-val" style="color:#1a6b3a">'+nA+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
+  h+='<div class="sum-card" id="sum-card-B" style="border-color:#8a6010;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'B\')"><div class="sum-label">Classe B ('+CORTE_B+'-'+(CORTE_A-1)+'%)</div><div class="sum-val" style="color:#8a6010">'+nB+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
   h+='<div class="sum-card" id="sum-card-C" style="border-color:#8B3A0F;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'C\')"><div class="sum-label">Classe C (&lt;50%)</div><div class="sum-val" style="color:#8B3A0F">'+nC+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
   // 4° card: KPI Desempenho geral
   var totProdMes=totalLans(lansKpi);
@@ -2111,9 +2128,10 @@ function lerArquivoDados(){
 async function carregarDados(){
   document.getElementById('app').innerHTML='<div class="loading-msg"><div class="spinner"></div>Carregando dados...</div>';
   try{
-    // Calendário (Supabase) e dados de produção (arquivo local) em PARALELO
+    // Calendário, metas configuradas e dados de produção em PARALELO
     await Promise.all([
       carregarCalendarioSupabase(),
+      carregarConfig(),
       lerArquivoDados()
     ]);
     if(!ST4_LANCAMENTOS_CSV)throw new Error('Supabase respondeu sem dados');
