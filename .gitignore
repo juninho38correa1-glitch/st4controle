@@ -1,0 +1,11 @@
+# Só os HTMLs vão para o GitHub. O motor fica fora: o db_config.json tem a
+# chave secreta do Supabase e o repositório é público.
+/*
+!/.gitignore
+!/index.html
+!/relatorio.html
+!/dashboard-nc.html
+!/TV1.html
+!/TV2.html
+!/TV3.html
+!/TV4.html

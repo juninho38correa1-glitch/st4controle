@@ -138,7 +138,9 @@ var ALL_LANCAMENTOS=[];
 var COLAB_DATA={};
 var COLAB_SELECIONADO=null;
 var SETOR_FILTRO_IND=null; // filtro de setor nos Indicadores
-var INC_SEM_META=false; // incluir colaboradores sem meta
+// Quem produziu aparece, tendo meta ou nao — mais da metade da fabrica ainda
+// nao tem meta cadastrada e sumia das telas. O checkbox continua para esconder.
+var INC_SEM_META=true;
 
 
 function parseCSVLine(line){var r=[],cur='',inQ=false;for(var i=0;i<line.length;i++){if(line[i]==='"'){inQ=!inQ;}else if(line[i]===','&&!inQ){r.push(cur.trim().replace(/^"|"$/g,''));cur='';}else if(line[i]!=='"'){cur+=line[i];}}r.push(cur.trim().replace(/^"|"$/g,''));return r;}
@@ -968,14 +970,26 @@ function renderIndividual(){
   html+='style="font-size:13px;font-weight:700;letter-spacing:1px;padding:9px 16px;border:1px solid rgba(44,37,32,0.3);background:#F5F0EA;color:#2C2520;outline:none;min-width:240px;flex:1;max-width:400px">';
   html+='<select id="select-colab" onchange="COLAB_SELECIONADO=this.value;selecionarColab(this.value)" ';
   html+='style="font-size:13px;font-weight:700;letter-spacing:1px;padding:9px 16px;border:1px solid rgba(44,37,32,0.3);background:#F5F0EA;color:#2C2520;outline:none;min-width:240px;flex:1;max-width:400px">';
-  html+='<option value="">— Escolha um colaborador —</option>';
+  html+='<option value="">— Escolha um colaborador ou setor —</option>';
+  // Setor inteiro: soma todas as pessoas daquele setor
+  var setoresInd={};
+  Object.keys(COLAB_DATA).forEach(function(c){
+    var cd=COLAB_DATA[c];if(!cd||!cd.setor)return;
+    setoresInd[cd.setor]=(setoresInd[cd.setor]||0)+1;
+  });
+  html+='<optgroup label="Setor completo">';
+  Object.keys(setoresInd).sort().forEach(function(s){
+    var v='setor::'+s;
+    html+='<option value="'+v+'" '+(COLAB_SELECIONADO===v?'selected':'')+'>'+s.toUpperCase()+' — '+setoresInd[s]+' pessoa'+(setoresInd[s]>1?'s':'')+'</option>';
+  });
+  html+='</optgroup><optgroup label="Colaborador">';
   nomes.forEach(function(nl){
     var g=agrupados[nl];
     var setLabel=g.setores.length>0?' ('+g.setores.join(' · ')+')':'';
     var sel=(COLAB_SELECIONADO===nl)?'selected':'';
     html+='<option value="'+nl+'" '+sel+'>'+g.nomeExibir+setLabel+'</option>';
   });
-  html+='</select>';
+  html+='</optgroup></select>';
   html+='</div></div>';
   html+='<div id="individual-result"></div>';
   document.getElementById('app').innerHTML=html;
@@ -1002,9 +1016,20 @@ function selecionarColab(nlKey){
   var result=document.getElementById('individual-result');
   if(!nlKey||!result){if(result)result.innerHTML='';return;}
 
-  var agrupados=buildColabsAgrupados();
-  var grupo=agrupados[nlKey];
-  if(!grupo){result.innerHTML='';return;}
+  var grupo;
+  if(nlKey.indexOf('setor::')===0){
+    // setor inteiro: junta as chaves de todas as pessoas do setor
+    var setorSel=nlKey.slice(7);
+    var chavesSetor=Object.keys(COLAB_DATA).filter(function(c){
+      return COLAB_DATA[c]&&COLAB_DATA[c].setor===setorSel;
+    });
+    if(!chavesSetor.length){result.innerHTML='';return;}
+    grupo={nomeExibir:setorSel,chaves:chavesSetor,setores:[setorSel],ehSetor:true};
+  } else {
+    grupo=buildColabsAgrupados()[nlKey];
+    if(!grupo){result.innerHTML='';return;}
+  }
+  var ehSetor=!!grupo.ehSetor;
 
   var lans=getLansPeriodo();
   var hoje=new Date();hoje.setHours(0,0,0,0);
@@ -1051,7 +1076,7 @@ function selecionarColab(nlKey){
   h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">';
   h+='<div>';
   h+='<div style="font-size:20px;font-weight:700;letter-spacing:2px;color:'+corPrincipal+'">'+grupo.nomeExibir.toUpperCase()+'</div>';
-  h+='<div style="font-size:11px;color:#6B5A4E;margin-top:4px;letter-spacing:1px">Setores: '+grupo.setores.join(' · ')+'</div>';
+  h+='<div style="font-size:11px;color:#6B5A4E;margin-top:4px;letter-spacing:1px">'+(ehSetor?('Setor completo · '+grupo.chaves.length+' colaboradores'):('Setores: '+grupo.setores.join(' · ')))+'</div>';
   h+='</div>';
 
   var periodoKpiLabel=PERIODO==='dia'?'Hoje':PERIODO==='semana'?'Semana':PERIODO==='mesEspec'&&MES_SEL!==null?['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][MES_SEL]:'Mês Atual';
@@ -1081,10 +1106,12 @@ function selecionarColab(nlKey){
   }
   h+='</div>';
 
-  // ── Tabela por setor no período selecionado ───────────────
+  // ── Tabela de detalhe no período selecionado ──────────────
+  // Colaborador escolhido: quebra por setor. Setor escolhido: quebra por pessoa.
+  var rotuloDe=function(l){return ehSetor?(l.nome||'(sem nome)'):(l.setor||'(sem setor)');};
   var porSetor={};
   lansPeriodo.forEach(function(l){
-    var s=l.setor||'(sem setor)';
+    var s=rotuloDe(l);
     if(!porSetor[s])porSetor[s]={corpus:0,almof:0,retrab:0,diasSet:{}};
     porSetor[s].corpus+=Number(l.prodCorpo)||0;
     porSetor[s].almof+=Number(l.prodAlmof)||0;
@@ -1096,9 +1123,9 @@ function selecionarColab(nlKey){
   var periodoLabel=getPeriodoLabel();
 
   // ── Tabela sempre aparece — com ou sem lançamentos ────────
-  h+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:8px">Produção por Setor — '+periodoLabel+'</div>';
+  h+='<div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:8px">Produção por '+(ehSetor?'Colaborador':'Setor')+' — '+periodoLabel+'</div>';
   h+='<table class="table"><thead><tr>';
-  h+='<th>Setor</th>';
+  h+='<th>'+(ehSetor?'Colaborador':'Setor')+'</th>';
   h+='<th style="text-align:center">Corpo</th>';
   h+='<th style="text-align:center">Almofada</th>';
   h+='<th style="text-align:center">Retrabalho</th>';
@@ -1109,9 +1136,13 @@ function selecionarColab(nlKey){
   h+='<th>Progresso</th>';
   h+='</tr></thead><tbody>';
 
-  // Incluir TODOS os setores do colaborador — mesmo sem lançamento no período
+  // Inclui TODAS as linhas da base — mesmo quem não teve lançamento no período
   var todosSetsColab=[];
-  grupo.chaves.forEach(function(c){var cd=COLAB_DATA[c];if(cd&&cd.setor&&todosSetsColab.indexOf(cd.setor)===-1)todosSetsColab.push(cd.setor);});
+  grupo.chaves.forEach(function(c){
+    var cd=COLAB_DATA[c];if(!cd)return;
+    var r=ehSetor?cd.nome:cd.setor;
+    if(r&&todosSetsColab.indexOf(r)===-1)todosSetsColab.push(r);
+  });
   // Adicionar setores que tiveram lançamento no período mas não estão na base
   setores.forEach(function(s){if(todosSetsColab.indexOf(s)===-1)todosSetsColab.push(s);});
   todosSetsColab.sort();
@@ -1121,11 +1152,13 @@ function selecionarColab(nlKey){
     var sd=porSetor[s]||{corpus:0,almof:0,retrab:0,diasSet:{}};
     var total=sd.corpus+sd.almof;
     var dias=Object.keys(sd.diasSet).length;
-    var metaChave=grupo.chaves.filter(function(c){return (COLAB_DATA[c]&&COLAB_DATA[c].setor===s);});
+    var metaChave=grupo.chaves.filter(function(c){
+      var cd=COLAB_DATA[c];return cd&&(ehSetor?cd.nome===s:cd.setor===s);
+    });
     var metaS=metaChave.reduce(function(sum,c){var cd=COLAB_DATA[c];return sum+(cd?getMetaPeriodo(cd.meta):0);},0);
     var pctS=metaS>0?Math.round(total/metaS*100):null;
     var bc=pctS===null?'#6B5A4E':pctS>=100?'#1a6b3a':pctS>=70?'#8a6010':'#8B3A0F';
-    var corS=getCor(s);
+    var corS=ehSetor?corPrincipal:getCor(s);
     var semLan=total===0&&metaS>0;
     tCorpo+=sd.corpus;tAlmof+=sd.almof;tRetrab+=sd.retrab;tDias+=dias;tMeta+=metaS;
     h+='<tr'+(semLan?' style="opacity:0.65"':'')+'>';
@@ -1420,12 +1453,17 @@ function renderIndicadores(){
   for(var dd=new Date(periodoIni);dd<=periodoFim&&dd<=hoje;dd.setDate(dd.getDate()+1)){
     if(isDiaUtil(dd))diasMes.push(new Date(dd));
   }
+  // Com um setor escolhido no filtro, TUDO nesta aba fala so daquele setor.
+  var lansKpi=SETOR_FILTRO_IND?lansPeriodo.filter(function(l){
+    var cd=COLAB_DATA[chaveDe(l)];return (cd?cd.setor:l.setor)===SETOR_FILTRO_IND;
+  }):lansPeriodo;
+
   var prodDia={};diasMes.forEach(function(d){prodDia[d.toDateString()]=0;});
-  lansPeriodo.forEach(function(l){var dt=parseDate(l.data);if(!dt)return;var k=dt.toDateString();if(prodDia[k]!==undefined)prodDia[k]+=prodLan(l);});
-  var mediaDia=diasMes.length>0?Math.round(totalLans(lansPeriodo)/diasMes.length):0;
+  lansKpi.forEach(function(l){var dt=parseDate(l.data);if(!dt)return;var k=dt.toDateString();if(prodDia[k]!==undefined)prodDia[k]+=prodLan(l);});
+  var mediaDia=diasMes.length>0?Math.round(totalLans(lansKpi)/diasMes.length):0;
 
   // ── heatmap: todos os dias úteis + feriados + bloqueios (com carimbo visual) ──
-  var heatLans=lansPeriodo;
+  var heatLans=lansKpi;
   var heatDias=[];
   for(var hdx=new Date(periodoIni);hdx<=periodoFim&&hdx<=hoje;hdx.setDate(hdx.getDate()+1)){
     var dwx=hdx.getDay();
@@ -1478,11 +1516,6 @@ function renderIndicadores(){
   h+='<div class="sum-card" id="sum-card-B" style="border-color:#8a6010;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'B\')"><div class="sum-label">Classe B (50-79%)</div><div class="sum-val" style="color:#8a6010">'+nB+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
   h+='<div class="sum-card" id="sum-card-C" style="border-color:#8B3A0F;cursor:pointer;transition:all .2s" onclick="toggleClasseFiltro(\'C\')"><div class="sum-label">Classe C (&lt;50%)</div><div class="sum-val" style="color:#8B3A0F">'+nC+'</div><div class="sum-sub">colaboradores &nbsp;▼</div></div>';
   // 4° card: KPI Desempenho geral
-  // Com um setor escolhido no filtro, os KPIs falam daquele setor — antes eles
-  // mostravam a fabrica inteira, enquanto as classes A/B/C ja eram do setor.
-  var lansKpi=SETOR_FILTRO_IND?lansPeriodo.filter(function(l){
-    var cd=COLAB_DATA[chaveDe(l)];return (cd?cd.setor:l.setor)===SETOR_FILTRO_IND;
-  }):lansPeriodo;
   var totProdMes=totalLans(lansKpi);
   var totMetaMes=Object.keys(COLAB_DATA).reduce(function(s,n){
     var cd=COLAB_DATA[n];
@@ -1514,7 +1547,6 @@ function renderIndicadores(){
 
   // === BLOCO 2: KPIs resumo + Gráfico evolução diária ===
   h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">';
-  var mediaDia=diasMes.length>0?Math.round(totProdMes/diasMes.length):0;
   [[totProdMes,SETOR_FILTRO_IND?'Total · '+SETOR_FILTRO_IND:'Total Mês','peças produzidas','#8B3A0F'],
    [nA,'Classe A','colaboradores ≥80%','#1a6b3a'],
    [mediaDia,'Média/Dia','peças por dia trabalhado','#1a5f8a']
