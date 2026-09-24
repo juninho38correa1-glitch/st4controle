@@ -20,6 +20,12 @@ html,body{font-family:Arial,sans-serif;background:#F5F0EA;color:#2C2520}
 .pbtn{font-size:11px;font-weight:700;letter-spacing:1px;padding:7px 18px;border:1px solid rgba(44,37,32,0.3);background:transparent;color:#2C2520;cursor:pointer;text-transform:uppercase;transition:all .2s}
 .pbtn.active,.pbtn:hover{background:#2C2520;color:#DCCCBE;border-color:#2C2520}
 .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:20px}
+.destaque{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.destaque-card{background:#E8E0D5;border:1px solid rgba(44,37,32,0.18);border-left:5px solid #1a5f8a;padding:18px 20px}
+.destaque-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:6px}
+.destaque-val{font-size:44px;font-weight:700;line-height:1}
+.destaque-de{font-size:20px;font-weight:700;color:#8a7060}
+.destaque-sub{font-size:11px;color:#6B5A4E;margin-top:6px;letter-spacing:1px}
 .sum-card{background:#DCCCBE;padding:14px 16px;border-left:4px solid}
 .sum-label{font-size:9px;font-weight:700;letter-spacing:2px;color:#6B5A4E;text-transform:uppercase;margin-bottom:4px}
 .sum-val{font-size:28px;font-weight:700;line-height:1}
@@ -141,6 +147,10 @@ var SETOR_FILTRO_IND=null; // filtro de setor nos Indicadores
 // Quem produziu aparece, tendo meta ou nao — mais da metade da fabrica ainda
 // nao tem meta cadastrada e sumia das telas. O checkbox continua para esconder.
 var INC_SEM_META=true;
+
+// Meta de pecas FINALIZADAS (embaladas) por dia trabalhado. Para mudar a meta
+// da fabrica, troque so este numero.
+var META_FINALIZADAS_DIA=30;
 
 
 function parseCSVLine(line){var r=[],cur='',inQ=false;for(var i=0;i<line.length;i++){if(line[i]==='"'){inQ=!inQ;}else if(line[i]===','&&!inQ){r.push(cur.trim().replace(/^"|"$/g,''));cur='';}else if(line[i]!=='"'){cur+=line[i];}}r.push(cur.trim().replace(/^"|"$/g,''));return r;}
@@ -695,8 +705,21 @@ function renderRelatorio(){
     return s+(Number(l.prodCorpo)||0)+(Number(l.prodAlmof)||0);
   },0);
 
+  // Destaque: o que a fábrica realmente entregou, contra a meta de peças por dia.
+  var metaFin=getMetaPeriodo(META_FINALIZADAS_DIA);
+  var pctFin=metaFin>0?Math.round(embalados/metaFin*100):0;
+  var corFin=pctFin>=100?'#1a6b3a':pctFin>=70?'#8a6010':'#8B3A0F';
+  sum+='<div class="destaque">';
+  sum+='<div class="destaque-card"><div class="destaque-label">Peças Finalizadas</div>';
+  sum+='<div class="destaque-val" style="color:#1a5f8a">'+embalados+'<span class="destaque-de"> / '+metaFin+'</span></div>';
+  sum+='<div class="destaque-sub">seladas na Embalagem · meta '+META_FINALIZADAS_DIA+'/dia</div></div>';
+  sum+='<div class="destaque-card"><div class="destaque-label">Desempenho Geral</div>';
+  sum+='<div class="destaque-val" style="color:'+corFin+'">'+pctFin+'%</div>';
+  sum+='<div class="bar-wrap" style="height:8px;margin-top:6px"><div class="bar-fill" style="width:'+Math.min(pctFin,100)+'%;background:'+corFin+'"></div></div>';
+  sum+='<div class="destaque-sub">da meta de peças finalizadas</div></div>';
+  sum+='</div>';
+
   sum+='<div class="summary-grid">';
-  sum+='<div class="sum-card" style="border-color:#1a5f8a"><div class="sum-label">Peças Finalizadas</div><div class="sum-val" style="color:#1a5f8a">'+embalados+'</div><div class="sum-sub">seladas na Embalagem</div></div>';
   sum+='<div class="sum-card" style="border-color:#8B3A0F"><div class="sum-label">Total Produzido</div><div class="sum-val" style="color:#8B3A0F">'+totalProd+'</div><div class="sum-sub">soma das etapas</div></div>';
   sum+='<div class="sum-card" style="border-color:'+gc+'"><div class="sum-label">Desempenho Geral</div><div class="sum-val" style="color:'+gc+'">'+pctG+'%</div><div class="sum-sub">da meta atingida</div></div>';
   sum+='<div class="sum-card" style="border-color:#1a6b3a"><div class="sum-label">Classe A (&ge;80%)</div><div class="sum-val" style="color:#1a6b3a">'+totalA+'</div><div class="sum-sub">colaboradores</div></div>';
