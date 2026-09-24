@@ -156,7 +156,9 @@ function pessoasDoCSV(csv){
     var k=setor+'|'+nome;
     if(vistos[k])return;
     vistos[k]=1;
-    saida.push({setor:setor,nome:nome,tv:(c[4]||'').trim()});
+    // quem mudou de setor no Seven (coluna Ativo = 0) some da lista: nao faz
+    // sentido dar meta no setor onde a pessoa nao esta mais
+    saida.push({setor:setor,nome:nome,tv:(c[4]||'').trim(),ativo:c[5]!=='0'});
   });
   return saida;
 }
@@ -169,7 +171,8 @@ async function carregar(){
   ]);
   CONFIG={};cfg.forEach(function(r){CONFIG[r.chave]=r.valor;});
   METAS={};metas.forEach(function(r){METAS[r.setor+'|'+r.nome]=Number(r.meta)||0;});
-  PESSOAS=pessoasDoCSV(fatia.length?fatia[0].colaboradores_csv:'');
+  PESSOAS=pessoasDoCSV(fatia.length?fatia[0].colaboradores_csv:'')
+    .filter(function(p){return p.ativo||METAS[p.setor+'|'+p.nome]>0;});
   // quem tem meta mas não apareceu no CSV ainda também entra na lista
   metas.forEach(function(r){
     if(!PESSOAS.some(function(p){return p.setor===r.setor&&p.nome===r.nome;}))

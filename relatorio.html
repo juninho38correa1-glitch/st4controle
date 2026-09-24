@@ -172,7 +172,7 @@ async function carregarConfig(){
 
 function parseCSVLine(line){var r=[],cur='',inQ=false;for(var i=0;i<line.length;i++){if(line[i]==='"'){inQ=!inQ;}else if(line[i]===','&&!inQ){r.push(cur.trim().replace(/^"|"$/g,''));cur='';}else if(line[i]!=='"'){cur+=line[i];}}r.push(cur.trim().replace(/^"|"$/g,''));return r;}
 function parseDate(str){if(!str)return null;str=str.trim();var parts,d,m,y,sl=str.indexOf('/'),da=str.indexOf('-');if(sl!==-1){parts=str.split('/');if(parts[2]&&parts[2].length===4){d=+parts[0];m=+parts[1];y=+parts[2];}else{m=+parts[0];d=+parts[1];y=+parts[2];}}else if(da!==-1){parts=str.split('-');y=+parts[0];m=+parts[1];d=+parts[2];}else return null;if(!y||!m||!d)return null;return new Date(y,m-1,d);}
-function parseColab(csv){var linhas=csv.split('\n').filter(function(l){return l.trim();});var map={};for(var i=2;i<linhas.length;i++){var c=parseCSVLine(linhas[i]);if(!c[0])continue;if(c[0]==='Nome Completo'&&c[1]==='Setor')continue;/* linha de cabecalho do CSV */var nome=c[0].trim();var setor=c[1]?c[1].trim():'';map[setor+'|'+nome]={nome:nome,setor:setor,sub:c[2]?c[2].trim():'',meta:Number(c[3])||0,tv:c[4]?c[4].trim():''};}return map;}
+function parseColab(csv){var linhas=csv.split('\n').filter(function(l){return l.trim();});var map={};for(var i=2;i<linhas.length;i++){var c=parseCSVLine(linhas[i]);if(!c[0])continue;if(c[0]==='Nome Completo'&&c[1]==='Setor')continue;/* linha de cabecalho do CSV */var nome=c[0].trim();var setor=c[1]?c[1].trim():'';map[setor+'|'+nome]={nome:nome,setor:setor,sub:c[2]?c[2].trim():'',meta:Number(c[3])||0,tv:c[4]?c[4].trim():'',ativo:c[5]!=='0'};}return map;}
 // O mesmo nome do Seven aparece em varios setores com metas diferentes,
 // entao a identidade aqui e sempre setor+nome.
 function chaveDe(l){return l.setor+'|'+l.nome;}
@@ -586,10 +586,21 @@ function getCor(setor){
   return getCor._map[key];
 }
 
-function buildSetores(){
+// Quem mudou de setor no Seven (ativo=0) fica fora das listas do setor antigo,
+// mas volta a aparecer nos periodos em que realmente produziu la — senao a
+// producao antiga dele sumiria da conta do setor.
+function produziuNoPeriodo(lans){
+  var set={};
+  (lans||[]).forEach(function(l){set[chaveDe(l)]=1;});
+  return set;
+}
+
+function buildSetores(lans){
+  var produziu=produziuNoPeriodo(lans||getLansPeriodo());
   var map={};
   Object.keys(COLAB_DATA).forEach(function(nome){
     var cd=COLAB_DATA[nome];if(!cd||!cd.setor)return;
+    if(cd.ativo===false&&!produziu[nome])return;
     var s=cd.setor;if(!map[s])map[s]=[];map[s].push(nome);
   });
   return map;
@@ -626,7 +637,7 @@ function renderRelatorio(){
     info.style.letterSpacing='2px';
   }
   var lans=getLansPeriodo();
-  var setoresMap=buildSetores();
+  var setoresMap=buildSetores(lans);
   var totalProd=0,totalMeta=0,totalA=0,totalB=0,totalC=0;
   var html='';
 
@@ -758,7 +769,7 @@ function nomeCurto(n,m){if(!n)return '';var p=n.trim().split(' ');var r=p[0];for
 function renderGraficos(){
   document.getElementById('report-sub').textContent=getPeriodoLabel();
   var lans=getLansPeriodo();
-  var setoresMap=buildSetores();
+  var setoresMap=buildSetores(lans);
 
   var blocos=[];
   Object.keys(setoresMap).sort().forEach(function(setor){
@@ -988,9 +999,10 @@ function buildColabsAgrupados(){
   Object.keys(COLAB_DATA).forEach(function(chave){
     var cd=COLAB_DATA[chave];
     var nl=normNome(cd.nome);
-    if(!mapa[nl])mapa[nl]={nomeExibir:nomeLimpo(cd.nome),chaves:[],setores:[]};
+    if(!mapa[nl])mapa[nl]={nomeExibir:nomeLimpo(cd.nome),chaves:[],setores:[],antigos:[]};
     mapa[nl].chaves.push(chave);
-    if(cd.setor&&mapa[nl].setores.indexOf(cd.setor)===-1)mapa[nl].setores.push(cd.setor);
+    var lista=cd.ativo===false?mapa[nl].antigos:mapa[nl].setores;
+    if(cd.setor&&lista.indexOf(cd.setor)===-1)lista.push(cd.setor);
   });
   return mapa;
 }
@@ -1036,7 +1048,9 @@ function renderIndividual(){
   html+='</optgroup><optgroup label="Colaborador">';
   nomes.forEach(function(nl){
     var g=agrupados[nl];
-    var setLabel=g.setores.length>0?' ('+g.setores.join(' · ')+')':'';
+    var atuais=g.setores.length?g.setores:(g.antigos||[]);
+    var saiu=(g.antigos||[]).filter(function(s){return atuais.indexOf(s)===-1;});
+    var setLabel=atuais.length?' ('+atuais.join(' · ')+(saiu.length?' · ex: '+saiu.join(', '):'')+')':'';
     var sel=(COLAB_SELECIONADO===nl)?'selected':'';
     html+='<option value="'+nl+'" '+sel+'>'+g.nomeExibir+setLabel+'</option>';
   });
@@ -1448,7 +1462,7 @@ function renderIndicadores(){
   function totalLans(arr){return arr.reduce(function(s,l){return s+prodLan(l);},0);}
 
   // ── blocos ABC por setor (período filtrado) ───────────────
-  var setoresMap=buildSetores();
+  var setoresMap=buildSetores(lansPeriodo);
   var blocos=[];
   Object.keys(setoresMap).sort().forEach(function(setor){
     var colabs=setoresMap[setor];
@@ -1466,8 +1480,10 @@ function renderIndicadores(){
 
   // ── dados por colaborador (período selecionado) ───────────
   var colabMes={};
+  var produziuPeriodo=produziuNoPeriodo(lansPeriodo);
   Object.keys(COLAB_DATA).forEach(function(nome){
     var cd=COLAB_DATA[nome];if(!cd)return;
+    if(cd.ativo===false&&!produziuPeriodo[nome])return;   // saiu do setor
     if(!INC_SEM_META&&cd.meta<=0)return;
     if(SETOR_FILTRO_IND&&cd.setor!==SETOR_FILTRO_IND)return;
     var prod=lansPeriodo.filter(function(l){return casaChave(l,nome);}).reduce(function(s,l){return s+prodLan(l);},0);
