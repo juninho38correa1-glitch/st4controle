@@ -185,16 +185,47 @@ function feriadosBR(ano){
 }
 
 // ── SUPABASE CONFIG ───────────────────────────────────────
-var SB_URL='https://ngtaitktafaiuyzuxegg.supabase.co';
-var SB_KEY='sb_publishable_PB-RDoOpNiCUUc4SOhbpDg_jS79Rqnn';
+// Mesmo projeto dos dados do motor. A chave publica so le: bloquear e
+// desbloquear dia passa pelas funcoes calendario_bloquear/desbloquear, que
+// conferem a senha do dashboard.
+var SB_URL=SB_DADOS_URL;
+var SB_KEY=SB_DADOS_KEY;
 
 function sbHeaders(){
   return{
     'Content-Type':'application/json',
     'apikey':SB_KEY,
-    'Authorization':'Bearer '+SB_KEY,
-    'Prefer':'return=minimal'
+    'Authorization':'Bearer '+SB_KEY
   };
+}
+
+// Pede a senha uma vez por aba e guarda so nesta aba do navegador.
+function senhaCalendario(){
+  var s='';
+  try{s=sessionStorage.getItem('st4_senha')||'';}catch(e){}
+  if(!s){
+    s=prompt('Senha para alterar o calendário:')||'';
+    if(s){try{sessionStorage.setItem('st4_senha',s);}catch(e){}}
+  }
+  return s;
+}
+
+function esquecerSenha(){
+  try{sessionStorage.removeItem('st4_senha');}catch(e){}
+}
+
+// Chama uma funcao do Supabase; devolve o json ou estoura com a mensagem dela.
+async function chamarRpc(nome,corpo){
+  var res=await fetch(SB_URL+'/rest/v1/rpc/'+nome,{
+    method:'POST',headers:sbHeaders(),body:JSON.stringify(corpo)
+  });
+  var json=await res.json().catch(function(){return null;});
+  if(!res.ok)throw new Error('HTTP '+res.status);
+  if(!json||!json.ok){
+    if(json&&json.erro&&json.erro.indexOf('Senha')===0)esquecerSenha();
+    throw new Error(json&&json.erro?json.erro:'resposta inesperada do banco');
+  }
+  return json;
 }
 
 function sbHeadersRead(){
@@ -313,16 +344,10 @@ async function _salvarBloqueio(ano,mes,dia,isoKey){
   var motivo=motivoEl?motivoEl.value.trim():'';
   var modal=document.getElementById('cal-modal');if(modal)modal.remove();
 
+  var senha=senhaCalendario();
+  if(!senha){renderCalendario();return;}
   try{
-    var res=await fetch(SB_URL+'/rest/v1/calendario_bloqueios',{
-      method:'POST',
-      headers:Object.assign({},sbHeaders(),{'Prefer':'return=minimal'}),
-      body:JSON.stringify({data_bloqueio:isoKey,motivo:motivo})
-    });
-    if(!res.ok){
-      var txt=await res.text();
-      throw new Error('HTTP '+res.status+': '+txt);
-    }
+    await chamarRpc('calendario_bloquear',{p_senha:senha,p_data:isoKey,p_motivo:motivo});
     if(!CALENDARIO_CUSTOM[ano])CALENDARIO_CUSTOM[ano]={};
     if(!CALENDARIO_CUSTOM[ano][mes])CALENDARIO_CUSTOM[ano][mes]=[];
     CALENDARIO_CUSTOM[ano][mes].push(Number(dia));
@@ -335,11 +360,10 @@ async function _salvarBloqueio(ano,mes,dia,isoKey){
 }
 
 async function _confirmarDesbloqueio(ano,mes,dia,isoKey){
+  var senha=senhaCalendario();
+  if(!senha){renderCalendario();return;}
   try{
-    var res=await fetch(SB_URL+'/rest/v1/calendario_bloqueios?data_bloqueio=eq.'+isoKey,{
-      method:'DELETE',headers:sbHeaders()
-    });
-    if(!res.ok)throw new Error('HTTP '+res.status);
+    await chamarRpc('calendario_desbloquear',{p_senha:senha,p_data:isoKey});
     var idx=CALENDARIO_CUSTOM[ano][mes].indexOf(Number(dia));
     if(idx!==-1)CALENDARIO_CUSTOM[ano][mes].splice(idx,1);
     if(CALENDARIO_CUSTOM[ano][mes].length===0)delete CALENDARIO_CUSTOM[ano][mes];
@@ -354,13 +378,11 @@ async function _confirmarDesbloqueio(ano,mes,dia,isoKey){
 
 async function limparTodosCalendario(){
   if(!confirm('Remover TODOS os bloqueios personalizados do banco de dados?\nEsta ação afetará todos os usuários.'))return;
+  var senha=senhaCalendario();
+  if(!senha)return;
   try{
-    // Deleta todos os registros
-    var res=await fetch(SB_URL+'/rest/v1/calendario_bloqueios?id=gte.0',{
-      method:'DELETE',headers:sbHeaders()
-    });
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    CALENDARIO_CUSTOM={};
+    await chamarRpc('calendario_desbloquear',{p_senha:senha,p_data:null});
+    CALENDARIO_CUSTOM={};CALENDARIO_MOTIVOS={};
   }catch(e){
     alert('Erro ao limpar: '+e.message);
   }
