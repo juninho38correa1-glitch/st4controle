@@ -79,6 +79,10 @@
   .bar-track { flex: 1; height: 6px; background: var(--bg4); border-radius: 3px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
   .bar-count { font-size: 12px; font-family: var(--mono); color: var(--text2); width: 22px; text-align: right; }
+  .bar-row.larga .bar-name { width: 190px; }
+  .bar-row.clicavel { cursor: pointer; }
+  .bar-row.clicavel:hover .bar-name { color: var(--text); }
+  .bar-row.ativa .bar-name { color: var(--accent2); }
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
   thead th { font-size: 10px; font-family: var(--mono); color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; padding: 8px 12px; text-align: left; border-bottom: 0.5px solid var(--border); white-space: nowrap; }
@@ -260,8 +264,11 @@
         <div class="chart-wrap" style="height:200px;"><canvas id="chartDia"></canvas></div>
       </div>
       <div class="card">
-        <div class="card-title">Tipo × Prioridade</div>
-        <div class="chart-wrap" style="height:200px;"><canvas id="chartTipoPrio"></canvas></div>
+        <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Produtos que mais geram registro</span>
+          <span id="prodResumo" style="color:var(--accent2);font-family:var(--mono);font-size:11px;"></span>
+        </div>
+        <div style="height:200px;display:flex;flex-direction:column;justify-content:space-between;" id="produtosTop"></div>
       </div>
     </div>
 
@@ -534,6 +541,7 @@ function editando() { return edicaoAtiva !== null; }
 function redesenhar() {
   if (editando()) { redesenhoPendente = true; return; }
   redesenhoPendente = false;
+  mapaDonos = null;   // os grupos de produto são refeitos com os dados novos
   const abertas = [...document.querySelectorAll('.tr-accordion.open')].map(el => el.id);
   allData = allNcs.map(ncParaLinha);
   allIds  = allNcs.map(n => n.id);
@@ -647,8 +655,10 @@ function setCard(k) {
   render(getFiltered());
 }
 
-// Período + setor, com as anuladas junto.
-function getBase() {
+// Período + setor + produto, com as anuladas junto. O gráfico de produtos pede
+// com semProduto = true, senão sobraria só o produto escolhido e não daria para
+// trocar de produto.
+function getBase(semProduto) {
   let data = allData;
   const range = getPeriodRange();
   if (range) {
@@ -657,12 +667,14 @@ function getBase() {
   }
   if (activeSetor !== 'all')
     data = data.filter(r => (r[COL.SETOR_ORIG]||'').toString().trim() === activeSetor);
+  if (activeProduto && !semProduto)
+    data = data.filter(r => donoDe(r) === activeProduto);
   return data;
 }
 
 // O que os gráficos mostram: sem as anuladas (a não ser que o card delas esteja escolhido).
-function getFiltered() {
-  return getBase().filter(r => (activeCard === 'anulada' || !anulada(r)) && FILTRO_CARD[activeCard](r));
+function getFiltered(semProduto) {
+  return getBase(semProduto).filter(r => (activeCard === 'anulada' || !anulada(r)) && FILTRO_CARD[activeCard](r));
 }
 
 // Os números dos cards seguem só período e setor — escolher um card não muda os outros.
@@ -764,6 +776,119 @@ function makeBars(id, dataObj, color) {
     </div>`).join('');
 }
 
+const esc = s => String(s == null ? '' : s)
+  .replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// O nome do produto vem digitado à mão no Forms. A chave joga fora o que é só
+// jeito de escrever: maiúscula, acento, pontuação e a medida no fim
+// ("Rene 2.80" → RENE). Se sobrar só medida ("ST25 - 124"), mantém os números,
+// senão dois códigos diferentes virariam o mesmo produto.
+function chaveProduto(nome) {
+  const s = String(nome || '').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const toks = s.split(/[^A-Z0-9]+/).filter(Boolean);
+  const semNum = toks.filter(t => !/\d/.test(t));
+  return (semNum.length ? semNum : toks).join(' ');
+}
+
+// Distância de edição (quantas letras mudam), desistindo assim que passa do limite.
+function distancia(a, b, lim) {
+  if (Math.abs(a.length - b.length) > lim) return lim + 1;
+  let ant = [...Array(b.length + 1).keys()];
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++)
+      cur.push(Math.min(ant[j] + 1, cur[j-1] + 1, ant[j-1] + (a[i-1] !== b[j-1] ? 1 : 0)));
+    if (Math.min(...cur) > lim) return lim + 1;
+    ant = cur;
+  }
+  return ant[b.length];
+}
+
+// Junta as chaves quase iguais — erro de digitação e plural ("camam broa",
+// "Notte", "Enseadas"). Exige as 3 primeiras letras iguais e no máximo 1 letra
+// de diferença (2 em nomes longos), senão produtos diferentes se misturariam.
+let activeProduto = null;   // grupo de produto escolhido no gráfico
+let mapaDonos = null;       // chave digitada → grupo; refeito quando os dados mudam
+
+function donoDe(r) {
+  if (!mapaDonos) mapaDonos = donosDeProduto();
+  const c = chaveProduto(r[COL.PRODUTO]);
+  return mapaDonos[c] || c;
+}
+
+function setProduto(chave) {
+  activeProduto = (activeProduto === chave) ? null : chave;
+  render(getFiltered());
+}
+
+// Os grupos saem de TODAS as NCs, para o nome do produto não mudar conforme o
+// filtro; depois conta só as NCs que estão na tela.
+function donosDeProduto() {
+  const freq = {};
+  allData.forEach(r => {
+    const c = chaveProduto(r[COL.PRODUTO]);
+    if (c) freq[c] = (freq[c] || 0) + 1;
+  });
+  const dono = {}, donos = [];
+  Object.keys(freq).sort((a, b) => freq[b] - freq[a] || a.localeCompare(b)).forEach(c => {
+    const achou = donos.find(d => {
+      const lim = Math.min(c.length, d.length) <= 12 ? 1 : 2;
+      return c.slice(0, 3) === d.slice(0, 3) && distancia(c, d, lim) <= lim;
+    });
+    if (achou) dono[c] = achou;
+    else { donos.push(c); dono[c] = c; }
+  });
+  return dono;
+}
+
+function agruparProdutos(data) {
+  const cont = {}, nomes = {};
+  data.forEach(r => {
+    const nome = (r[COL.PRODUTO] || '').toString().trim();
+    const c = chaveProduto(nome);
+    if (!c) return;
+    const d = donoDe(r);
+    cont[d] = (cont[d] || 0) + 1;
+    (nomes[d] = nomes[d] || new Set()).add(nome);
+  });
+  return Object.keys(cont)
+    .map(d => ({ chave: d, qtd: cont[d], nomes: nomes[d] }))
+    .sort((a, b) => b.qtd - a.qtd || a.chave.localeCompare(b.chave));
+}
+
+function renderProdutos(data) {
+  const grupos  = agruparProdutos(data);
+  const resumo  = document.getElementById('prodResumo');
+  const el      = document.getElementById('produtosTop');
+  if (!grupos.length) {
+    resumo.textContent = '';
+    el.innerHTML = '<div class="accordion-empty">Nenhum registro no período.</div>';
+    return;
+  }
+  resumo.innerHTML = activeProduto
+    ? `<button class="filtro-chip" style="margin:0" onclick="setProduto(null)" title="Ver todos os produtos">${esc(activeProduto)} ✕</button>`
+    : grupos.length + ' produtos diferentes';
+
+  // o produto escolhido continua na lista mesmo fora dos 8 primeiros
+  const mostra = grupos.slice(0, 8);
+  if (activeProduto && !mostra.some(g => g.chave === activeProduto)) {
+    const g = grupos.find(x => x.chave === activeProduto);
+    if (g) mostra.splice(7, 1, g);
+  }
+  const max = grupos[0].qtd;
+  el.innerHTML = mostra.map(g => {
+    const nomes = [...g.nomes];
+    const dica  = (nomes.length > 1 ? 'Escritas juntadas: ' + nomes.join(' · ') : nomes[0]) + ' — clique para ver as NCs';
+    const ativa = g.chave === activeProduto;
+    return `
+    <div class="bar-row larga clicavel ${ativa ? 'ativa' : ''}" onclick="setProduto('${g.chave}')">
+      <div class="bar-name" title="${esc(dica)}">${esc(g.chave)}${nomes.length > 1 ? ' <span style="color:var(--text3)">·' + nomes.length + ' escritas</span>' : ''}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.max(4, Math.round(g.qtd / max * 100))}%;background:${ativa ? '#7c6af7' : '#f0a63a'}"></div></div>
+      <div class="bar-count">${g.qtd}</div>
+    </div>`;
+  }).join('');
+}
+
 function render(data) {
   renderCards();
 
@@ -797,23 +922,7 @@ function render(data) {
       }}
   });
 
-  const tipoKeys = [...new Set(data.map(r=>(r[COL.TIPO]||'').trim()).filter(Boolean))];
-  const prioKeys = ['Urgente','Alta','Média','Baixa'];
-  const prioBarColors = {'Urgente':'#f05b5b','Alta':'#f07a3a','Média':'#f0a63a','Baixa':'#4ecb8d'};
-  if(charts['chartTipoPrio']) charts['chartTipoPrio'].destroy();
-  charts['chartTipoPrio'] = new Chart(document.getElementById('chartTipoPrio'), {
-    type:'bar',
-    data:{ labels:tipoKeys, datasets:prioKeys.map((p)=>({
-      label:p, backgroundColor:prioBarColors[p], borderRadius:4, borderWidth:0,
-      data:tipoKeys.map(t=>data.filter(r=>r[COL.TIPO]?.trim()===t&&r[COL.PRIORIDADE]?.trim()===p).length)
-    }))},
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{labels:{color:'#9090a0',font:{family:'DM Mono',size:10},boxWidth:10,boxHeight:10}}},
-      scales:{
-        x:{stacked:true,ticks:{color:'#5a5a6a',font:{family:'DM Mono',size:10}},grid:{display:false}},
-        y:{stacked:true,ticks:{color:'#5a5a6a',font:{family:'DM Mono',size:10},stepSize:1},grid:{color:'rgba(255,255,255,0.04)'}}
-      }}
-  });
+  renderProdutos(getFiltered(true));   // sem o filtro de produto, para dar para trocar
 
   makeBars('barSetores',    count(data,COL.SETOR_ORIG), '#7c6af7');
   makeBars('barSolicitantes',count(data,COL.SOLICITANTE),'#4ea8e8');
@@ -847,6 +956,9 @@ function renderTable() {
     (tableData.length > 50 ? 'mostrando 50 de ' : '') + tableData.length + ' registros' +
     (activeCard !== 'todos'
       ? `<button class="filtro-chip" onclick="setCard('todos')" title="Limpar filtro">${NOME_CARD[activeCard]} ✕</button>`
+      : '') +
+    (activeProduto
+      ? `<button class="filtro-chip" onclick="setProduto(null)" title="Limpar filtro de produto">${esc(activeProduto)} ✕</button>`
       : '');
 
   const prioClass = {'urgente':'p-urgente','alta':'p-alta','média':'p-media','media':'p-media','baixa':'p-baixa'};
