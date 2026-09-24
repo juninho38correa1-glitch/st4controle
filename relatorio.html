@@ -695,7 +695,10 @@ function renderRelatorio(){
 // ── GRÁFICOS ──────────────────────────────────────────────
 function nomeLimpo(nome){
   if(!nome)return '';
-  return nome.replace(/_[A-Za-z0-9]+$/,'').trim();
+  // a chave do colaborador e "setor|nome" — na tela mostra so o nome
+  var s=String(nome),b=s.lastIndexOf('|');
+  if(b!==-1)s=s.slice(b+1);
+  return s.replace(/_[A-Za-z0-9]+$/,'').trim();
 }
 function nomeCurto(n,m){if(!n)return '';var p=n.trim().split(' ');var r=p[0];for(var i=1;i<p.length;i++){var t=r+' '+p[i];if(t.length<=m)r=t;else{r=r+'...';break;}}return r;}
 
@@ -1011,8 +1014,10 @@ function selecionarColab(nlKey){
   // Coletar TODOS os lançamentos desse colaborador (por todas as chaves)
   var chaveSet={};grupo.chaves.forEach(function(c){chaveSet[c]=true;});
 
-  var todosLans=ALL_LANCAMENTOS.filter(function(l){return chaveSet[l.nome];});
-  var lansPeriodo=lans.filter(function(l){return chaveSet[l.nome];});
+  // a chave do colaborador e "setor|nome": o mesmo nome aparece em mais de um
+  // setor, por isso compara por chaveDe(l) e nao so pelo nome
+  var todosLans=ALL_LANCAMENTOS.filter(function(l){return chaveSet[chaveDe(l)];});
+  var lansPeriodo=lans.filter(function(l){return chaveSet[chaveDe(l)];});
   var lansHoje=todosLans.filter(function(l){var dt=parseDate(l.data);return dt&&dt.getTime()===hoje.getTime();});
   var lansMes=todosLans.filter(function(l){var dt=parseDate(l.data);return dt&&dt>=mesIni&&dt<=mesFim;});
 
@@ -1645,8 +1650,9 @@ function renderIndicadores(){
     heatLans.forEach(function(l){
       var dt=parseDate(l.data);if(!dt)return;
       var k=dt.toDateString();
-      if(!prodPorColab[l.nome])prodPorColab[l.nome]={};
-      prodPorColab[l.nome][k]=(prodPorColab[l.nome][k]||0)+prodLan(l);
+      var ch=chaveDe(l);   // "setor|nome": o ranking usa a mesma chave
+      if(!prodPorColab[ch])prodPorColab[ch]={};
+      prodPorColab[ch][k]=(prodPorColab[ch][k]||0)+prodLan(l);
     });
     // Max por dia
     var maxPorDia={};
@@ -1673,7 +1679,7 @@ function renderIndicadores(){
       var totalHeat=heatDias.reduce(function(s,d){return s+((prodPorColab[r.nome]&&prodPorColab[r.nome][d.toDateString()])||0);},0);
       h+='<tr>';
       h+='<td style="position:sticky;left:0;background:#E8E0D5;z-index:1;padding:4px 8px">';
-      h+='<div style="font-weight:700;color:#2C2520;font-size:10px;white-space:nowrap">'+nomeLimpo(r.nome)+'</div>';
+      h+='<div style="font-weight:700;color:#2C2520;font-size:10px;white-space:nowrap">'+nomeLimpo((COLAB_DATA[r.nome]||{}).nome||r.nome)+'</div>';
       h+='<div style="font-size:9px;color:'+corSet+'">'+r.setor+'</div></td>';
       heatDias.forEach(function(d){
         var k=d.toDateString();
