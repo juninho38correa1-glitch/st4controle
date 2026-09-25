@@ -524,6 +524,17 @@ function getPeriodoDatas(){
   }else{ini=new Date(hoje.getFullYear(),hoje.getMonth(),1);}
   return{ini:ini,fim:fim};
 }
+// Dias trabalhados que já aconteceram no período — a régua honesta para a
+// média: no meio do mês, dividir pelos 21 dias inteiros mentiria para baixo.
+function diasUteisDecorridos(){
+  var d=getPeriodoDatas();
+  var hoje=new Date();hoje.setHours(23,59,59);
+  var fim=d.fim<hoje?d.fim:hoje;
+  var n=0;
+  for(var x=new Date(d.ini);x<=fim;x.setDate(x.getDate()+1)){ if(isDiaUtil(x))n++; }
+  return n;
+}
+
 function getPeriodoLabel(){
   var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var hoje=new Date();
@@ -740,7 +751,12 @@ function renderRelatorio(){
   sum+='<div class="destaque">';
   sum+='<div class="destaque-card"><div class="destaque-label">Peças Finalizadas</div>';
   sum+='<div class="destaque-val" style="color:#1a5f8a">'+embalados+'<span class="destaque-de"> / '+metaFin+'</span></div>';
-  sum+='<div class="destaque-sub">seladas na Embalagem · meta '+META_FINALIZADAS_DIA+'/dia</div></div>';
+  var duFeitos=diasUteisDecorridos();
+  var mediaDiaFin=duFeitos>0?Math.round(embalados/duFeitos):0;
+  var corMedia=mediaDiaFin>=META_FINALIZADAS_DIA?'#1a6b3a':mediaDiaFin>=META_FINALIZADAS_DIA*0.7?'#8a6010':'#8B3A0F';
+  sum+='<div class="destaque-sub">seladas na Embalagem · meta '+META_FINALIZADAS_DIA+'/dia</div>';
+  sum+='<div class="destaque-sub" style="margin-top:4px"><span style="font-weight:700;color:'+corMedia+'">'+
+       mediaDiaFin+' peças/dia</span> de média em '+duFeitos+' dia'+(duFeitos===1?'':'s')+' trabalhado'+(duFeitos===1?'':'s')+'</div></div>';
   sum+='<div class="destaque-card"><div class="destaque-label">Desempenho Geral</div>';
   sum+='<div class="destaque-val" style="color:'+corFin+'">'+pctFin+'%</div>';
   sum+='<div class="bar-wrap" style="height:8px;margin-top:6px"><div class="bar-fill" style="width:'+Math.min(pctFin,100)+'%;background:'+corFin+'"></div></div>';
