@@ -153,6 +153,141 @@
 </style>
 </head>
 <body>
+<!-- ── LOGIN ST4 ──────────────────────────────────────────────────────────
+     Mesmos usuários do portal Dev (a tabela é a mesma), mas aqui só aparece
+     quem está em configuracoes.usuarios_st4. As TVs NÃO têm este bloco: são
+     telas de parede que ligam sozinhas, e um login ali significaria a tela
+     parada no login depois de qualquer reinício.
+     A sessão vale 12 horas. Sem prazo, quem abrisse o navegador de outra
+     pessoa herdaria o acesso dela — foi exatamente o que aconteceu no portal. -->
+<style>
+  #st4LoginOverlay { position:fixed; inset:0; z-index:99999; background:#2C2520;
+    display:flex; align-items:center; justify-content:center; font-family:'Arial',sans-serif; }
+  #st4LoginOverlay .cx { background:#DCCCBE; padding:34px 32px 28px; width:min(92vw,360px);
+    border-radius:2px; box-shadow:0 20px 60px rgba(0,0,0,.45); }
+  #st4LoginOverlay .marca { font-size:13px; font-weight:700; letter-spacing:4px; color:#2C2520; }
+  #st4LoginOverlay .sub { font-size:9px; letter-spacing:3px; color:#6B5A4E; margin-bottom:26px; }
+  #st4LoginOverlay label { display:block; font-size:10px; font-weight:700; letter-spacing:2px;
+    text-transform:uppercase; color:#6B5A4E; margin:14px 0 5px; }
+  #st4LoginOverlay select, #st4LoginOverlay input { width:100%; padding:10px 11px; font-size:14px;
+    border:1px solid rgba(44,37,32,.28); background:#fff; color:#2C2520; border-radius:2px;
+    font-family:inherit; box-sizing:border-box; }
+  #st4LoginOverlay button { width:100%; margin-top:20px; padding:12px; border:none; cursor:pointer;
+    background:#2C2520; color:#DCCCBE; font-size:11px; font-weight:700; letter-spacing:3px;
+    text-transform:uppercase; font-family:inherit; }
+  #st4LoginOverlay button:disabled { opacity:.55; cursor:default; }
+  #st4LoginErro { min-height:16px; margin-top:10px; font-size:12px; color:#b3261e; }
+  #st4Chip { position:fixed; right:12px; bottom:12px; z-index:9998; display:none; gap:8px;
+    align-items:center; background:rgba(44,37,32,.88); color:#DCCCBE; border-radius:20px;
+    padding:5px 8px 5px 12px; font-family:'Arial',sans-serif; font-size:11px; letter-spacing:.4px; }
+  #st4Chip button { background:rgba(255,255,255,.14); color:inherit; border:none; cursor:pointer;
+    border-radius:14px; padding:3px 9px; font-size:10px; font-family:inherit; letter-spacing:1px; }
+  @media print { #st4LoginOverlay, #st4Chip { display:none !important; } }
+</style>
+
+<div id="st4LoginOverlay">
+  <div class="cx">
+    <div class="marca">STUDYO4</div>
+    <div class="sub">CONTROLE DE PRODUÇÃO</div>
+    <label for="st4Nome">Quem é você</label>
+    <select id="st4Nome"><option>carregando…</option></select>
+    <label for="st4Pin">Senha</label>
+    <input type="password" id="st4Pin" autocomplete="current-password" placeholder="sua senha">
+    <div id="st4LoginErro"></div>
+    <button id="st4Entrar" onclick="st4Entrar()">Entrar</button>
+  </div>
+</div>
+<div id="st4Chip"><span id="st4ChipNome"></span><button onclick="st4Sair()">Sair</button></div>
+
+<script>
+(function () {
+  var URL_SB = 'https://luocdqquuvgxcpyklmwu.supabase.co';
+  var KEY_SB = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx1b2NkcXF1dXZneGNweWtsbXd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4ODA5NjYsImV4cCI6MjEwNDQ1Njk2Nn0.snOTfxctxig8sKlOUfan19DuMSa2Q56vA5gWdwo4H3A';
+  var CHAVE = 'st4_sessao';
+  var HORAS = 12;
+  var PADRAO = ['Nathyelly Rosa', 'Mariane Speçato', 'Osmar C. Junior', 'Nayara Rosa'];
+
+  function cab() { return { apikey: KEY_SB, Authorization: 'Bearer ' + KEY_SB, 'Content-Type': 'application/json' }; }
+
+  function sessaoValida() {
+    try {
+      var s = JSON.parse(localStorage.getItem(CHAVE) || 'null');
+      if (!s || !s.nome || !s.quando) return null;
+      if (Date.now() - s.quando > HORAS * 3600 * 1000) { localStorage.removeItem(CHAVE); return null; }
+      return s;
+    } catch (e) { return null; }
+  }
+
+  function mostrarApp(s) {
+    document.getElementById('st4LoginOverlay').style.display = 'none';
+    var chip = document.getElementById('st4Chip');
+    document.getElementById('st4ChipNome').textContent = '👤 ' + s.nome;
+    chip.style.display = 'flex';
+  }
+
+  window.st4Sair = function () {
+    localStorage.removeItem(CHAVE);
+    location.reload();
+  };
+
+  window.st4Entrar = async function () {
+    var nome = document.getElementById('st4Nome').value;
+    var pin = document.getElementById('st4Pin').value;
+    var erro = document.getElementById('st4LoginErro');
+    var bt = document.getElementById('st4Entrar');
+    erro.textContent = '';
+    if (!nome || !pin) { erro.textContent = 'Escolha o nome e digite a senha.'; return; }
+    bt.disabled = true; bt.textContent = 'Entrando…';
+    try {
+      var res = await fetch(URL_SB + '/rest/v1/rpc/login_usuario', {
+        method: 'POST', headers: cab(), body: JSON.stringify({ p_nome: nome, p_pin: pin }) });
+      var dados = await res.json();
+      var u = Array.isArray(dados) ? dados[0] : dados;
+      if (!u || !u.id) { erro.textContent = 'Senha incorreta.'; return; }
+      var s = { id: u.id, nome: u.nome, admin: !!u.admin, setor: u.setor, quando: Date.now() };
+      localStorage.setItem(CHAVE, JSON.stringify(s));
+      mostrarApp(s);
+    } catch (e) {
+      erro.textContent = 'Não consegui verificar agora. Tente de novo.';
+    } finally {
+      bt.disabled = false; bt.textContent = 'Entrar';
+    }
+  };
+
+  async function montarLista() {
+    var permitidos = PADRAO;
+    try {
+      var r = await fetch(URL_SB + '/rest/v1/configuracoes?select=valor&chave=eq.usuarios_st4', { headers: cab() });
+      var d = await r.json();
+      if (d && d[0] && d[0].valor) {
+        var lista = d[0].valor.split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+        if (lista.length) permitidos = lista;
+      }
+    } catch (e) { /* sem config, vale o padrão */ }
+
+    // só mostra quem está permitido E continua ativo no sistema
+    var ativos = [];
+    try {
+      var r2 = await fetch(URL_SB + '/rest/v1/usuarios?select=nome&ativo=eq.true', { headers: cab() });
+      ativos = (await r2.json() || []).map(function (u) { return u.nome; });
+    } catch (e) { ativos = permitidos; }
+
+    var finais = permitidos.filter(function (n) { return ativos.indexOf(n) !== -1; });
+    if (!finais.length) finais = permitidos;
+    document.getElementById('st4Nome').innerHTML =
+      finais.map(function (n) { return '<option>' + n + '</option>'; }).join('');
+  }
+
+  var s = sessaoValida();
+  if (s) { mostrarApp(s); } else { montarLista(); }
+
+  document.getElementById('st4Pin').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') st4Entrar();
+  });
+})();
+</script>
+<!-- ── fim do login ST4 ─────────────────────────────────────────────────── -->
+
 <div class="shell">
 
   <div class="header">
