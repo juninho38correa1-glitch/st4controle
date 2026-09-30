@@ -218,6 +218,27 @@ td.meta input{width:90px;text-align:center}
     <tbody id="corpo"></tbody></table>
   </div>
 
+  <div class="bloco">
+    <div class="bloco-tit"><span>Setores e TVs</span><span class="msg" id="msg-setores"></span></div>
+    <div class="sub" style="margin:-4px 0 12px">
+      Cada centro de trabalho do Seven: como ele aparece na TV, em qual TV, e se a produção
+      conta como corpo, almofada ou retrabalho. Centro novo no Seven aparece aqui sozinho,
+      no próximo ciclo do motor, marcado como não configurado.
+    </div>
+    <div class="linha-ctrl">
+      <input type="text" id="busca-setor" placeholder="Buscar centro..." oninput="renderSetores()" style="max-width:260px">
+      <label style="font-size:11px;font-weight:700;letter-spacing:1px;color:#6B5A4E;display:flex;align-items:center;gap:5px;cursor:pointer">
+        <input type="checkbox" id="so-novos" onchange="renderSetores()" style="width:auto"> Só os não configurados
+      </label>
+      <button class="salvar" id="btn-setores" onclick="salvarSetores()" disabled>Salvar setores</button>
+    </div>
+    <table><thead><tr>
+      <th>Centro no Seven</th><th>Nome na TV</th><th>TV</th><th>Conta como</th>
+      <th style="text-align:center">Ignorar</th>
+    </tr></thead>
+    <tbody id="corpo-setores"></tbody></table>
+  </div>
+
   <div class="rodape">Studyo 4 Estofados | © Junior Corrêa · Todos os direitos reservados</div>
 </div>
 
@@ -236,6 +257,10 @@ var GLOBAIS=[
 ];
 
 var CONFIG={}, PESSOAS=[], METAS={}, ORIGINAL={};
+// Setores: o motor descobre no Seven e registra; aqui só se configura.
+var SETORES=[], SETORES_ORIG={};
+var TVS=['TV 1','TV 2','TV 3','TV 4'];
+var DESTINOS=[['corpo','Corpo'],['almof','Almofada'],['retrabalho','Retrabalho']];
 
 function senha(){
   var s='';
@@ -299,11 +324,15 @@ function pessoasDoCSV(csv){
 }
 
 async function carregar(){
-  var [cfg,metas,fatia]=await Promise.all([
+  var [cfg,metas,fatia,setores]=await Promise.all([
     ler('/rest/v1/app_config?select=chave,valor'),
     ler('/rest/v1/metas_colaborador?select=setor,nome,meta'),
-    ler('/rest/v1/st4_dados?fatia=eq.historico&select=colaboradores_csv,gerado_em')
+    ler('/rest/v1/st4_dados?fatia=eq.historico&select=colaboradores_csv,gerado_em'),
+    ler('/rest/v1/st4_setores?select=centro_id,centro_seven,nome_exibido,tv,destino,ignorado,visto_em&order=centro_seven')
   ]);
+  SETORES=setores||[];
+  SETORES_ORIG={};
+  SETORES.forEach(function(r){SETORES_ORIG[r.centro_id]=chaveSetor(r);});
   CONFIG={};cfg.forEach(function(r){CONFIG[r.chave]=r.valor;});
   METAS={};metas.forEach(function(r){METAS[r.setor+'|'+r.nome]=Number(r.meta)||0;});
   PESSOAS=pessoasDoCSV(fatia.length?fatia[0].colaboradores_csv:'')
@@ -319,6 +348,7 @@ async function carregar(){
   montarGlobais();
   montarFiltroSetor();
   render();
+  renderSetores();
 }
 
 function montarGlobais(){
@@ -375,6 +405,102 @@ function mudar(input,chave){
   var td=input.parentElement.nextElementSibling;
   if(td)td.innerHTML=(METAS[chave]||0)!==(ORIGINAL[chave]||0)?'<span class="pill p-mudou">a salvar</span>'
       :METAS[chave]>0?'<span class="pill p-ok">'+METAS[chave]+'/dia</span>':'<span class="pill p-sem">sem meta</span>';
+}
+
+/* Uma linha só com o que a pessoa pode mudar. Serve para saber o que mudou
+   sem comparar campo a campo, igual ao que as metas já fazem. */
+function chaveSetor(r){
+  // 'corpo' e o mesmo padrao que a lista mostra quando o destino esta vazio;
+  // usar '' aqui faria o botao Salvar nascer habilitado sem ninguem ter mexido.
+  return [r.nome_exibido||'', r.tv||'', r.destino||'corpo', r.ignorado?'1':'0'].join('|');
+}
+function valorAtualSetor(cid){
+  return [
+    (document.getElementById('s-nome-'+cid)||{}).value||'',
+    (document.getElementById('s-tv-'+cid)||{}).value||'',
+    (document.getElementById('s-dest-'+cid)||{}).value||'',
+    (document.getElementById('s-ign-'+cid)||{}).checked?'1':'0'
+  ].join('|');
+}
+function marcarMudancaSetor(){
+  var mudou=SETORES.some(function(r){
+    return document.getElementById('s-nome-'+r.centro_id)
+        && valorAtualSetor(r.centro_id)!==SETORES_ORIG[r.centro_id];
+  });
+  document.getElementById('btn-setores').disabled=!mudou;
+}
+
+function renderSetores(){
+  var busca=(document.getElementById('busca-setor').value||'').toLowerCase();
+  var soNovos=document.getElementById('so-novos').checked;
+  var lista=SETORES.filter(function(r){
+    // "nao configurado" e' centro sem nome E que ninguem mandou ignorar.
+    // Ignorado de proposito ja e' uma decisao tomada, nao uma pendencia.
+    if(soNovos && ((r.nome_exibido||'').trim() || r.ignorado)) return false;
+    if(!busca) return true;
+    return ((r.centro_seven||'')+' '+(r.nome_exibido||'')).toLowerCase().indexOf(busca)>=0;
+  });
+  var corpo=document.getElementById('corpo-setores');
+  if(!lista.length){
+    corpo.innerHTML='<tr><td colspan="5" style="text-align:center;color:#8a7d6d;padding:18px">Nenhum centro com esse filtro.</td></tr>';
+    return;
+  }
+  corpo.innerHTML=lista.map(function(r){
+    var cid=r.centro_id;
+    var novo=!(r.nome_exibido||'').trim() && !r.ignorado;
+    var opTv='<option value="">— nenhuma —</option>'+TVS.map(function(t){
+      return '<option value="'+t+'"'+(r.tv===t?' selected':'')+'>'+t+'</option>';}).join('');
+    var opDest=DESTINOS.map(function(d){
+      return '<option value="'+d[0]+'"'+((r.destino||'corpo')===d[0]?' selected':'')+'>'+d[1]+'</option>';}).join('');
+    return '<tr'+(novo?' style="background:#fdf3e7"':'')+'>'
+      +'<td><span style="font-family:monospace;font-size:11px;color:#8a7d6d">'+cid+'</span> '+esc(r.centro_seven||'')
+      +(novo?' <b style="color:#8B3A0F;font-size:11px">não configurado</b>':'')+'</td>'
+      +'<td><input type="text" id="s-nome-'+cid+'" value="'+esc(r.nome_exibido||'')+'" oninput="marcarMudancaSetor()" placeholder="como aparece na TV"></td>'
+      +'<td><select id="s-tv-'+cid+'" onchange="marcarMudancaSetor()">'+opTv+'</select></td>'
+      +'<td><select id="s-dest-'+cid+'" onchange="marcarMudancaSetor()">'+opDest+'</select></td>'
+      +'<td style="text-align:center"><input type="checkbox" id="s-ign-'+cid+'"'+(r.ignorado?' checked':'')
+      +' onchange="marcarMudancaSetor()" style="width:auto"></td>'
+      +'</tr>';
+  }).join('');
+  marcarMudancaSetor();
+}
+
+function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+
+async function salvarSetores(){
+  var msg=document.getElementById('msg-setores');
+  var s=senha();
+  if(!s){msg.style.color='#8B3A0F';msg.textContent='Sem senha, nada salvo.';return;}
+  var mudar=SETORES.filter(function(r){
+    return document.getElementById('s-nome-'+r.centro_id)
+        && valorAtualSetor(r.centro_id)!==SETORES_ORIG[r.centro_id];
+  });
+  if(!mudar.length){msg.style.color='#6B5A4E';msg.textContent='Nada mudou.';return;}
+  var bt=document.getElementById('btn-setores');
+  bt.disabled=true;msg.style.color='#6B5A4E';msg.textContent='Salvando...';
+  try{
+    for(var i=0;i<mudar.length;i++){
+      var r=mudar[i], cid=r.centro_id;
+      await rpc('st4_setor_salvar',{
+        p_senha:s, p_centro_id:cid,
+        p_nome_exibido:document.getElementById('s-nome-'+cid).value.trim(),
+        p_tv:document.getElementById('s-tv-'+cid).value,
+        p_destino:document.getElementById('s-dest-'+cid).value,
+        p_ignorado:document.getElementById('s-ign-'+cid).checked
+      });
+      r.nome_exibido=document.getElementById('s-nome-'+cid).value.trim();
+      r.tv=document.getElementById('s-tv-'+cid).value;
+      r.destino=document.getElementById('s-dest-'+cid).value;
+      r.ignorado=document.getElementById('s-ign-'+cid).checked;
+      SETORES_ORIG[cid]=chaveSetor(r);
+    }
+    msg.style.color='#1a6b3a';
+    msg.textContent='✓ '+mudar.length+' salvo(s) · entra nas TVs no próximo ciclo do motor';
+  }catch(e){
+    msg.style.color='#8B3A0F';msg.textContent=e.message;
+  }finally{
+    renderSetores();
+  }
 }
 
 async function salvarGlobais(){
