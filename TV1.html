@@ -39,6 +39,10 @@ html,body{height:100%;font-family:Arial,sans-serif;background:#F5F0EA}
 #loading p{color:#6B5A4E;font-size:15px;letter-spacing:2px;text-transform:uppercase}
 #erro{display:none;background:rgba(139,58,15,0.08);border:1px solid #8B3A0F;padding:14px;color:#8B3A0F;font-size:14px;margin:10px}
 .carrossel-container{flex:1;display:flex;flex-direction:column}
+/* Faixa de meta do setor, no topo e em toda a largura. `flex:0 0 auto` para
+   ela não roubar altura dos cards, que ficam com o resto. */
+.faixa-meta{grid-column:1/-1;background:#E8E0D5;padding:10px 14px}
+.carrossel-pagina.com-faixa{grid-template-rows:auto 1fr}
 .carrossel-pagina{display:none;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;flex:1}
 .carrossel-pagina.ativa{display:grid}
 .indicadores{display:flex;justify-content:center;gap:10px;padding:8px 0}
@@ -235,6 +239,18 @@ function getCor(setor){
   return getCor._map[key];
 }
 
+/* As barras de meta, para o card ou para a faixa do topo. */
+function metaHtml(col){
+  var pctMes=col.metaMes>0?Math.min(Math.round(col.tAc/col.metaMes*100),150):0;
+  var pctDia=col.metaDia>0?Math.min(Math.round(col.tDia/col.metaDia*100),150):0;
+  var bcM=pctMes>=100?'#1a6b3a':pctMes>=70?'#8a6010':'#8B3A0F';
+  var bcD=pctDia>=100?'#1a6b3a':pctDia>=70?'#8a6010':'#8B3A0F';
+  var h='';
+  if(col.metaMes>0){h+='<div class="score-label">Meta Mes: '+col.tAc+' / '+col.metaMes+' ('+pctMes+'%)</div><div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(pctMes,100)+'%;background:'+bcM+'"></div></div>';}
+  if(col.metaDia>0){h+='<div class="score-label" style="margin-top:4px">Meta Dia: '+col.tDia+' / '+col.metaDia+' ('+pctDia+'%)</div><div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(pctDia,100)+'%;background:'+bcD+'"></div></div>';}
+  return h;
+}
+
 // ── CARD NORMAL (setores não-costura) ────────────────────
 function buildCol(col){
   var cor=getCor(col.setor);
@@ -244,8 +260,9 @@ function buildCol(col){
   var bcD=pctDia>=100?'#1a6b3a':pctDia>=70?'#8a6010':'#8B3A0F';
   var pid='pizza-'+col.setor.replace(/[^a-zA-Z0-9]/g,'_');
   var h='<div class="col-card">';
-  if(col.metaMes>0){h+='<div class="score-label">Meta Mes: '+col.tAc+' / '+col.metaMes+' ('+pctMes+'%)</div><div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(pctMes,100)+'%;background:'+bcM+'"></div></div>';}
-  if(col.metaDia>0){h+='<div class="score-label" style="margin-top:4px">Meta Dia: '+col.tDia+' / '+col.metaDia+' ('+pctDia+'%)</div><div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(pctDia,100)+'%;background:'+bcD+'"></div></div>';}
+  /* Quando a meta subiu para a faixa do topo, ela não se repete aqui — senão
+     apareceria duas vezes e o card voltaria a descer. */
+  if(!col._metaNoTopo)h+=metaHtml(col);
   h+='<div class="col-header" style="color:'+cor+'">// '+col.setor+'</div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px">';
   h+='<div style="background:#DCCCBE;padding:8px 10px;border-left:3px solid '+cor+'"><div class="score-label">Hoje</div><div style="font-size:48px;font-weight:700;color:'+cor+'">'+col.tDia+'</div></div>';
@@ -294,7 +311,20 @@ function renderColunas(colunas){
   var h='<div class="prog-barra"><div class="prog-fill" id="prog-fill"></div></div>';
   h+='<div class="carrossel-container">';
   paginas.forEach(function(pg){
-    h+='<div class="carrossel-pagina">';
+    /* Meta que vale para a PÁGINA inteira (a da Costura, que soma corpo e
+       almofada) sai do card e vira faixa larga, acima dos três. Assim os
+       títulos dos cards nascem todos na mesma linha. */
+    var doSetor=null;
+    pg.forEach(function(col){if(col._useTotalParaMeta&&col.metaMes>0)doSetor=col;});
+    var faixa='';
+    if(doSetor&&pg.length>1){
+      doSetor._metaNoTopo=true;
+      faixa='<div class="faixa-meta">'+metaHtml(doSetor)+'</div>';
+    }
+    /* A faixa vai DENTRO da pagina, ocupando as tres colunas. Fora dela ficava
+       visivel tambem na pagina 2, anunciando a meta da Costura por cima de
+       Almofada/CAD/Corte, que tem metas proprias. */
+    h+='<div class="carrossel-pagina'+(faixa?' com-faixa':'')+'">'+faixa;
     pg.forEach(function(col){h+=buildCol(col);});
     for(var j=pg.length;j<3;j++){h+='<div></div>';}
     h+='</div>';
