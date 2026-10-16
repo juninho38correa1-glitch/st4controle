@@ -114,7 +114,7 @@ function nomeCurto(n,m){if(!n)return '';var p=n.trim().split(' ');var r=p[0];for
 
 function tickClock(){
   var n=new Date();
-  var clk=document.getElementById('clk');if(clk)clk.textContent=pad(n.getHours())+':'+pad(n.getMinutes());
+  var clk=document.getElementById('clk');if(clk)clk.textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
   var ds=['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
   var ms=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var dt=document.getElementById('dt');if(dt)dt.textContent=ds[n.getDay()]+', '+n.getDate()+' de '+ms[n.getMonth()]+' de '+n.getFullYear();
@@ -251,12 +251,18 @@ function buildCol(col){
   h+='<div style="background:#DCCCBE;padding:8px 10px;border-left:3px solid '+cor+'"><div class="score-label">Hoje</div><div style="font-size:48px;font-weight:700;color:'+cor+'">'+col.tDia+'</div></div>';
   h+='<div style="background:#DCCCBE;padding:8px 10px;border-left:3px solid '+cor+'"><div class="score-label">Acumulado</div><div style="font-size:48px;font-weight:700;color:'+cor+'">'+col.tAc+'</div></div>';
   h+='</div>';
-  // Regra: a lista mostra so quem apontou HOJE - com o setor inteiro nao cabe na tela.
-  // Os numeros do topo e a linha TOTAL continuam somando o setor completo.
-  // Em Costura Corpo usa-se corpo+almofada (_diaTotal), que e a base da meta.
-  var sorted=col.rows.filter(function(r){
-    return (r._diaTotal!==undefined?r._diaTotal:r.dia)>0;
-  }).sort(function(a,b){return b.dia-a.dia;});
+  // Regra: a lista mostra so quem apontou HOJE no QUE O CARD MEDE.
+  // Antes o card de Costura Corpo filtrava por corpo+almofada (a base da meta),
+  // entao quem fez so almofada entrava na lista de Corpo com 0 do lado do nome.
+  // Em 16/10 a MARCIA apareceu assim: 2 almofadas lancadas, 0 corpo, e quem leu
+  // da fabrica entendeu que ela nao tinha produzido nada. O numero ao lado do
+  // nome tem de explicar por que a pessoa esta ali.
+  // Consequencia aceita (decisao do Junior): a soma dos nomes NAO fecha com o
+  // total do card nem com a meta, que seguem somando o setor completo - quem fez
+  // so almofada continua contando la em cima, so nao aparece nesta lista. Ela
+  // aparece inteira no card de Costura Almofada.
+  var sorted=col.rows.filter(function(r){return r.dia>0;})
+    .sort(function(a,b){return b.dia-a.dia;});
   var medals=['g','s','b'];var prev=-1;var pos=0;
   sorted.forEach(function(r,i){
     if(r.dia!==prev){pos=i+1;prev=r.dia;}
