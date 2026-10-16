@@ -137,9 +137,22 @@ function tickClock(){
   var dt=document.getElementById('dt');if(dt)dt.textContent=ds[n.getDay()]+', '+n.getDate()+' de '+ms[n.getMonth()]+' de '+n.getFullYear();
   var upd=document.getElementById('upd');if(upd)upd.textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
 }
-var cdwn=INTERVALO_MIN*60;
-function tickCdwn(){cdwn--;if(cdwn<=0){cdwn=INTERVALO_MIN*60;carregarDados();}var c=document.getElementById('ctd');if(c)c.textContent=pad(Math.floor(cdwn/60))+':'+pad(cdwn%60);}
+/* Conta pelo RELÓGIO, não por ticks: aba em segundo plano tem o setInterval
+   estrangulado (medido na TV no ar: 12 segundos de contador em 85 de relógio),
+   e contar `cdwn--` fazia o minuto virar meia hora ou nunca. Comparando com
+   Date.now(), um tick atrasado só atrasa a busca — não a perde. */
+var ULTIMA_CARGA=0;
+function tickCdwn(){
+  var falta=Math.ceil((ULTIMA_CARGA+INTERVALO_MIN*60000-Date.now())/1000);
+  if(falta<=0){carregarDados();falta=INTERVALO_MIN*60;}
+  var c=document.getElementById('ctd');if(c)c.textContent=pad(Math.floor(falta/60))+':'+pad(falta%60);
+}
 tickClock();setInterval(tickClock,1000);setInterval(tickCdwn,1000);
+/* Voltou a aparecer na tela: busca agora. É quando alguém está olhando, e é
+   também quando o navegador solta o freio dos timers. */
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&Date.now()-ULTIMA_CARGA>10000)carregarDados();
+});
 
 function parseCSVLine(line){var r=[],cur='',inQ=false;for(var i=0;i<line.length;i++){if(line[i]==='"'){inQ=!inQ;}else if(line[i]===','&&!inQ){r.push(cur.trim().replace(/^"|"$/g,''));cur='';}else if(line[i]!=='"'){cur+=line[i];}}r.push(cur.trim().replace(/^"|"$/g,''));return r;}
 function parseDate(str){if(!str)return null;str=str.trim();var parts,d,m,y,sl=str.indexOf('/'),da=str.indexOf('-');if(sl!==-1){parts=str.split('/');if(parts[2]&&parts[2].length===4){d=+parts[0];m=+parts[1];y=+parts[2];}else{m=+parts[0];d=+parts[1];y=+parts[2];}}else if(da!==-1){parts=str.split('-');y=+parts[0];m=+parts[1];d=+parts[2];}else return null;if(!y||!m||!d)return null;return new Date(y,m-1,d);}
@@ -544,6 +557,7 @@ function lerArquivoDados(pronto){
 }
 
 function carregarDados(){
+  ULTIMA_CARGA=Date.now();   // marca a TENTATIVA: falha espera o próximo ciclo, não repete a cada tick
   lerArquivoDados(function(erro){
   try{
     if(erro)throw erro;
@@ -562,6 +576,9 @@ function carregarDados(){
       document.getElementById('erro').style.display='block';
       document.getElementById('erro').innerHTML='<strong>Erro</strong><br>'+e.message;
     }
+    /* Falha DEPOIS da primeira carga era só console: a TV seguia mostrando
+       número velho como se fosse de agora, e ninguém na fábrica descobria. */
+    else{var c=document.getElementById('ctd');if(c)c.textContent='sem dados';}
     console.error(e);
   }
   });
