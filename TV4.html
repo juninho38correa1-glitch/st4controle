@@ -105,8 +105,7 @@ html,body{height:100%;font-family:Arial,sans-serif;background:#F5F0EA}
   </div>
   <div id="grid-container" style="flex:1;display:flex;flex-direction:column"></div>
   <div class="footer">
-    <div>Atualizado as <span id="upd">--:--:--</span></div>
-    <div>Proxima atualizacao em <span id="ctd" style="color:#1a6b3a">--:--</span></div>
+    <div>Atualizado as <span id="upd">--:--:--</span><span id="ctd" style="color:#1a6b3a"></span></div>
     <div>Studyo 4 Estofados | © Junior Corrêa · Todos os direitos reservados</div>
   </div>
 </div>
@@ -136,7 +135,8 @@ function tickClock(){
   var ds=['Dom','Seg','Ter','Qua','Qui','Sex','Sab'];
   var ms=['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   var dt=document.getElementById('dt');if(dt)dt.textContent=ds[n.getDay()]+', '+n.getDate()+' de '+ms[n.getMonth()]+' de '+n.getFullYear();
-  var upd=document.getElementById('upd');if(upd)upd.textContent=pad(n.getHours())+':'+pad(n.getMinutes())+':'+pad(n.getSeconds());
+  /* `upd` saiu daqui: era o relógio da parede fingindo ser a hora do dado.
+     Quem escreve nele agora é a carga, com o carimbo do motor. */
 }
 /* Conta pelo RELÓGIO, não por ticks: aba em segundo plano tem o setInterval
    estrangulado (medido na TV no ar: 12 segundos de contador em 85 de relógio),
@@ -144,9 +144,12 @@ function tickClock(){
    Date.now(), um tick atrasado só atrasa a busca — não a perde. */
 var ULTIMA_CARGA=0;
 function tickCdwn(){
-  var falta=Math.ceil((ULTIMA_CARGA+INTERVALO_MIN*60000-Date.now())/1000);
-  if(falta<=0){carregarDados();falta=INTERVALO_MIN*60;}
-  var c=document.getElementById('ctd');if(c)c.textContent=pad(Math.floor(falta/60))+':'+pad(falta%60);
+  if(Date.now()-ULTIMA_CARGA>=INTERVALO_MIN*60000)carregarDados();
+  /* Só alarme, não contagem: com o Realtime o dado chega quando o motor grava.
+     O que importa na parede é saber se PAROU. 5 minutos = cinco ciclos do
+     motor perdidos, aí não é atraso, é defeito. */
+  var c=document.getElementById('ctd');
+  if(c)c.textContent=(ULTIMA_CARGA&&Date.now()-ULTIMA_CARGA>300000)?'  \u26a0 sem atualizar ha '+Math.floor((Date.now()-ULTIMA_CARGA)/60000)+' min':'';
 }
 tickClock();setInterval(tickClock,1000);setInterval(tickCdwn,1000);
 /* Voltou a aparecer na tela: busca agora. É quando alguém está olhando, e é
@@ -563,6 +566,8 @@ function carregarDados(){
   try{
     if(erro)throw erro;
     if(!ST4_LANCAMENTOS_CSV)throw new Error('Supabase respondeu sem dados');
+    var upd=document.getElementById('upd');
+    if(upd)upd.textContent=(ST4_GERADO_EM||'').split(' ')[1]||ST4_GERADO_EM||'--:--:--';
     COLAB_DATA=parseColab(ST4_COLABORADORES_CSV);
     processar(ST4_LANCAMENTOS_CSV);
     if(PRIMEIRA_CARGA){
