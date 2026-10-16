@@ -85,6 +85,7 @@ html,body{height:100%;font-family:Arial,sans-serif;background:#F5F0EA}
   .kpi-box{padding:8px 10px !important}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div id="loading"><div class="spinner"></div><p>CARREGANDO PRODUCAO...</p></div>
@@ -584,6 +585,23 @@ function carregarDados(){
   });
 }
 carregarDados();
+
+/* ── REALTIME ──────────────────────────────────────────────────────────
+   Assina só a FATIA desta TV. Sem o filtro, viria também a linha `historico`,
+   que tem 408 KB contra 19 KB da `mes_atual` — 400 KB por minuto pelo socket
+   para dado que esta tela não usa.
+   O aviso serve de GATILHO, não de fonte: ao receber, a TV busca pelo caminho
+   normal. Usar o conteúdo do aviso economizaria uma leitura, mas carga grande
+   pode vir truncada, e número errado numa TV de fábrica é pior que 1 segundo
+   a mais. */
+(function(){
+  if(!window.supabase||!window.supabase.createClient){console.warn('supabase-js nao carregou: TV segue so no relogio');return;}
+  var cli=window.supabase.createClient(SB_DADOS_URL,SB_DADOS_KEY,{realtime:{params:{eventsPerSecond:2}}});
+  cli.channel('tv-st4-dados')
+     .on('postgres_changes',{event:'*',schema:'public',table:'st4_dados',filter:'fatia=eq.'+SB_FATIA},
+         function(){carregarDados();})
+     .subscribe(function(st){console.log('realtime st4_dados:',st);});
+})();
 
 </script>
 
